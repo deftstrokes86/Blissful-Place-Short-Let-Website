@@ -6,9 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:backend-foundation": "node tests/booking-schema-contract.test.mjs && node tests/booking-schema-alignment.test.mjs",
+    "test:reservation-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/reservation-service.test.js",
+    "test:availability-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/availability-service.test.js",
+    "test:draft-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/draft-service.test.js",
+    "test:offline-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/offline-payment-service.test.js",
+    "test:expire-transfer-holds-job": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/jobs/__tests__/expire-transfer-holds.test.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@prisma/client": "^6.7.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "react": "19.2.3",
@@ -20,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^6.7.0",
     "typescript": "^5"
   }
 }
