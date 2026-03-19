@@ -388,7 +388,7 @@ export function HomeExperienceSections() {
                 every time I fly in now.&rdquo;
               </p>
               <div className="testimonial-author">Dr. Chuka O.</div>
-              <div className="testimonial-type">Diaspora Executive • 2 Week Stay</div>
+              <div className="testimonial-type">Diaspora Executive â€¢ 2 Week Stay</div>
             </div>
             <div className="testimonial-card">
               <div className="stars">
@@ -404,7 +404,7 @@ export function HomeExperienceSections() {
                 standard.&rdquo;
               </p>
               <div className="testimonial-author">Sarah & Mark T.</div>
-              <div className="testimonial-type">Corporate Team • 1 Month Stay</div>
+              <div className="testimonial-type">Corporate Team â€¢ 1 Month Stay</div>
             </div>
             <div className="testimonial-card">
               <div className="stars">
@@ -419,7 +419,7 @@ export function HomeExperienceSections() {
                 is invisible when you want peace, but instantly responsive on WhatsApp when needed.&rdquo;
               </p>
               <div className="testimonial-author">Amina B.</div>
-              <div className="testimonial-type">Solo Premium Traveler • 5 Night Stay</div>
+              <div className="testimonial-type">Solo Premium Traveler â€¢ 5 Night Stay</div>
             </div>
           </div>
         </div>

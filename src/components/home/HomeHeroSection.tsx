@@ -12,7 +12,7 @@ export function HomeHeroSection() {
             5-STAR GUEST RATING 4.9/5
           </span>
           <span className="subtitle-tag" style={{ margin: 0 }}>
-            •
+            â€¢
           </span>
           <span className="subtitle-tag" style={{ margin: 0 }}>
             {SITE_LOCATION_LABEL.toUpperCase()}
