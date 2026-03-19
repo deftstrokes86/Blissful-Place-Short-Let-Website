@@ -4,6 +4,7 @@ import type {
   StayValidation,
   GuestValidation,
   PaymentMethod,
+  ReservationStatus,
 } from "@/types/booking";
 import { STEP0, STEP2, STEP3 } from "@/lib/constants";
 
@@ -90,7 +91,10 @@ export function getGuestValidation(guest: GuestFormState): GuestValidation {
   };
 }
 
-export function getStepLabels(paymentMethod: PaymentMethod | null): [string, string, string, string, string, string] {
+export function getStepLabels(
+  paymentMethod: PaymentMethod | null,
+  reservationStatus: ReservationStatus = "draft"
+): [string, string, string, string, string, string] {
   if (paymentMethod === "website") {
     return [
       "Stay Details",
@@ -98,7 +102,13 @@ export function getStepLabels(paymentMethod: PaymentMethod | null): [string, str
       "Payment Method",
       "Review & Checkout",
       "Payment Portal",
-      "Booking Confirmed",
+      reservationStatus === "confirmed"
+        ? "Booking Confirmed"
+        : reservationStatus === "failed_payment"
+          ? "Payment Attempt Failed"
+          : reservationStatus === "cancelled"
+            ? "Payment Cancelled"
+            : "Payment Outcome",
     ];
   }
 
@@ -109,7 +119,7 @@ export function getStepLabels(paymentMethod: PaymentMethod | null): [string, str
       "Payment Method",
       "Review Reservation",
       "Transfer Details",
-      "Awaiting Payment Confirmation",
+      reservationStatus === "expired" ? "Transfer Window Expired" : "Awaiting Payment Confirmation",
     ];
   }
 
@@ -159,3 +169,4 @@ export function formatTransferHoldLabel(expiresAt: number | null): string {
   });
   return `Hold expires at ${expiresAtText}.`;
 }
+

@@ -9,3 +9,4 @@
 ✓ Starting...
 Creating turbopack project { dir: 'E:\\Blissful_Place - Copy', testMode: true }
 ✓ Ready in 1556ms
+ GET /book 200 in 589ms (compile: 341ms, render: 248ms)

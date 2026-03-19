@@ -91,7 +91,7 @@ export const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
   awaiting_transfer_verification: "Awaiting Transfer Verification",
   pending_pos_coordination: "Pending POS Coordination",
   confirmed: "Confirmed",
-  expired: "Expired",
+  expired: "Hold Expired",
   cancelled: "Cancelled",
   failed_payment: "Failed Payment",
 };
@@ -162,3 +162,4 @@ export const STEP2 = 2;
 export const STEP3 = 3;
 export const STEP4 = 4;
 export const STEP5 = 5;
+

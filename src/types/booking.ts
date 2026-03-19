@@ -3,6 +3,7 @@ import type { LucideIcon } from "@/lib/lucide-react";
 export type FlatId = "windsor" | "kensington" | "mayfair";
 export type ExtraId = "airport" | "pantry" | "celebration";
 export type PaymentMethod = "website" | "transfer" | "pos";
+export type BookingStepLabels = [string, string, string, string, string, string];
 
 export type ReservationStatus =
   | "draft"
