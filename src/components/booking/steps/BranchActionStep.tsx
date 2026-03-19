@@ -8,6 +8,7 @@ import type {
 import { Clock } from "@/lib/lucide-react";
 
 interface BranchActionStepProps {
+  stepLabel: string;
   paymentMethod: PaymentMethod | null;
   websiteState: WebsiteTransientState;
   transferState: TransferTransientState;
@@ -28,6 +29,7 @@ interface BranchActionStepProps {
 }
 
 export function BranchActionStep({
+  stepLabel,
   paymentMethod,
   websiteState,
   transferState,
@@ -55,7 +57,7 @@ export function BranchActionStep({
       {paymentMethod === "website" && (
         <>
           <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span className="step-circle">5</span> Payment Portal Handoff
+            <span className="step-circle">5</span> {stepLabel}
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             Simulating the external payment gateway interaction.
@@ -126,7 +128,7 @@ export function BranchActionStep({
       {paymentMethod === "transfer" && (
         <>
           <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span className="step-circle">5</span> Bank Transfer Details
+            <span className="step-circle">5</span> {stepLabel}
           </h2>
           <div className="payment-plan-card" style={{ background: "transparent", cursor: "default", marginBottom: "1.5rem" }}>
             <Clock size={18} className="text-primary" />
@@ -187,7 +189,7 @@ export function BranchActionStep({
       {paymentMethod === "pos" && (
         <>
           <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span className="step-circle">5</span> POS Coordination Request
+            <span className="step-circle">5</span> {stepLabel}
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             Coordinate a physical card payment through our localized support team.
@@ -244,3 +246,4 @@ export function BranchActionStep({
     </div>
   );
 }
+

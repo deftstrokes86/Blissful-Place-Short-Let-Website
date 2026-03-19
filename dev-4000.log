@@ -10,3 +10,11 @@
 Creating turbopack project { dir: 'E:\\Blissful_Place - Copy', testMode: true }
 ✓ Ready in 1556ms
  GET /book 200 in 589ms (compile: 341ms, render: 248ms)
+✓ Compiled in 2037.4s
+ GET /book 200 in 415ms (compile: 169ms, render: 246ms)
+✓ Compiled in 249.6s
+ GET /book 200 in 272ms (compile: 94ms, render: 178ms)
+ GET / 200 in 345ms (compile: 87ms, render: 258ms)
+ GET /book 200 in 359ms (compile: 206ms, render: 153ms)
+✓ Compiled in 2668.3s
+ GET /book 200 in 440ms (compile: 147ms, render: 292ms)

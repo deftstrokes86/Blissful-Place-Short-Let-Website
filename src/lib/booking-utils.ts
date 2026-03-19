@@ -1,12 +1,14 @@
+import { getBranchStepLabels } from "@/lib/booking-branch-config";
+import { calculateNightCount } from "@/lib/booking-pricing";
+import { STEP0, STEP2, STEP3 } from "@/lib/constants";
 import type {
-  StayFormState,
+  BookingStepLabels,
   GuestFormState,
+  PaymentMethod,
+  StayFormState,
   StayValidation,
   GuestValidation,
-  PaymentMethod,
-  ReservationStatus,
 } from "@/types/booking";
-import { STEP0, STEP2, STEP3 } from "@/lib/constants";
 
 export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -49,14 +51,7 @@ export function parseDate(value: string): Date | null {
 }
 
 export function getNightCount(checkIn: string, checkOut: string): number | null {
-  const start = parseDate(checkIn);
-  const end = parseDate(checkOut);
-  if (!start || !end || end <= start) {
-    return null;
-  }
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-  return Math.floor((end.getTime() - start.getTime()) / msPerDay);
+  return calculateNightCount(checkIn, checkOut);
 }
 
 export function isValidEmail(value: string): boolean {
@@ -91,57 +86,8 @@ export function getGuestValidation(guest: GuestFormState): GuestValidation {
   };
 }
 
-export function getStepLabels(
-  paymentMethod: PaymentMethod | null,
-  reservationStatus: ReservationStatus = "draft"
-): [string, string, string, string, string, string] {
-  if (paymentMethod === "website") {
-    return [
-      "Stay Details",
-      "Guest Details",
-      "Payment Method",
-      "Review & Checkout",
-      "Payment Portal",
-      reservationStatus === "confirmed"
-        ? "Booking Confirmed"
-        : reservationStatus === "failed_payment"
-          ? "Payment Attempt Failed"
-          : reservationStatus === "cancelled"
-            ? "Payment Cancelled"
-            : "Payment Outcome",
-    ];
-  }
-
-  if (paymentMethod === "transfer") {
-    return [
-      "Stay Details",
-      "Guest Details",
-      "Payment Method",
-      "Review Reservation",
-      "Transfer Details",
-      reservationStatus === "expired" ? "Transfer Window Expired" : "Awaiting Payment Confirmation",
-    ];
-  }
-
-  if (paymentMethod === "pos") {
-    return [
-      "Stay Details",
-      "Guest Details",
-      "Payment Method",
-      "Review Reservation",
-      "POS Coordination",
-      "Reservation Request Submitted",
-    ];
-  }
-
-  return [
-    "Stay Details",
-    "Guest Details",
-    "Payment Method",
-    "Review Reservation",
-    "Branch Action",
-    "Branch Outcome",
-  ];
+export function getStepLabels(paymentMethod: PaymentMethod | null): BookingStepLabels {
+  return getBranchStepLabels(paymentMethod);
 }
 
 export function getAvailabilityReasonForStep(stepIndex: number, paymentMethod: PaymentMethod | null): string {

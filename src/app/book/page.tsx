@@ -33,6 +33,7 @@ import {
 } from "@/lib/booking-utils";
 
 import { BookingFlowControls } from "@/components/booking/BookingFlowControls";
+import { getPendingStatusForMethod } from "@/lib/booking-branch-config";
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { BookingSummaryCard } from "@/components/booking/BookingSummaryCard";
 import { BranchActionStep } from "@/components/booking/steps/BranchActionStep";
@@ -79,7 +80,7 @@ export default function BookingPage() {
   const checkInInputRef = useRef<HTMLInputElement | null>(null);
   const checkOutInputRef = useRef<HTMLInputElement | null>(null);
 
-  const stepLabels = useMemo(() => getStepLabels(paymentMethod, reservationStatus), [paymentMethod, reservationStatus]);
+  const stepLabels = useMemo(() => getStepLabels(paymentMethod), [paymentMethod]);
   const selectedFlat = useMemo(() => FLATS.find((flat) => flat.id === stay.flatId) ?? null, [stay.flatId]);
   const selectedExtras = useMemo(() => EXTRAS.filter((extra) => stay.extraIds.includes(extra.id)), [stay.extraIds]);
 
@@ -163,18 +164,6 @@ export default function BookingPage() {
     setIsBranchActionLocked(false);
   }
 
-  function getPendingReservationStatus(method: PaymentMethod): ReservationStatus {
-    if (method === "website") {
-      return "pending_online_payment";
-    }
-
-    if (method === "transfer") {
-      return "pending_transfer_submission";
-    }
-
-    return "pending_pos_coordination";
-  }
-
   function handlePaymentMethodChange(nextMethod: PaymentMethod) {
     if (paymentMethod === nextMethod) {
       return;
@@ -244,19 +233,14 @@ export default function BookingPage() {
       setBranchResetNotice(null);
       setFlowNotice(null);
 
-      if (paymentMethod === "website") {
-        setReservationStatus("pending_online_payment");
-      } else if (paymentMethod === "transfer") {
-        setReservationStatus("pending_transfer_submission");
-        if (!transferState.holdExpiresAt) {
-          setTransferState((current) => ({
-            ...current,
-            holdExpiresAt: Date.now() + TRANSFER_HOLD_MS,
-            error: null,
-          }));
-        }
-      } else {
-        setReservationStatus("pending_pos_coordination");
+      setReservationStatus(getPendingStatusForMethod(paymentMethod));
+
+      if (paymentMethod === "transfer" && !transferState.holdExpiresAt) {
+        setTransferState((current) => ({
+          ...current,
+          holdExpiresAt: Date.now() + TRANSFER_HOLD_MS,
+          error: null,
+        }));
       }
 
       setStepIndex(STEP3);
@@ -298,7 +282,7 @@ export default function BookingPage() {
     }
 
     if (nextStep === STEP3 && paymentMethod) {
-      setReservationStatus(getPendingReservationStatus(paymentMethod));
+      setReservationStatus(getPendingStatusForMethod(paymentMethod));
       setAvailabilityNote(null);
     }
   }
@@ -397,12 +381,12 @@ export default function BookingPage() {
     }
 
     if (transferState.holdExpiresAt && Date.now() > transferState.holdExpiresAt) {
-      setReservationStatus("expired");
+      setReservationStatus("cancelled");
       setTransferState((current) => ({
         ...current,
         error: "The 1-hour transfer hold period has expired.",
       }));
-      setFlowNotice("Transfer hold expired before proof submission. This request has lapsed.");
+      setFlowNotice("Transfer hold expired before proof submission. This reservation request has been cancelled.");
       setStepIndex(STEP5);
       return;
     }
@@ -475,6 +459,9 @@ export default function BookingPage() {
     (stepIndex === STEP1 && !guestReady) ||
     (stepIndex === STEP2 && !paymentReady) ||
     (stepIndex === STEP3 && !paymentMethod);
+
+  const outcomeStepLabel =
+    paymentMethod === "transfer" && reservationStatus === "cancelled" ? "Reservation Cancelled" : stepLabels[STEP5];
 
   const continueLabel =
     stepIndex === STEP0
@@ -624,6 +611,7 @@ export default function BookingPage() {
 
             {stepIndex === STEP4 && (
               <BranchActionStep
+                stepLabel={stepLabels[STEP4]}
                 paymentMethod={paymentMethod}
                 websiteState={websiteState}
                 transferState={transferState}
@@ -648,7 +636,7 @@ export default function BookingPage() {
               <BranchOutcomeStep
                 paymentMethod={paymentMethod}
                 reservationStatus={reservationStatus}
-                finalStepLabel={stepLabels[STEP5]}
+                finalStepLabel={outcomeStepLabel}
                 guestEmail={guest.email}
                 onSwitchPaymentMethod={handleSwitchPaymentMethodFromBranch}
               />
@@ -689,3 +677,4 @@ export default function BookingPage() {
     </main>
   );
 }
+

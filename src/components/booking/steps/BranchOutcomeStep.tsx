@@ -16,6 +16,9 @@ export function BranchOutcomeStep({
   guestEmail,
   onSwitchPaymentMethod,
 }: BranchOutcomeStepProps) {
+  const isTransferCancelled = reservationStatus === "cancelled";
+  const isTransferExpired = reservationStatus === "expired";
+
   return (
     <div className="booking-section animate-in">
       <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -35,15 +38,18 @@ export function BranchOutcomeStep({
       )}
 
       {paymentMethod === "transfer" && (
-        <div className={`payment-plan-card ${reservationStatus === "expired" ? "" : "selected"}`} style={{ cursor: "default" }}>
-          {reservationStatus === "expired" ? <Clock size={24} /> : <Clock size={24} className="text-primary" />}
+        <div
+          className={`payment-plan-card ${isTransferCancelled || isTransferExpired ? "" : "selected"}`}
+          style={{ cursor: "default" }}
+        >
+          {isTransferCancelled || isTransferExpired ? <Clock size={24} /> : <Clock size={24} className="text-primary" />}
           <div>
             <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>
-              {reservationStatus === "expired" ? "Transfer Window Expired" : "Proof Submitted - Verification Pending"}
+              {isTransferCancelled || isTransferExpired ? "Reservation Cancelled" : "Proof Submitted - Verification Pending"}
             </div>
             <p style={{ marginTop: "0.35rem", color: "var(--text-secondary)" }}>
-              {reservationStatus === "expired"
-                ? "Required transfer proof was not received within the hold window."
+              {isTransferCancelled || isTransferExpired
+                ? "Transfer hold window elapsed before required completion. Please switch method to continue your booking."
                 : "Our team is verifying your transfer. You will receive an official confirmation within 30 minutes."}
             </p>
           </div>
@@ -74,3 +80,4 @@ export function BranchOutcomeStep({
     </div>
   );
 }
+

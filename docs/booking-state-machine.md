@@ -58,7 +58,7 @@ It defines canonical statuses, events, allowed transitions, and forbidden transi
 | From | Event and Condition | To |
 |---|---|---|
 | `draft` | `payment_method_selected=website` + `branch_request_created` + availability pass | `pending_online_payment` |
-| `draft` | `payment_method_selected=bank_transfer` + `branch_request_created` + availability pass | `pending_transfer_submission` |
+| `draft` | `payment_method_selected=transfer` + `branch_request_created` + availability pass | `pending_transfer_submission` |
 | `draft` | `payment_method_selected=pos` + `branch_request_created` + availability pass | `pending_pos_coordination` |
 | `draft` | `cancel_requested` | `cancelled` |
 | `pending_online_payment` | `online_payment_handoff_requested` + availability pass | `pending_online_payment` |
@@ -66,7 +66,7 @@ It defines canonical statuses, events, allowed transitions, and forbidden transi
 | `pending_online_payment` | `online_payment_failed` | `failed_payment` |
 | `pending_online_payment` | `online_payment_cancelled` | `cancelled` |
 | `failed_payment` | `try_online_payment_again` + availability pass | `pending_online_payment` |
-| `failed_payment` | `switch_payment_method=bank_transfer` + branch reset + availability pass | `pending_transfer_submission` |
+| `failed_payment` | `switch_payment_method=transfer` + branch reset + availability pass | `pending_transfer_submission` |
 | `failed_payment` | `switch_payment_method=pos` + branch reset + availability pass | `pending_pos_coordination` |
 | `failed_payment` | `cancel_requested` | `cancelled` |
 | `pending_transfer_submission` | `transfer_proof_submitted` within 1-hour hold | `awaiting_transfer_verification` |
@@ -140,5 +140,4 @@ It defines canonical statuses, events, allowed transitions, and forbidden transi
 - Show loading state on submit buttons.
 - Disable repeated submission while a request is in flight.
 - Support resumability via saved draft or URL-safe booking token with server-side pending-state lookup.
-
 
