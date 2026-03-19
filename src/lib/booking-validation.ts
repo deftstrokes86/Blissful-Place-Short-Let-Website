@@ -1,9 +1,13 @@
 import { calculateNightCount } from "@/lib/booking-pricing";
 import type {
   GuestDetailsInput,
+  GuestFormState,
+  GuestValidation,
   PaymentMethod,
   ReservationStatus,
   StayDetailsInput,
+  StayFormState,
+  StayValidation,
   ValidationError,
   ValidationResult,
 } from "@/types/booking";
@@ -59,6 +63,42 @@ function normalizeEmail(value: string): string {
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(value));
+}
+
+export function getStayValidationState(stay: StayFormState): StayValidation {
+  const nights = calculateNightCount(stay.checkIn, stay.checkOut);
+
+  return {
+    flatId: stay.flatId ? null : "Choose a flat.",
+    checkIn: stay.checkIn ? null : "Add a check-in date.",
+    checkOut: !stay.checkOut
+      ? "Add a check-out date."
+      : nights === null
+        ? "Check-out must be after check-in."
+        : null,
+    guests: stay.guests > 0 ? null : "Select number of guests.",
+  };
+}
+
+export function getGuestValidationState(guest: GuestFormState): GuestValidation {
+  return {
+    firstName: guest.firstName.trim() ? null : "Add first name.",
+    lastName: guest.lastName.trim() ? null : "Add last name.",
+    email: !guest.email.trim()
+      ? "Add email."
+      : isValidEmail(guest.email)
+        ? null
+        : "Enter a valid email address.",
+    phone: guest.phone.trim() ? null : "Add phone number.",
+  };
+}
+
+export function isStayValidationReady(validation: StayValidation): boolean {
+  return !validation.flatId && !validation.checkIn && !validation.checkOut && !validation.guests;
+}
+
+export function isGuestValidationReady(validation: GuestValidation): boolean {
+  return !validation.firstName && !validation.lastName && !validation.email && !validation.phone;
 }
 
 export function validateStayDetails(stay: StayDetailsInput): ValidationResult<StayValidationField> {
@@ -192,6 +232,7 @@ export function validateBranchProgression(input: BranchProgressionCheckInput): V
       });
     }
   }
+
   if (input.intent === "handoff_online_payment") {
     if (input.paymentMethod !== "website") {
       errors.push({

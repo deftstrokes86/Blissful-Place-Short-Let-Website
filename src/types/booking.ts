@@ -10,6 +10,7 @@ export type ExtraId = "airport" | "pantry" | "celebration";
 export type PaymentMethod = "website" | "transfer" | "pos";
 
 export type BookingStepLabels = [string, string, string, string, string, string];
+export type BookingStepIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
 export type ReservationStatus =
   | "draft"
@@ -183,6 +184,12 @@ export interface AvailabilityResult {
   inventoryVersion: string;
 }
 
+export interface BookingReviewLabels {
+  residence: string;
+  nights: string;
+  guests: string;
+}
+
 export interface PricingBreakdown {
   currency: "NGN";
   nightlyRate: number;
@@ -232,3 +239,4 @@ export interface ReservationEvent {
   at: ISODateTimeString;
   metadata: Record<string, string | number | boolean | null>;
 }
+

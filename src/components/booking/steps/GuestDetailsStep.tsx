@@ -3,6 +3,7 @@ import type {
   GuestTouchedState,
   GuestValidation,
 } from "@/types/booking";
+import { PLACEHOLDER_PHONE_INPUT } from "@/lib/site-config";
 
 interface GuestDetailsStepProps {
   guest: GuestFormState;
@@ -76,7 +77,7 @@ export function GuestDetailsStep({
             value={guest.phone}
             onChange={(e) => onFieldChange("phone", e.target.value)}
             onBlur={() => onMarkTouched("phone")}
-            placeholder="+234..."
+            placeholder={PLACEHOLDER_PHONE_INPUT}
           />
           {guestTouched.phone && guestValidation.phone && (
             <p className="booking-inline-error">{guestValidation.phone}</p>
@@ -98,3 +99,4 @@ export function GuestDetailsStep({
     </div>
   );
 }
+

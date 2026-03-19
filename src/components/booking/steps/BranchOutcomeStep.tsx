@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, MessageSquare } from "@/lib/lucide-react";
+import { SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 import type { PaymentMethod, ReservationStatus } from "@/types/booking";
 
 interface BranchOutcomeStepProps {
@@ -73,7 +74,7 @@ export function BranchOutcomeStep({
         <button type="button" className="btn btn-outline-primary" onClick={onSwitchPaymentMethod}>
           Choose New Payment Path
         </button>
-        <a href="https://wa.me/2340000000000" target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary">
+        <a href={SUPPORT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary">
           Contact Support
         </a>
       </div>

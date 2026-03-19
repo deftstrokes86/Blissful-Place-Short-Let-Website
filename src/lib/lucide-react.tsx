@@ -1,4 +1,4 @@
-import type { CSSProperties, SVGProps } from "react";
+import type { CSSProperties, ReactElement, SVGProps } from "react";
 
 export type IconProps = Omit<SVGProps<SVGSVGElement>, "color"> & {
   size?: number | string;
@@ -6,7 +6,7 @@ export type IconProps = Omit<SVGProps<SVGSVGElement>, "color"> & {
   strokeWidth?: number | string;
 };
 
-export type LucideIcon = (props: IconProps) => JSX.Element;
+export type LucideIcon = (props: IconProps) => ReactElement;
 
 function toNumber(value: number | string | undefined, fallback: number): number {
   if (typeof value === "number") return value;
@@ -17,7 +17,7 @@ function toNumber(value: number | string | undefined, fallback: number): number 
   return fallback;
 }
 
-function icon(path: JSX.Element): LucideIcon {
+function icon(path: ReactElement): LucideIcon {
   return function Icon({
     size = 24,
     color = "currentColor",

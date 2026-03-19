@@ -1,4 +1,5 @@
 import type {
+  BookingStepIndex,
   BookingStepLabels,
   BranchStepId,
   PaymentMethod,
@@ -33,6 +34,15 @@ export interface BookingBranchConfig<TStepId extends BranchStepId = BranchStepId
   requiresPreCheckoutAvailability: boolean;
   requiresPreConfirmationAvailability: boolean;
   usesTransferHold: boolean;
+}
+
+export interface ContinueDisabledInput {
+  stepIndex: number;
+  isCheckingAvailability: boolean;
+  isBranchActionLocked: boolean;
+  stayReady: boolean;
+  guestReady: boolean;
+  paymentMethod: PaymentMethod | null;
 }
 
 const WEBSITE_BRANCH_CONFIG: BookingBranchConfig<WebsiteBranchStepId> = {
@@ -142,3 +152,84 @@ export function getBranchEndLabel(method: PaymentMethod): string {
 export function getPendingStatusForMethod(method: PaymentMethod): ReservationStatus {
   return getBranchConfig(method).pendingStatus;
 }
+
+export function shouldShowContinueButton(stepIndex: number): boolean {
+  return stepIndex <= 3;
+}
+
+export function getContinueLabel(stepIndex: number, paymentMethod: PaymentMethod | null): string {
+  if (stepIndex === 0) {
+    return "Continue to Guest Details";
+  }
+
+  if (stepIndex === 1) {
+    return "Continue to Payment Method";
+  }
+
+  if (stepIndex === 2) {
+    return paymentMethod === "website" ? "Review & Checkout" : "Proceed to Review";
+  }
+
+  if (stepIndex === 3) {
+    if (paymentMethod === "website") {
+      return "Go to Payment Portal";
+    }
+
+    if (paymentMethod === "transfer") {
+      return "Continue to Transfer Submission";
+    }
+
+    return "Proceed to POS Coordination";
+  }
+
+  return "Continue";
+}
+
+export function getOutcomeStepLabel(
+  paymentMethod: PaymentMethod | null,
+  reservationStatus: ReservationStatus,
+  stepLabels: BookingStepLabels
+): string {
+  if (paymentMethod === "transfer" && reservationStatus === "cancelled") {
+    return "Reservation Cancelled";
+  }
+
+  return stepLabels[5 as BookingStepIndex];
+}
+
+export function getAvailabilityReasonForStep(stepIndex: number, paymentMethod: PaymentMethod | null): string {
+  if (stepIndex === 0) {
+    return "when stay details were entered";
+  }
+
+  if (stepIndex === 2) {
+    return "before creating hold/request";
+  }
+
+  if (stepIndex === 3 && paymentMethod === "website") {
+    return "before online payment handoff";
+  }
+
+  return "before proceeding";
+}
+
+export function isContinueDisabled(input: ContinueDisabledInput): boolean {
+  if (input.isCheckingAvailability || input.isBranchActionLocked) {
+    return true;
+  }
+
+  if (input.stepIndex === 0) {
+    return !input.stayReady;
+  }
+
+  if (input.stepIndex === 1) {
+    return !input.guestReady;
+  }
+
+  if (input.stepIndex === 2 || input.stepIndex === 3) {
+    return input.paymentMethod === null;
+  }
+
+  return false;
+}
+

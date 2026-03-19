@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
-import { ArrowLeft, CheckCircle2 } from "@/lib/lucide-react";
 import {
   EXTRAS,
   FLATS,
@@ -23,17 +21,28 @@ import {
   TRANSFER_HOLD_MS,
 } from "@/lib/constants";
 import {
-  formatTransferHoldLabel,
   getAvailabilityReasonForStep,
-  getGuestValidation,
-  getNightCount,
-  getStayValidation,
-  getStepLabels,
-  wait,
-} from "@/lib/booking-utils";
+  getBranchStepLabels,
+  getContinueLabel,
+  getOutcomeStepLabel,
+  getPendingStatusForMethod,
+  isContinueDisabled,
+  shouldShowContinueButton,
+} from "@/lib/booking-branch-config";
+import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+import {
+  getGuestValidationState,
+  getStayValidationState,
+  isGuestValidationReady,
+  isStayValidationReady,
+  validateBranchProgression,
+} from "@/lib/booking-validation";
 
 import { BookingFlowControls } from "@/components/booking/BookingFlowControls";
-import { getPendingStatusForMethod } from "@/lib/booking-branch-config";
+import { BookingInlineNotices } from "@/components/booking/BookingInlineNotices";
+import { BookingPageIntro } from "@/components/booking/BookingPageIntro";
 import { BookingProgress } from "@/components/booking/BookingProgress";
 import { BookingSummaryCard } from "@/components/booking/BookingSummaryCard";
 import { BranchActionStep } from "@/components/booking/steps/BranchActionStep";
@@ -42,7 +51,6 @@ import { BranchReviewStep } from "@/components/booking/steps/BranchReviewStep";
 import { GuestDetailsStep } from "@/components/booking/steps/GuestDetailsStep";
 import { PaymentMethodStep } from "@/components/booking/steps/PaymentMethodStep";
 import { StayDetailsStep } from "@/components/booking/steps/StayDetailsStep";
-
 import type {
   ExtraId,
   GuestFormState,
@@ -75,36 +83,45 @@ export default function BookingPage() {
   const [flowNotice, setFlowNotice] = useState<string | null>(null);
   const [branchResetNotice, setBranchResetNotice] = useState<string | null>(null);
 
+  // Prevent duplicate prototype submissions when branch actions are triggered quickly.
   const branchActionLockRef = useRef(false);
   const [isBranchActionLocked, setIsBranchActionLocked] = useState(false);
   const checkInInputRef = useRef<HTMLInputElement | null>(null);
   const checkOutInputRef = useRef<HTMLInputElement | null>(null);
 
-  const stepLabels = useMemo(() => getStepLabels(paymentMethod), [paymentMethod]);
+  const stepLabels = useMemo(() => getBranchStepLabels(paymentMethod), [paymentMethod]);
   const selectedFlat = useMemo(() => FLATS.find((flat) => flat.id === stay.flatId) ?? null, [stay.flatId]);
   const selectedExtras = useMemo(() => EXTRAS.filter((extra) => stay.extraIds.includes(extra.id)), [stay.extraIds]);
 
-  const nights = getNightCount(stay.checkIn, stay.checkOut);
-  const extrasSubtotal = selectedExtras.reduce((sum, extra) => sum + extra.price, 0);
-  const staySubtotal = selectedFlat && nights !== null ? selectedFlat.rate * nights : null;
-  const estimatedTotal = staySubtotal !== null ? staySubtotal + extrasSubtotal : null;
-  const stayValidation = getStayValidation(stay);
-  const guestValidation = getGuestValidation(guest);
+  const { nights, extrasSubtotal, staySubtotal, estimatedTotal } = useMemo(
+    () =>
+      calculateBookingPricing({
+        selectedFlatRate: selectedFlat?.rate ?? null,
+        checkIn: stay.checkIn,
+        checkOut: stay.checkOut,
+        selectedExtraIds: stay.extraIds,
+        extrasCatalog: EXTRAS,
+      }),
+    [selectedFlat?.rate, stay.checkIn, stay.checkOut, stay.extraIds],
+  );
 
-  const stayReady =
-    !stayValidation.flatId && !stayValidation.checkIn && !stayValidation.checkOut && !stayValidation.guests;
-  const guestReady =
-    !guestValidation.firstName &&
-    !guestValidation.lastName &&
-    !guestValidation.email &&
-    !guestValidation.phone;
-  const paymentReady = paymentMethod !== null;
+  const stayValidation = useMemo(() => getStayValidationState(stay), [stay]);
+  const guestValidation = useMemo(() => getGuestValidationState(guest), [guest]);
+
+  const stayReady = isStayValidationReady(stayValidation);
+  const guestReady = isGuestValidationReady(guestValidation);
 
   const guestName = `${guest.firstName} ${guest.lastName}`.trim();
   const transferTimeLeft = formatTransferHoldLabel(transferState.holdExpiresAt);
-  const reviewResidenceLabel = selectedFlat?.name ?? "Residence pending";
-  const reviewNightsLabel = nights !== null ? `${nights} night${nights === 1 ? "" : "s"}` : "Nights pending";
-  const reviewGuestsLabel = stay.guests > 0 ? `${stay.guests} guest${stay.guests === 1 ? "" : "s"}` : "Guests pending";
+  const reviewLabels = useMemo(
+    () =>
+      createBookingReviewLabels({
+        residenceName: selectedFlat?.name ?? null,
+        nights,
+        guests: stay.guests,
+      }),
+    [selectedFlat?.name, nights, stay.guests],
+  );
 
   function clearBranchTransientState() {
     setWebsiteState(INITIAL_WEBSITE_STATE);
@@ -200,6 +217,7 @@ export default function BookingPage() {
     return true;
   }
 
+  // Drives the shared pre-branch flow and hands off into the selected payment branch.
   async function handleContinue() {
     if (isBranchActionLocked) {
       return;
@@ -225,7 +243,7 @@ export default function BookingPage() {
 
     if (stepIndex === STEP2) {
       setPaymentTouched(true);
-      if (!paymentReady || !paymentMethod) return;
+      if (!paymentMethod) return;
 
       const ok = await runAvailabilityCheckpoint(getAvailabilityReasonForStep(stepIndex, paymentMethod));
       if (!ok) return;
@@ -233,7 +251,18 @@ export default function BookingPage() {
       setBranchResetNotice(null);
       setFlowNotice(null);
 
-      setReservationStatus(getPendingStatusForMethod(paymentMethod));
+      const pendingStatus = resolveTransition({
+        from: reservationStatus,
+        event: "branch_request_created",
+        paymentMethod,
+        availabilityPassed: true,
+      });
+
+      if (!pendingStatus) {
+        return;
+      }
+
+      setReservationStatus(pendingStatus);
 
       if (paymentMethod === "transfer" && !transferState.holdExpiresAt) {
         setTransferState((current) => ({
@@ -338,7 +367,17 @@ export default function BookingPage() {
       const ok = await runAvailabilityCheckpoint("before online payment handoff");
       if (!ok) return;
 
-      setReservationStatus("pending_online_payment");
+      const retryStatus = resolveTransition({
+        from: reservationStatus,
+        event: "try_online_payment_again",
+        availabilityPassed: true,
+      });
+
+      if (!retryStatus) {
+        return;
+      }
+
+      setReservationStatus(retryStatus);
       setWebsiteState({
         outcome: "idle",
         message: "Payment portal reset. You can now try again.",
@@ -372,22 +411,36 @@ export default function BookingPage() {
   }
 
   async function handleSubmitTransferProof() {
-    if (!transferState.reference.trim() || !transferState.proofNote.trim()) {
-      setTransferState((current) => ({
-        ...current,
-        error: "Please provide both the transfer reference and proof details.",
-      }));
-      return;
-    }
+    const withinHold = isWithinTransferHold(transferState.holdExpiresAt);
+    const progression = validateBranchProgression({
+      intent: "submit_transfer_proof",
+      paymentMethod,
+      currentStatus: reservationStatus,
+      availabilityPassed: true,
+      transferReference: transferState.reference,
+      transferProofNote: transferState.proofNote,
+      withinTransferHold: withinHold,
+    });
 
-    if (transferState.holdExpiresAt && Date.now() > transferState.holdExpiresAt) {
-      setReservationStatus("cancelled");
+    if (!progression.isValid) {
+      const holdExpired = progression.errors.some((error) => error.field === "transferHold");
+
+      if (holdExpired) {
+        setReservationStatus("cancelled");
+        setTransferState((current) => ({
+          ...current,
+          error: "The 1-hour transfer hold period has expired.",
+        }));
+        setFlowNotice("Transfer hold expired before proof submission. This reservation request has been cancelled.");
+        setStepIndex(STEP5);
+        return;
+      }
+
+      const firstError = progression.errors[0];
       setTransferState((current) => ({
         ...current,
-        error: "The 1-hour transfer hold period has expired.",
+        error: firstError?.message ?? "Please review the transfer details and try again.",
       }));
-      setFlowNotice("Transfer hold expired before proof submission. This reservation request has been cancelled.");
-      setStepIndex(STEP5);
       return;
     }
 
@@ -399,8 +452,24 @@ export default function BookingPage() {
 
     try {
       await wait(800);
+
+      const nextStatus = getNextReservationState({
+        from: reservationStatus,
+        event: "transfer_proof_submitted",
+        withinTransferHold: true,
+      }).to;
+
+      if (!nextStatus) {
+        setTransferState((current) => ({
+          ...current,
+          isSubmitting: false,
+          error: "Transfer submission could not be processed from this status.",
+        }));
+        return;
+      }
+
       setTransferState((current) => ({ ...current, isSubmitting: false, error: null }));
-      setReservationStatus("awaiting_transfer_verification");
+      setReservationStatus(nextStatus);
       setFlowNotice("Transfer proof received. Our team will verify and confirm your booking shortly.");
       setStepIndex(STEP5);
     } finally {
@@ -418,10 +487,19 @@ export default function BookingPage() {
   }
 
   async function handleSubmitPosRequest() {
-    if (!posState.contactWindow.trim()) {
+    const progression = validateBranchProgression({
+      intent: "submit_pos_request",
+      paymentMethod,
+      currentStatus: reservationStatus,
+      availabilityPassed: true,
+      posContactWindow: posState.contactWindow,
+    });
+
+    if (!progression.isValid) {
+      const firstError = progression.errors[0];
       setPosState((current) => ({
         ...current,
-        error: "Please select your preferred window for coordination.",
+        error: firstError?.message ?? "Please select your preferred window for coordination.",
       }));
       return;
     }
@@ -451,111 +529,29 @@ export default function BookingPage() {
     }
   }
 
-  const showContinueButton = stepIndex <= STEP3;
-  const continueDisabled =
-    isCheckingAvailability ||
-    isBranchActionLocked ||
-    (stepIndex === STEP0 && !stayReady) ||
-    (stepIndex === STEP1 && !guestReady) ||
-    (stepIndex === STEP2 && !paymentReady) ||
-    (stepIndex === STEP3 && !paymentMethod);
+  const showContinueButton = shouldShowContinueButton(stepIndex);
+  const continueDisabled = isContinueDisabled({
+    stepIndex,
+    isCheckingAvailability,
+    isBranchActionLocked,
+    stayReady,
+    guestReady,
+    paymentMethod,
+  });
 
-  const outcomeStepLabel =
-    paymentMethod === "transfer" && reservationStatus === "cancelled" ? "Reservation Cancelled" : stepLabels[STEP5];
-
-  const continueLabel =
-    stepIndex === STEP0
-      ? "Continue to Guest Details"
-      : stepIndex === STEP1
-        ? "Continue to Payment Method"
-        : stepIndex === STEP2
-          ? paymentMethod === "website"
-            ? "Review & Checkout"
-            : "Proceed to Review"
-          : paymentMethod === "website"
-            ? "Go to Payment Portal"
-            : paymentMethod === "transfer"
-              ? "Continue to Transfer Submission"
-              : "Proceed to POS Coordination";
+  const outcomeStepLabel = getOutcomeStepLabel(paymentMethod, reservationStatus, stepLabels);
+  const continueLabel = getContinueLabel(stepIndex, paymentMethod);
 
   return (
     <main className="booking-page" style={{ paddingBottom: 0 }}>
-      <section className="container" style={{ paddingTop: "8rem", paddingBottom: "2rem", maxWidth: "1200px" }}>
-        <Link
-          href="/"
-          className="hover-primary"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            color: "var(--text-secondary)",
-            marginBottom: "1.5rem",
-            fontWeight: 500,
-          }}
-        >
-          <ArrowLeft size={16} /> Back to Homepage
-        </Link>
-        <h1 className="heading-lg serif">Complete Your Booking</h1>
-        <p className="text-secondary" style={{ fontSize: "1.05rem" }}>
-          Experience a seamless, secure, and personalized reservation process.
-        </p>
-      </section>
-
-      <div
-        style={{
-          borderTop: "1px solid var(--border-subtle)",
-          borderBottom: "1px solid var(--border-subtle)",
-          background: "var(--bg-panel)",
-        }}
-      >
-        <div
-          className="container"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "2.5rem",
-            flexWrap: "wrap",
-            padding: "0.9rem 0",
-            maxWidth: "1200px",
-            fontSize: "0.85rem",
-            fontWeight: 600,
-            color: "var(--text-secondary)",
-          }}
-        >
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-            <CheckCircle2 size={15} className="text-primary" /> Verified Real-Time Availability
-          </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-            <CheckCircle2 size={15} className="text-primary" /> Secure Branched Payment Logic
-          </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-            <CheckCircle2 size={15} className="text-primary" /> 24/7 Dedicated Concierge Support
-          </span>
-        </div>
-      </div>
+      <BookingPageIntro />
 
       <section className="container" style={{ paddingTop: "3rem", paddingBottom: "4rem", maxWidth: "1200px" }}>
         <BookingProgress stepLabels={stepLabels} stepIndex={stepIndex} />
 
         <div className="booking-layout">
           <div className="booking-details-col" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            {flowNotice && (
-              <div className="booking-inline-note animate-in" role="status" aria-live="polite">
-                {flowNotice}
-              </div>
-            )}
-
-            {branchResetNotice && (
-              <div className="booking-inline-note booking-inline-note-muted animate-in" role="status" aria-live="polite">
-                {branchResetNotice}
-              </div>
-            )}
-
-            {availabilityNote && (
-              <div className="booking-inline-note booking-inline-note-ok animate-in" role="status" aria-live="polite">
-                {availabilityNote}
-              </div>
-            )}
+            <BookingInlineNotices flowNotice={flowNotice} branchResetNotice={branchResetNotice} availabilityNote={availabilityNote} />
 
             {stepIndex === STEP0 && (
               <StayDetailsStep
@@ -603,9 +599,9 @@ export default function BookingPage() {
               <BranchReviewStep
                 paymentMethod={paymentMethod}
                 stepLabel={stepLabels[STEP3]}
-                reviewResidenceLabel={reviewResidenceLabel}
-                reviewNightsLabel={reviewNightsLabel}
-                reviewGuestsLabel={reviewGuestsLabel}
+                reviewResidenceLabel={reviewLabels.residence}
+                reviewNightsLabel={reviewLabels.nights}
+                reviewGuestsLabel={reviewLabels.guests}
               />
             )}
 
@@ -677,4 +673,6 @@ export default function BookingPage() {
     </main>
   );
 }
+
+
 

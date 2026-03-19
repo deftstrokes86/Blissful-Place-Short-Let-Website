@@ -1,4 +1,5 @@
 import type {
+  BookingReviewLabels,
   ExtraId,
   ExtraOption,
   ISODateString,
@@ -20,6 +21,20 @@ export interface PricingComputation {
   staySubtotal: number | null;
   extrasSubtotal: number;
   estimatedTotal: number | null;
+}
+
+export interface BookingPricingInput {
+  selectedFlatRate: number | null;
+  checkIn: string;
+  checkOut: string;
+  selectedExtraIds: readonly ExtraId[];
+  extrasCatalog: readonly Pick<ExtraOption, "id" | "price">[];
+}
+
+export interface BookingReviewLabelInput {
+  residenceName: string | null;
+  nights: number | null;
+  guests: number;
 }
 
 export function parseIsoDate(value: ISODateString): Date | null {
@@ -47,9 +62,9 @@ export function parseIsoDate(value: ISODateString): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function calculateNightCount(checkIn: ISODateString, checkOut: ISODateString): number | null {
-  const checkInDate = parseIsoDate(checkIn);
-  const checkOutDate = parseIsoDate(checkOut);
+export function calculateNightCount(checkIn: string, checkOut: string): number | null {
+  const checkInDate = parseIsoDate(checkIn as ISODateString);
+  const checkOutDate = parseIsoDate(checkOut as ISODateString);
 
   if (!checkInDate || !checkOutDate || checkOutDate <= checkInDate) {
     return null;
@@ -87,6 +102,32 @@ export function calculateEstimatedPricing(input: PricingInput): PricingComputati
   };
 }
 
+export function calculateBookingPricing(input: BookingPricingInput): PricingComputation {
+  const nights = calculateNightCount(input.checkIn, input.checkOut);
+  const extrasSubtotal = calculateExtrasSubtotal(input.selectedExtraIds, input.extrasCatalog);
+  const staySubtotal = input.selectedFlatRate !== null && nights !== null ? input.selectedFlatRate * nights : null;
+
+  return {
+    nights,
+    staySubtotal,
+    extrasSubtotal,
+    estimatedTotal: staySubtotal === null ? null : staySubtotal + extrasSubtotal,
+  };
+}
+
+export function createBookingReviewLabels(input: BookingReviewLabelInput): BookingReviewLabels {
+  const nightCount = input.nights;
+
+  return {
+    residence: input.residenceName ?? "Residence pending",
+    nights: nightCount !== null ? `${nightCount} night${nightCount === 1 ? "" : "s"}` : "Nights pending",
+    guests:
+      input.guests > 0
+        ? `${input.guests} guest${input.guests === 1 ? "" : "s"}`
+        : "Guests pending",
+  };
+}
+
 export function createPricingBreakdown(input: PricingInput): PricingBreakdown | null {
   const computed = calculateEstimatedPricing(input);
 
@@ -103,3 +144,4 @@ export function createPricingBreakdown(input: PricingInput): PricingBreakdown | 
     estimatedTotal: computed.estimatedTotal,
   };
 }
+

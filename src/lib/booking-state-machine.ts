@@ -393,6 +393,17 @@ export function getBranchResetPlan(): BranchResetPlan {
 export function getAllowedTransitionsMap(): Readonly<Record<ReservationStatus, readonly ReservationStatus[]>> {
   return ALLOWED_TRANSITIONS;
 }
+export function isWithinTransferHold(holdExpiresAt: number | null, nowMs: number = Date.now()): boolean {
+  return holdExpiresAt !== null && nowMs <= holdExpiresAt;
+}
 
+export function resolveTransition(input: TransitionInput): ReservationStatus | null {
+  const decision = getNextReservationState(input);
 
+  if (!decision.allowed || !decision.to) {
+    return null;
+  }
+
+  return decision.to;
+}
 

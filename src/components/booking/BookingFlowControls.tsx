@@ -1,5 +1,8 @@
-import { WhatsApp } from "@/lib/lucide-react";
+import Link from "next/link";
+
 import { STEP0, STEP5 } from "@/lib/constants";
+import { WhatsApp } from "@/lib/lucide-react";
+import { SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 
 interface BookingFlowControlsProps {
   stepIndex: number;
@@ -58,9 +61,17 @@ export function BookingFlowControls({
           <div style={{ color: "var(--text-secondary)", fontSize: "0.88rem" }}>
             Dedicated concierge support is active for every reservation path.
           </div>
+          <div className="booking-support-links">
+            <Link href="/availability" className="booking-support-link">
+              Check Availability
+            </Link>
+            <Link href="/tour" className="booking-support-link">
+              Schedule a Private Tour
+            </Link>
+          </div>
         </div>
         <a
-          href="https://wa.me/2340000000000"
+          href={SUPPORT_WHATSAPP_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline-primary booking-whatsapp-btn"
