@@ -973,38 +973,31 @@ details[open] summary ~ * {
   background: var(--bg-panel);
   border: 1px solid rgba(238, 29, 82, 0.42);
   border-radius: var(--radius-lg);
-  padding: 1rem 1.25rem;
+  padding: 0.95rem;
   margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem;
   width: 100%;
 }
 
 .booking-page .booking-progress-item {
   position: relative;
-  flex: 1 1 0;
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.65rem;
   padding: 0.7rem 0.75rem;
-  min-height: 44px;
+  min-height: 56px;
   border: 1px solid rgba(238, 29, 82, 0.42);
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.02);
   color: var(--text-secondary);
+  text-align: left;
 }
 
 .booking-page .booking-progress-item:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  right: -0.52rem;
-  top: 50%;
-  width: 0.5rem;
-  height: 1px;
-  background: var(--border-subtle);
-  transform: translateY(-50%);
+  display: none;
 }
 
 .booking-page .booking-progress-item.is-upcoming {
@@ -1046,7 +1039,8 @@ details[open] summary ~ * {
   font-weight: 600;
   line-height: 1.2;
   white-space: normal;
-  word-break: keep-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .booking-page .booking-progress-item.is-completed .booking-progress-index {
@@ -1068,22 +1062,17 @@ details[open] summary ~ * {
   }
 
   .booking-page .booking-progress {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
-  }
-
-  .booking-page .booking-progress-item::after {
-    display: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .booking-page .booking-progress-item {
-    min-height: 50px;
+    min-height: 52px;
   }
 }
 
 @media (max-width: 520px) {
   .booking-page .booking-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     padding: 0.85rem;
   }
 
@@ -1094,6 +1083,12 @@ details[open] summary ~ * {
 
   .booking-page .booking-progress-label {
     font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .booking-page .booking-progress {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1292,4 +1287,81 @@ details[open] summary ~ * {
   text-align: center;
   margin-top: 1.5rem;
   color: var(--text-primary);
+}
+
+.booking-inline-note {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.booking-inline-note-muted {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-secondary);
+}
+
+.booking-inline-note-ok {
+  border-color: rgba(238, 29, 82, 0.4);
+  background: rgba(238, 29, 82, 0.08);
+}
+
+.booking-inline-error {
+  color: #ff9db7;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.booking-support-strip {
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.booking-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.2rem 0.6rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.booking-status-confirmed {
+  border-color: rgba(238, 29, 82, 0.7);
+  background: rgba(238, 29, 82, 0.16);
+}
+
+.booking-status-cancelled,
+.booking-status-failed_payment {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.animate-in {
+  animation: slideBackIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideBackIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
