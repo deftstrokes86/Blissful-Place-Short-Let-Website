@@ -60,6 +60,12 @@ enum AvailabilityBlockStatus {
   released
 }
 
+enum ManualAvailabilityBlockType {
+  maintenance
+  owner_blackout
+  admin_block
+}
+
 model Flat {
   id                 String              @id
   name               String
@@ -125,19 +131,23 @@ model Reservation {
 }
 
 model AvailabilityBlock {
-  id         String                      @id @default(cuid())
-  flatId     String
-  flat       Flat                        @relation(fields: [flatId], references: [id], onDelete: Restrict)
-  sourceType AvailabilityBlockSourceType
-  sourceId   String
-  blockType  AvailabilityBlockType
-  startDate  DateTime                    @db.Date
-  endDate    DateTime                    @db.Date
-  status     AvailabilityBlockStatus     @default(active)
-  expiresAt  DateTime?
-  releasedAt DateTime?
-  createdAt  DateTime                    @default(now())
-  updatedAt  DateTime                    @updatedAt
+  id              String                      @id @default(cuid())
+  flatId          String
+  flat            Flat                        @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  sourceType      AvailabilityBlockSourceType
+  sourceId        String
+  blockType       AvailabilityBlockType
+  manualBlockType ManualAvailabilityBlockType?
+  startDate       DateTime                    @db.Date
+  endDate         DateTime                    @db.Date
+  reason          String?
+  notes           String?
+  createdBy       String?
+  status          AvailabilityBlockStatus     @default(active)
+  expiresAt       DateTime?
+  releasedAt      DateTime?
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
 
   @@unique([sourceType, sourceId])
   @@index([flatId, status, startDate, endDate])
@@ -228,3 +238,5 @@ model IdempotencyKey {
   @@index([reservationId])
   @@index([createdAt])
 }
+
+

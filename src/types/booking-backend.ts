@@ -116,6 +116,7 @@ export interface PosCoordinationMetadataRecord {
 export type AvailabilityBlockSourceType = "reservation" | "manual";
 export type AvailabilityBlockType = "hard_block" | "soft_hold";
 export type AvailabilityBlockStatus = "active" | "released";
+export type ManualAvailabilityBlockType = "maintenance" | "owner_blackout" | "admin_block";
 
 export interface AvailabilityBlockRecord {
   id: string;
@@ -123,8 +124,12 @@ export interface AvailabilityBlockRecord {
   sourceType: AvailabilityBlockSourceType;
   sourceId: string;
   blockType: AvailabilityBlockType;
+  manualBlockType: ManualAvailabilityBlockType | null;
   startDate: ISODateString;
   endDate: ISODateString;
+  reason: string | null;
+  notes: string | null;
+  createdBy: string | null;
   status: AvailabilityBlockStatus;
   expiresAt: ISODateTimeString | null;
   releasedAt: ISODateTimeString | null;

@@ -1,4 +1,4 @@
-﻿-- Backend MVP foundation schema (implementation direction)
+-- Backend MVP foundation schema (implementation direction)
 
 CREATE TABLE IF NOT EXISTS flats (
   id TEXT PRIMARY KEY,
@@ -33,6 +33,27 @@ CREATE TABLE IF NOT EXISTS reservations (
   cancelled_at TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS availability_blocks (
+  id TEXT PRIMARY KEY,
+  flat_id TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  source_id TEXT NOT NULL,
+  block_type TEXT NOT NULL,
+  manual_block_type TEXT,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  reason TEXT,
+  notes TEXT,
+  created_by TEXT,
+  status TEXT NOT NULL,
+  expires_at TEXT,
+  released_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE (source_type, source_id),
+  FOREIGN KEY (flat_id) REFERENCES flats(id)
 );
 
 CREATE TABLE IF NOT EXISTS payment_attempts (
@@ -101,3 +122,4 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
   expires_at TEXT,
   PRIMARY KEY (key, action)
 );
+

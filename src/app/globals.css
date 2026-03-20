@@ -1413,3 +1413,233 @@ details[open] summary ~ * {
 }
 
 
+
+/* Staff Operations UI */
+.admin-bookings-page {
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.admin-bookings-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-bookings-toolbar {
+  border: 1px solid rgba(238, 29, 82, 0.35);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-bookings-toolbar-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.admin-staff-input {
+  width: min(260px, 100%);
+}
+
+.admin-bookings-section {
+  border: 1px solid rgba(238, 29, 82, 0.35);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  padding: 1.25rem;
+}
+
+.admin-bookings-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(238, 29, 82, 0.45);
+  background: rgba(238, 29, 82, 0.12);
+  color: var(--text-primary);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-bookings-list {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.admin-bookings-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-dark);
+  padding: 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.admin-bookings-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-card-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-status-pending-transfer {
+  border-color: rgba(255, 204, 102, 0.75);
+  color: #ffcc66;
+}
+
+.admin-status-pending-pos {
+  border-color: rgba(128, 222, 255, 0.75);
+  color: #80deff;
+}
+
+.admin-status-confirmed {
+  border-color: rgba(238, 29, 82, 0.75);
+  background: rgba(238, 29, 82, 0.15);
+}
+
+.admin-status-cancelled {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.admin-bookings-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.admin-meta-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.admin-hold-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.76rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-hold-active {
+  border-color: rgba(255, 204, 102, 0.7);
+  color: #ffcc66;
+}
+
+.admin-hold-expired {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.admin-hold-neutral {
+  color: var(--text-secondary);
+}
+
+.admin-bookings-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.admin-bookings-actions-stack {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.admin-bookings-actions-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.admin-btn-danger {
+  border-color: rgba(255, 157, 183, 0.7);
+  color: #ff9db7;
+}
+
+.admin-btn-danger:hover {
+  background: rgba(255, 157, 183, 0.08);
+  color: #ff9db7;
+}
+
+@media (max-width: 960px) {
+  .admin-bookings-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-bookings-page {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .admin-bookings-toolbar {
+    padding: 1rem;
+  }
+
+  .admin-bookings-section {
+    padding: 1rem;
+  }
+
+  .admin-bookings-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-bookings-actions-row .btn {
+    width: 100%;
+  }
+
+  .admin-staff-input {
+    width: 100%;
+  }
+}

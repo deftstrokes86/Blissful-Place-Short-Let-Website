@@ -27,20 +27,32 @@ function cloneBlock(value: AvailabilityBlockRecord): AvailabilityBlockRecord {
 }
 
 function createBlock(overrides?: Partial<AvailabilityBlockRecord>): AvailabilityBlockRecord {
-  return {
+  const merged: AvailabilityBlockRecord = {
     id: "block_1",
     flatId: "mayfair",
     sourceType: "reservation",
     sourceId: "res_1",
     blockType: "hard_block",
+    manualBlockType: null,
     startDate: "2026-10-10",
     endDate: "2026-10-13",
+    reason: null,
+    notes: null,
+    createdBy: null,
     status: "active",
     expiresAt: null,
     releasedAt: null,
     createdAt: "2026-10-01T10:00:00.000Z",
     updatedAt: "2026-10-01T10:00:00.000Z",
     ...overrides,
+  };
+
+  return {
+    ...merged,
+    manualBlockType: merged.manualBlockType ?? null,
+    reason: merged.reason ?? null,
+    notes: merged.notes ?? null,
+    createdBy: merged.createdBy ?? null,
   };
 }
 
@@ -287,4 +299,3 @@ async function run(): Promise<void> {
 }
 
 void run();
-

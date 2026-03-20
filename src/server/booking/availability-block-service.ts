@@ -5,6 +5,7 @@ import type { FlatId, ISODateString, ReservationStatus } from "../../types/booki
 import type {
   AvailabilityBlockRecord,
   AvailabilityBlockSourceType,
+  ManualAvailabilityBlockType,
 } from "../../types/booking-backend";
 
 export const AVAILABILITY_BLOCK_TIMEZONE = "Africa/Lagos";
@@ -36,6 +37,17 @@ export interface AvailabilityOverlapInput {
   checkOut: ISODateString;
 }
 
+export interface CreateManualAvailabilityBlockInput {
+  flatId: FlatId;
+  startDate: ISODateString;
+  endDate: ISODateString;
+  manualBlockType: ManualAvailabilityBlockType;
+  reason: string;
+  notes?: string | null;
+  createdBy?: string | null;
+  expiresAt?: string | null;
+}
+
 export interface AvailabilityBlockRepository {
   create(block: AvailabilityBlockRecord): Promise<AvailabilityBlockRecord>;
   update(block: AvailabilityBlockRecord): Promise<AvailabilityBlockRecord>;
@@ -59,6 +71,34 @@ function assertValidWindow(checkIn: ISODateString, checkOut: ISODateString): voi
   if (!start || !end || end <= start) {
     throw new Error("Invalid reservation date window. Check-out must be after check-in.");
   }
+}
+
+function assertValidExpiryTimestamp(expiresAt: string | null | undefined): void {
+  if (!expiresAt) {
+    return;
+  }
+
+  if (Number.isNaN(new Date(expiresAt).getTime())) {
+    throw new Error("Invalid expiresAt timestamp.");
+  }
+}
+
+function normalizeOptionalText(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeManualReason(reason: string): string {
+  const normalized = normalizeOptionalText(reason);
+  if (!normalized) {
+    throw new Error("Manual block reason is required.");
+  }
+
+  return normalized;
 }
 
 function dateRangesOverlap(
@@ -136,8 +176,12 @@ function matchesActiveProjection(
     existing.sourceType === "reservation" &&
     existing.sourceId === reservation.id &&
     existing.blockType === plan.blockType &&
+    existing.manualBlockType === null &&
     existing.startDate === reservation.stay.checkIn &&
     existing.endDate === reservation.stay.checkOut &&
+    existing.reason === null &&
+    existing.notes === null &&
+    existing.createdBy === null &&
     existing.expiresAt === plan.expiresAt &&
     existing.releasedAt === null
   );
@@ -186,8 +230,12 @@ export class AvailabilityBlockService {
           ...existing,
           flatId: reservation.stay.flatId,
           blockType: plan.blockType,
+          manualBlockType: null,
           startDate: reservation.stay.checkIn,
           endDate: reservation.stay.checkOut,
+          reason: null,
+          notes: null,
+          createdBy: null,
           status: "active",
           expiresAt: plan.expiresAt,
           releasedAt: null,
@@ -199,8 +247,12 @@ export class AvailabilityBlockService {
           sourceType: "reservation",
           sourceId: reservation.id,
           blockType: plan.blockType,
+          manualBlockType: null,
           startDate: reservation.stay.checkIn,
           endDate: reservation.stay.checkOut,
+          reason: null,
+          notes: null,
+          createdBy: null,
           status: "active",
           expiresAt: plan.expiresAt,
           releasedAt: null,
@@ -213,6 +265,56 @@ export class AvailabilityBlockService {
     }
 
     return this.repository.create(nextBlock);
+  }
+
+  async createManualBlock(input: CreateManualAvailabilityBlockInput): Promise<AvailabilityBlockRecord> {
+    assertValidWindow(input.startDate, input.endDate);
+    assertValidExpiryTimestamp(input.expiresAt);
+
+    const nowIso = this.nowProvider().toISOString();
+    const manualId = this.createId();
+
+    const block: AvailabilityBlockRecord = {
+      id: manualId,
+      flatId: input.flatId,
+      sourceType: "manual",
+      sourceId: manualId,
+      blockType: "hard_block",
+      manualBlockType: input.manualBlockType,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      reason: normalizeManualReason(input.reason),
+      notes: normalizeOptionalText(input.notes),
+      createdBy: normalizeOptionalText(input.createdBy),
+      status: "active",
+      expiresAt: input.expiresAt ?? null,
+      releasedAt: null,
+      createdAt: nowIso,
+      updatedAt: nowIso,
+    };
+
+    return this.repository.create(block);
+  }
+
+  async releaseManualBlock(sourceId: string): Promise<AvailabilityBlockRecord> {
+    const existing = await this.repository.findBySource("manual", sourceId);
+    if (!existing) {
+      throw new Error("Manual availability block not found.");
+    }
+
+    if (existing.status === "released") {
+      return existing;
+    }
+
+    const nowIso = this.nowProvider().toISOString();
+    const released: AvailabilityBlockRecord = {
+      ...existing,
+      status: "released",
+      releasedAt: nowIso,
+      updatedAt: nowIso,
+    };
+
+    return this.repository.update(released);
   }
 
   async findOverlappingActiveBlocks(input: AvailabilityOverlapInput): Promise<AvailabilityBlockRecord[]> {

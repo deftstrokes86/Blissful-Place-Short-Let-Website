@@ -5,6 +5,7 @@ import {
   type AvailabilityBlockRepository,
   type AvailabilityBlockingReservation,
 } from "../availability-block-service";
+import { CalendarAvailabilityService } from "../calendar-availability-service";
 import type {
   AvailabilityBlockRecord,
   AvailabilityBlockSourceType,
@@ -69,10 +70,14 @@ function createReservation(status: ReservationStatus): AvailabilityBlockingReser
 
 function createServiceHarness() {
   const repository = new InMemoryAvailabilityBlockRepository();
+  let sequence = 0;
   const service = new AvailabilityBlockService({
     repository,
     now: () => new Date("2026-09-10T10:00:00.000Z"),
-    createId: () => "block_001",
+    createId: () => {
+      sequence += 1;
+      return `block_${String(sequence).padStart(3, "0")}`;
+    },
   });
 
   return {
@@ -183,6 +188,130 @@ async function testCheckInInclusiveAndCheckOutExclusiveSemantics(): Promise<void
   assert.equal(edge.length, 0, "Expected no overlap when requested check-in equals blocked check-out.");
 }
 
+async function testCreateMaintenanceManualBlock(): Promise<void> {
+  const { service } = createServiceHarness();
+
+  const block = await service.createManualBlock({
+    flatId: "mayfair",
+    startDate: "2026-09-15",
+    endDate: "2026-09-18",
+    manualBlockType: "maintenance",
+    reason: "Scheduled HVAC maintenance",
+    notes: "Tower B mechanical room work",
+    createdBy: "staff_ops_1",
+  });
+
+  assert.equal(block.sourceType, "manual");
+  assert.equal(block.manualBlockType, "maintenance");
+  assert.equal(block.blockType, "hard_block");
+  assert.equal(block.reason, "Scheduled HVAC maintenance");
+  assert.equal(block.notes, "Tower B mechanical room work");
+  assert.equal(block.createdBy, "staff_ops_1");
+}
+
+async function testCreateOwnerBlackoutManualBlock(): Promise<void> {
+  const { service } = createServiceHarness();
+
+  const block = await service.createManualBlock({
+    flatId: "kensington",
+    startDate: "2026-10-03",
+    endDate: "2026-10-07",
+    manualBlockType: "owner_blackout",
+    reason: "Owner personal stay",
+  });
+
+  assert.equal(block.sourceType, "manual");
+  assert.equal(block.manualBlockType, "owner_blackout");
+  assert.equal(block.blockType, "hard_block");
+}
+
+async function testCreateAdminManualBlock(): Promise<void> {
+  const { service } = createServiceHarness();
+
+  const block = await service.createManualBlock({
+    flatId: "windsor",
+    startDate: "2026-11-01",
+    endDate: "2026-11-04",
+    manualBlockType: "admin_block",
+    reason: "Temporary operational hold",
+  });
+
+  assert.equal(block.sourceType, "manual");
+  assert.equal(block.manualBlockType, "admin_block");
+  assert.equal(block.blockType, "hard_block");
+}
+
+async function testManualBlockRejectsInvalidDateRange(): Promise<void> {
+  const { service } = createServiceHarness();
+
+  await assert.rejects(
+    async () => {
+      await service.createManualBlock({
+        flatId: "mayfair",
+        startDate: "2026-09-19",
+        endDate: "2026-09-18",
+        manualBlockType: "maintenance",
+        reason: "Invalid window",
+      });
+    },
+    /Invalid reservation date window/
+  );
+}
+
+async function testManualBlockMakesDatesUnavailableInAvailabilityQuery(): Promise<void> {
+  const { service, repository } = createServiceHarness();
+
+  await service.createManualBlock({
+    flatId: "mayfair",
+    startDate: "2026-09-20",
+    endDate: "2026-09-22",
+    manualBlockType: "maintenance",
+    reason: "Room deep clean",
+  });
+
+  const calendarService = new CalendarAvailabilityService({
+    repository: {
+      listByFlat: (flatId) => repository.listByFlat(flatId),
+    },
+    now: () => new Date("2026-09-20T09:00:00.000Z"),
+  });
+
+  const availability = await calendarService.checkProposedStayAvailability({
+    flatId: "mayfair",
+    checkIn: "2026-09-20",
+    checkOut: "2026-09-21",
+  });
+
+  assert.equal(availability.isAvailable, false);
+  assert.equal(availability.overlappingBlocks.length, 1);
+  assert.equal(availability.overlappingBlocks[0].sourceType, "manual");
+  assert.equal(availability.overlappingBlocks[0].blockType, "hard_block");
+}
+
+async function testReleasingManualBlockDoesNotTouchReservationBlock(): Promise<void> {
+  const { service, repository } = createServiceHarness();
+
+  const reservation = createReservation("confirmed");
+  const reservationBlock = await service.syncReservationBlock(reservation);
+  assert.ok(reservationBlock);
+
+  const manualBlock = await service.createManualBlock({
+    flatId: "mayfair",
+    startDate: "2026-09-10",
+    endDate: "2026-09-12",
+    manualBlockType: "admin_block",
+    reason: "Operational lock",
+  });
+
+  const released = await service.releaseManualBlock(manualBlock.sourceId);
+  assert.equal(released.status, "released");
+  assert.ok(released.releasedAt);
+
+  const stillActiveReservationBlock = await repository.findBySource("reservation", reservation.id);
+  assert.ok(stillActiveReservationBlock);
+  assert.equal(stillActiveReservationBlock?.status, "active");
+}
+
 async function run(): Promise<void> {
   await testConfirmedCreatesHardBlock();
   await testPendingTransferCreatesSoftHold();
@@ -191,11 +320,14 @@ async function run(): Promise<void> {
   await testExpiredReleasesBlock();
   await testInvalidDateRangesAreRejected();
   await testCheckInInclusiveAndCheckOutExclusiveSemantics();
+  await testCreateMaintenanceManualBlock();
+  await testCreateOwnerBlackoutManualBlock();
+  await testCreateAdminManualBlock();
+  await testManualBlockRejectsInvalidDateRange();
+  await testManualBlockMakesDatesUnavailableInAvailabilityQuery();
+  await testReleasingManualBlockDoesNotTouchReservationBlock();
 
   console.log("availability-block-service: ok");
 }
 
 void run();
-
-
-

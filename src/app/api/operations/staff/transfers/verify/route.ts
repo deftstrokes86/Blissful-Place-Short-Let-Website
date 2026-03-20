@@ -1,4 +1,8 @@
 import {
+  handleVerifyTransferPaymentRequest,
+} from "@/server/booking/staff-operations-http";
+import { getSharedStaffOperationsService } from "@/server/booking/staff-operations-service-factory";
+import {
   jsonErrorFromUnknown,
   jsonSuccess,
   pickIdempotencyKey,
@@ -6,10 +10,6 @@ import {
   pickString,
   readJsonObject,
 } from "@/server/http/route-helpers";
-import {
-  handleVerifyTransferPaymentRequest,
-} from "@/server/booking/staff-operations-http";
-import { getSharedStaffOperationsService } from "@/server/booking/staff-operations-service-factory";
 
 export const runtime = "nodejs";
 
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   try {
     const body = await readJsonObject(request);
     const service = getSharedStaffOperationsService();
+
     const result = await handleVerifyTransferPaymentRequest(service, {
       token: pickString(body, "token"),
       staffId: pickString(body, "staffId"),
@@ -24,8 +25,8 @@ export async function POST(request: Request) {
       idempotencyKey: pickIdempotencyKey(request, body),
     });
 
-    return jsonSuccess({ reservation: result.reservation, transferMetadata: result.transferMetadata });
+    return jsonSuccess(result);
   } catch (error) {
-    return jsonErrorFromUnknown(error, "transfer_verification_failed");
+    return jsonErrorFromUnknown(error, "staff_transfer_verification_failed");
   }
 }
