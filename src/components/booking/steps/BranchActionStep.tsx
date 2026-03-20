@@ -1,7 +1,6 @@
 import type {
   PaymentMethod,
   PosTransientState,
-  ReservationStatus,
   TransferTransientState,
   WebsiteTransientState,
 } from "@/types/booking";
@@ -13,12 +12,10 @@ interface BranchActionStepProps {
   websiteState: WebsiteTransientState;
   transferState: TransferTransientState;
   posState: PosTransientState;
-  reservationStatus: ReservationStatus;
   transferTimeLeft: string;
   isBranchActionLocked: boolean;
   isCheckingAvailability: boolean;
-  onWebsiteOutcome: (outcome: "success" | "failed" | "cancelled") => void;
-  onTryPaymentAgain: () => Promise<void>;
+  onInitiateWebsiteCheckout: () => Promise<void>;
   onSwitchMethod: () => void;
   onTransferReferenceChange: (value: string) => void;
   onTransferProofNoteChange: (value: string) => void;
@@ -34,12 +31,10 @@ export function BranchActionStep({
   websiteState,
   transferState,
   posState,
-  reservationStatus,
   transferTimeLeft,
   isBranchActionLocked,
   isCheckingAvailability,
-  onWebsiteOutcome,
-  onTryPaymentAgain,
+  onInitiateWebsiteCheckout,
   onSwitchMethod,
   onTransferReferenceChange,
   onTransferProofNoteChange,
@@ -60,7 +55,7 @@ export function BranchActionStep({
             <span className="step-circle">5</span> {stepLabel}
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-            Simulating the external payment gateway interaction.
+            Continue to our secure payment partner to complete checkout. Confirmation only happens after verified payment.
           </p>
           {websiteState.message && (
             <div className="booking-inline-note" style={{ marginBottom: "1rem" }}>
@@ -69,59 +64,33 @@ export function BranchActionStep({
           )}
           {websiteState.isProcessing && (
             <div className="booking-inline-note booking-inline-note-muted" style={{ marginBottom: "1rem" }}>
-              Processing payment outcome...
+              Preparing secure checkout...
             </div>
           )}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => onWebsiteOutcome("success")}
+              onClick={() => {
+                void onInitiateWebsiteCheckout();
+              }}
               disabled={websiteState.isProcessing || isBranchActionLocked}
             >
-              {websiteState.isProcessing || isBranchActionLocked ? "Submitting..." : "Simulate Payment Success"}
+              {websiteState.isProcessing || isBranchActionLocked
+                ? "Preparing Checkout..."
+                : websiteState.outcome === "failed"
+                  ? "Retry Checkout"
+                  : "Proceed to Secure Checkout"}
             </button>
             <button
               type="button"
               className="btn btn-outline-primary"
-              onClick={() => onWebsiteOutcome("failed")}
+              onClick={onSwitchMethod}
               disabled={websiteState.isProcessing || isBranchActionLocked}
             >
-              {websiteState.isProcessing || isBranchActionLocked ? "Submitting..." : "Failed"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={() => onWebsiteOutcome("cancelled")}
-              disabled={websiteState.isProcessing || isBranchActionLocked}
-            >
-              {websiteState.isProcessing || isBranchActionLocked ? "Submitting..." : "Cancel"}
+              Switch Method
             </button>
           </div>
-          {(reservationStatus === "failed_payment" || reservationStatus === "cancelled") && (
-            <div style={{ marginTop: "1.5rem", display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-              {reservationStatus === "failed_payment" && (
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => {
-                    void onTryPaymentAgain();
-                  }}
-                  disabled={isCheckingAvailability || isBranchActionLocked}
-                >
-                  {isCheckingAvailability || isBranchActionLocked ? "Revalidating..." : "Try Again"}
-                </button>
-              )}
-              <button
-                type="button"
-                className="btn btn-outline-primary"
-                onClick={onSwitchMethod}
-                disabled={isCheckingAvailability || isBranchActionLocked}
-              >
-                Switch Method
-              </button>
-            </div>
-          )}
         </>
       )}
 
@@ -246,4 +215,3 @@ export function BranchActionStep({
     </div>
   );
 }
-

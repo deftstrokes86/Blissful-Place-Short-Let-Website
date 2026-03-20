@@ -1,3 +1,4 @@
+﻿import { getSharedWebsitePaymentService } from "@/server/booking/website-payment-service-factory";
 import {
   jsonError,
   jsonErrorFromUnknown,
@@ -6,7 +7,6 @@ import {
   pickString,
   readJsonObject,
 } from "@/server/http/route-helpers";
-import { websitePaymentService } from "@/server/services/website-payment-service";
 
 export const runtime = "nodejs";
 
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       return jsonError("Idempotency key is required.", 400, "invalid_request");
     }
 
+    const websitePaymentService = getSharedWebsitePaymentService();
     const checkout = await websitePaymentService.initiateCheckout({
       token,
       idempotencyKey,

@@ -31,6 +31,7 @@ import {
 } from "@/lib/booking-branch-config";
 import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
 import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+import { createIdempotencyKey, createWebsiteDraft, initiateWebsiteCheckout } from "@/lib/booking-frontend-api";
 import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
 import {
   getGuestValidationState,
@@ -82,6 +83,7 @@ export default function BookingPage() {
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [flowNotice, setFlowNotice] = useState<string | null>(null);
   const [branchResetNotice, setBranchResetNotice] = useState<string | null>(null);
+  const [draftToken, setDraftToken] = useState<string | null>(null);
 
   // Prevent duplicate prototype submissions when branch actions are triggered quickly.
   const branchActionLockRef = useRef(false);
@@ -129,9 +131,11 @@ export default function BookingPage() {
     setPosState(INITIAL_POS_STATE);
     setFlowNotice(null);
     setAvailabilityNote(null);
+    setDraftToken(null);
   }
 
   function toggleExtra(id: ExtraId) {
+    setDraftToken(null);
     setStay((current) => ({
       ...current,
       extraIds: current.extraIds.includes(id)
@@ -141,10 +145,12 @@ export default function BookingPage() {
   }
 
   function handleStayChange<K extends keyof StayFormState>(field: K, value: StayFormState[K]) {
+    setDraftToken(null);
     setStay((current) => ({ ...current, [field]: value }));
   }
 
   function handleGuestChange<K extends keyof GuestFormState>(field: K, value: GuestFormState[K]) {
+    setDraftToken(null);
     setGuest((current) => ({ ...current, [field]: value }));
   }
 
@@ -189,6 +195,7 @@ export default function BookingPage() {
     setPaymentTouched(true);
     setBranchResetNotice(null);
     setAvailabilityNote(null);
+    setDraftToken(null);
 
     if (paymentMethod && paymentMethod !== nextMethod) {
       clearBranchTransientState();
@@ -282,6 +289,7 @@ export default function BookingPage() {
       if (paymentMethod === "website") {
         const ok = await runAvailabilityCheckpoint(getAvailabilityReasonForStep(stepIndex, paymentMethod));
         if (!ok) return;
+        setWebsiteState(INITIAL_WEBSITE_STATE);
       } else {
         setAvailabilityNote(null);
       }
@@ -316,79 +324,88 @@ export default function BookingPage() {
     }
   }
 
-  async function handleWebsiteOutcome(outcome: "success" | "failed" | "cancelled") {
+  function getRequestErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message.trim().length > 0) {
+      return error.message;
+    }
+
+    return "Unable to start checkout right now. Please try again.";
+  }
+
+  function buildWebsiteDraftPayload() {
+    if (!stay.flatId || !stay.checkIn || !stay.checkOut || stay.guests < 1) {
+      throw new Error("Complete valid stay details before starting checkout.");
+    }
+
+    if (!guest.firstName || !guest.lastName || !guest.email || !guest.phone) {
+      throw new Error("Complete guest details before starting checkout.");
+    }
+
+    return {
+      stay: {
+        flatId: stay.flatId,
+        checkIn: stay.checkIn,
+        checkOut: stay.checkOut,
+        guests: stay.guests,
+        extraIds: [...stay.extraIds],
+      },
+      guest: {
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        phone: guest.phone,
+        specialRequests: guest.specialRequests,
+      },
+      paymentMethod: "website" as const,
+    };
+  }
+
+  async function ensureWebsiteDraftToken(): Promise<string> {
+    if (draftToken) {
+      return draftToken;
+    }
+
+    const draft = await createWebsiteDraft(buildWebsiteDraftPayload());
+    setDraftToken(draft.resumeToken);
+    return draft.resumeToken;
+  }
+
+  async function handleInitiateWebsiteCheckout() {
+    if (paymentMethod !== "website") {
+      return;
+    }
+
     if (!beginBranchActionLock()) {
       return;
     }
 
     setWebsiteState((current) => ({ ...current, isProcessing: true, message: null }));
+    setFlowNotice("Preparing secure checkout...");
 
     try {
-      await wait(800);
-
-      if (outcome === "success") {
-        setReservationStatus("confirmed");
-        setWebsiteState({ outcome: "success", isProcessing: false, message: "Payment completed successfully." });
-        setFlowNotice("Website payment succeeded. Your booking is now fully confirmed.");
-        setStepIndex(STEP5);
-        return;
-      }
-
-      if (outcome === "failed") {
-        setReservationStatus("failed_payment");
-        setWebsiteState({
-          outcome: "failed",
-          isProcessing: false,
-          message: "We could not process your payment. You can try again or switch to a different method.",
-        });
-        setFlowNotice("Online payment did not complete. You can retry or switch your payment method.");
-        return;
-      }
-
-      setReservationStatus("cancelled");
-      setWebsiteState({
-        outcome: "cancelled",
-        isProcessing: false,
-        message: "The payment flow was cancelled. Please switch your payment method or contact support.",
+      const token = await ensureWebsiteDraftToken();
+      const checkout = await initiateWebsiteCheckout({
+        token,
+        idempotencyKey: createIdempotencyKey("website-checkout"),
       });
-      setFlowNotice("Payment was cancelled before completion. Your reservation remains unconfirmed.");
+
+      setDraftToken(checkout.reservation.token);
+      setReservationStatus(checkout.reservation.status);
+      setFlowNotice("Redirecting to secure checkout...");
+      window.location.assign(checkout.checkoutUrl);
+    } catch (error) {
+      const message = getRequestErrorMessage(error);
+      setWebsiteState({
+        outcome: "failed",
+        isProcessing: false,
+        message,
+      });
+      setFlowNotice("We could not start secure checkout. Your details were kept, so you can retry.");
     } finally {
       endBranchActionLock();
       setWebsiteState((current) => (current.isProcessing ? { ...current, isProcessing: false } : current));
     }
   }
-
-  async function handleTryPaymentAgain() {
-    if (!beginBranchActionLock()) {
-      return;
-    }
-
-    try {
-      const ok = await runAvailabilityCheckpoint("before online payment handoff");
-      if (!ok) return;
-
-      const retryStatus = resolveTransition({
-        from: reservationStatus,
-        event: "try_online_payment_again",
-        availabilityPassed: true,
-      });
-
-      if (!retryStatus) {
-        return;
-      }
-
-      setReservationStatus(retryStatus);
-      setWebsiteState({
-        outcome: "idle",
-        message: "Payment portal reset. You can now try again.",
-        isProcessing: false,
-      });
-      setFlowNotice("Gateway session reset. Continue when you are ready.");
-    } finally {
-      endBranchActionLock();
-    }
-  }
-
   function handleSwitchPaymentMethodFromBranch() {
     if (isBranchActionLocked || isCheckingAvailability) {
       return;
@@ -612,12 +629,10 @@ export default function BookingPage() {
                 websiteState={websiteState}
                 transferState={transferState}
                 posState={posState}
-                reservationStatus={reservationStatus}
                 transferTimeLeft={transferTimeLeft}
                 isBranchActionLocked={isBranchActionLocked}
                 isCheckingAvailability={isCheckingAvailability}
-                onWebsiteOutcome={handleWebsiteOutcome}
-                onTryPaymentAgain={handleTryPaymentAgain}
+                onInitiateWebsiteCheckout={handleInitiateWebsiteCheckout}
                 onSwitchMethod={handleSwitchPaymentMethodFromBranch}
                 onTransferReferenceChange={handleTransferReferenceChange}
                 onTransferProofNoteChange={handleTransferProofNoteChange}
@@ -673,6 +688,5 @@ export default function BookingPage() {
     </main>
   );
 }
-
 
 

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AvailabilityResult,
   BookingActor,
   BookingId,
@@ -69,7 +69,7 @@ export interface PaymentAttemptRecord {
   id: string;
   reservationId: BookingId;
   paymentMethod: "website";
-  provider: "prototype_gateway";
+  provider: "prototype_gateway" | "flutterwave";
   outcome: PaymentAttemptOutcome;
   amount: number;
   currency: "NGN";
@@ -153,6 +153,7 @@ export interface DraftUpdateInput {
   guest?: Partial<GuestDetailsInput>;
   paymentMethod?: PaymentMethod | null;
 }
+
 
 
 

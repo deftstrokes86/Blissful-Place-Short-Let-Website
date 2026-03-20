@@ -1,3 +1,4 @@
+import { getSharedWebsitePaymentService } from "@/server/booking/website-payment-service-factory";
 import { parseOfflinePaymentMethod } from "@/server/http/reservation-payload";
 import {
   jsonError,
@@ -7,7 +8,6 @@ import {
   pickString,
   readJsonObject,
 } from "@/server/http/route-helpers";
-import { websitePaymentService } from "@/server/services/website-payment-service";
 
 export const runtime = "nodejs";
 
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
 
     const targetMethod = parseOfflinePaymentMethod(body, "targetMethod");
 
+    const websitePaymentService = getSharedWebsitePaymentService();
     const reservation = await websitePaymentService.switchFailedPaymentMethod({
       token,
       targetMethod,

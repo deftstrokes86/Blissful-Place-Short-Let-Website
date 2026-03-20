@@ -1,4 +1,4 @@
-{
+﻿{
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
@@ -15,9 +15,11 @@
   "include": [
     "src/server/booking/**/*.ts",
     "src/server/jobs/**/*.ts",
+    "src/server/payments/**/*.ts",
     "src/lib/booking-state-machine.ts",
     "src/lib/booking-pricing.ts",
     "src/types/booking.ts",
     "src/types/booking-backend.ts"
   ]
 }
+

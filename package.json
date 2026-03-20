@@ -15,7 +15,11 @@
     "test:expire-transfer-holds-job": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/jobs/__tests__/expire-transfer-holds.test.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy"
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "test:website-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/website-payment-service.test.js",
+    "test:flutterwave-checkout": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/payments/__tests__/flutterwave-checkout.test.js",
+    "test:flutterwave-webhook": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/payments/__tests__/flutterwave-webhook.test.js",
+    "test:flutterwave-verification": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/payments/__tests__/flutterwave-verification.test.js"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
