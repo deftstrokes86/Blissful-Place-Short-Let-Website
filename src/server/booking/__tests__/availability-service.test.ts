@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   AvailabilityService,
   type AvailabilityRepository,
+  type AvailabilityRepositoryBlock,
   type AvailabilityRepositoryFlat,
   type AvailabilityRepositoryReservation,
 } from "../availability-service";
@@ -11,13 +12,18 @@ import type { FlatId, ReservationStatus, StayDetailsInput } from "../../../types
 class InMemoryAvailabilityRepository implements AvailabilityRepository {
   private readonly flats = new Map<FlatId, AvailabilityRepositoryFlat>();
   private readonly reservations: AvailabilityRepositoryReservation[];
+  private readonly blocks: AvailabilityRepositoryBlock[];
 
-  constructor(options?: { reservations?: AvailabilityRepositoryReservation[] }) {
+  constructor(options?: {
+    reservations?: AvailabilityRepositoryReservation[];
+    blocks?: AvailabilityRepositoryBlock[];
+  }) {
     this.flats.set("windsor", { id: "windsor", maxGuests: 6 });
     this.flats.set("kensington", { id: "kensington", maxGuests: 6 });
     this.flats.set("mayfair", { id: "mayfair", maxGuests: 6 });
 
     this.reservations = [...(options?.reservations ?? [])];
+    this.blocks = [...(options?.blocks ?? [])];
   }
 
   async findFlatById(flatId: FlatId): Promise<AvailabilityRepositoryFlat | null> {
@@ -26,6 +32,10 @@ class InMemoryAvailabilityRepository implements AvailabilityRepository {
 
   async listReservationsByFlat(flatId: FlatId): Promise<AvailabilityRepositoryReservation[]> {
     return this.reservations.filter((reservation) => reservation.stay.flatId === flatId);
+  }
+
+  async listAvailabilityBlocksByFlat(flatId: FlatId): Promise<AvailabilityRepositoryBlock[]> {
+    return this.blocks.filter((block) => block.flatId === flatId);
   }
 }
 
@@ -52,9 +62,27 @@ function createReservation(
   };
 }
 
-function createService(reservations?: AvailabilityRepositoryReservation[]): AvailabilityService {
+function createBlock(overrides?: Partial<AvailabilityRepositoryBlock>): AvailabilityRepositoryBlock {
+  return {
+    id: "block_1",
+    flatId: "mayfair",
+    sourceType: "reservation",
+    sourceId: "res_1",
+    blockType: "hard_block",
+    startDate: "2026-07-10",
+    endDate: "2026-07-13",
+    status: "active",
+    expiresAt: null,
+    ...overrides,
+  };
+}
+
+function createService(options?: {
+  reservations?: AvailabilityRepositoryReservation[];
+  blocks?: AvailabilityRepositoryBlock[];
+}): AvailabilityService {
   return new AvailabilityService({
-    repository: new InMemoryAvailabilityRepository({ reservations }),
+    repository: new InMemoryAvailabilityRepository(options),
     now: () => new Date("2026-07-01T10:00:00.000Z"),
     createInventoryVersion: () => "inventory-fixed",
   });
@@ -100,7 +128,7 @@ async function testPreConfirmationRecheckIntentByMethod(): Promise<void> {
 }
 
 async function testOverlapConflictBlocksAvailability(): Promise<void> {
-  const service = createService([createReservation("confirmed")]);
+  const service = createService({ reservations: [createReservation("confirmed")] });
   const result = await service.runPreHoldRecheck(createStay(), "website");
 
   assert.equal(result.isAvailable, false);
@@ -108,7 +136,7 @@ async function testOverlapConflictBlocksAvailability(): Promise<void> {
 }
 
 async function testNonBlockingStatusesDoNotBlock(): Promise<void> {
-  const service = createService([createReservation("cancelled")]);
+  const service = createService({ reservations: [createReservation("cancelled")] });
   const result = await service.runPreHoldRecheck(createStay(), "website");
 
   assert.equal(result.isAvailable, true);
@@ -136,13 +164,65 @@ async function testCapacityConflict(): Promise<void> {
 }
 
 async function testExcludeSameReservationIdOnRecheck(): Promise<void> {
-  const service = createService([
-    createReservation("pending_transfer_submission", {
-      id: "res_same",
-    }),
-  ]);
+  const service = createService({
+    reservations: [
+      createReservation("pending_transfer_submission", {
+        id: "res_same",
+      }),
+    ],
+  });
 
   const result = await service.runPreHoldRecheck(createStay(), "transfer", "res_same");
+  assert.equal(result.isAvailable, true);
+}
+
+async function testCalendarBlocksRejectBlockedDateRanges(): Promise<void> {
+  const service = createService({
+    blocks: [
+      createBlock({
+        id: "block_mayfair_hold",
+        flatId: "mayfair",
+        blockType: "soft_hold",
+        startDate: "2026-07-10",
+        endDate: "2026-07-12",
+        expiresAt: "2026-07-01T11:00:00.000Z",
+      }),
+    ],
+  });
+
+  const result = await service.runInitialAvailabilityCheck(
+    createStay({
+      flatId: "mayfair",
+      checkIn: "2026-07-10",
+      checkOut: "2026-07-11",
+    })
+  );
+
+  assert.equal(result.isAvailable, false);
+  assert.ok(result.conflicts.some((conflict) => conflict.code === "sold_out" && conflict.field === "stay"));
+}
+
+async function testCalendarBlocksRemainFlatSpecific(): Promise<void> {
+  const service = createService({
+    blocks: [
+      createBlock({
+        id: "block_mayfair_only",
+        flatId: "mayfair",
+        blockType: "hard_block",
+        startDate: "2026-07-10",
+        endDate: "2026-07-12",
+      }),
+    ],
+  });
+
+  const result = await service.runInitialAvailabilityCheck(
+    createStay({
+      flatId: "windsor",
+      checkIn: "2026-07-10",
+      checkOut: "2026-07-11",
+    })
+  );
+
   assert.equal(result.isAvailable, true);
 }
 
@@ -156,8 +236,11 @@ async function run(): Promise<void> {
   await testInvalidWindowConflict();
   await testCapacityConflict();
   await testExcludeSameReservationIdOnRecheck();
+  await testCalendarBlocksRejectBlockedDateRanges();
+  await testCalendarBlocksRemainFlatSpecific();
 
   console.log("availability-service: ok");
 }
 
 void run();
+

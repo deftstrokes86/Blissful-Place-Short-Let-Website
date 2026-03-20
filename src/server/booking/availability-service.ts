@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 
 import { calculateNightCount, parseIsoDate } from "../../lib/booking-pricing";
+import {
+  CalendarAvailabilityService,
+  type CalendarAvailabilityBlock,
+} from "./calendar-availability-service";
 import type {
   AvailabilityCheckpoint,
   AvailabilityConflict,
@@ -12,10 +16,8 @@ import type {
 } from "../../types/booking";
 
 const INVENTORY_BLOCKING_STATUSES: readonly ReservationStatus[] = [
-  "pending_online_payment",
   "pending_transfer_submission",
   "awaiting_transfer_verification",
-  "pending_pos_coordination",
   "confirmed",
 ];
 
@@ -41,9 +43,22 @@ export interface AvailabilityRepositoryReservation {
   stay: Pick<StayDetailsInput, "flatId" | "checkIn" | "checkOut">;
 }
 
+export interface AvailabilityRepositoryBlock {
+  id: string;
+  flatId: FlatId;
+  sourceType: "reservation" | "manual";
+  sourceId: string;
+  blockType: "hard_block" | "soft_hold";
+  startDate: string;
+  endDate: string;
+  status: "active" | "released";
+  expiresAt: string | null;
+}
+
 export interface AvailabilityRepository {
   findFlatById(flatId: FlatId): Promise<AvailabilityRepositoryFlat | null>;
   listReservationsByFlat(flatId: FlatId): Promise<AvailabilityRepositoryReservation[]>;
+  listAvailabilityBlocksByFlat?(flatId: FlatId): Promise<AvailabilityRepositoryBlock[]>;
 }
 
 interface AvailabilityServiceDependencies {
@@ -100,15 +115,16 @@ function dateRangesOverlap(
   secondStartIso: string,
   secondEndIso: string
 ): boolean {
-  const firstStart = parseIsoDate(firstStartIso as never);
-  const firstEnd = parseIsoDate(firstEndIso as never);
-  const secondStart = parseIsoDate(secondStartIso as never);
-  const secondEnd = parseIsoDate(secondEndIso as never);
+  const firstStart = parseIsoDate(firstStartIso.slice(0, 10) as never);
+  const firstEnd = parseIsoDate(firstEndIso.slice(0, 10) as never);
+  const secondStart = parseIsoDate(secondStartIso.slice(0, 10) as never);
+  const secondEnd = parseIsoDate(secondEndIso.slice(0, 10) as never);
 
   if (!firstStart || !firstEnd || !secondStart || !secondEnd) {
     return false;
   }
 
+  // Check-in inclusive, check-out exclusive.
   return firstStart < secondEnd && secondStart < firstEnd;
 }
 
@@ -116,11 +132,13 @@ export class AvailabilityService {
   private readonly repository: AvailabilityRepository;
   private readonly nowProvider: () => Date;
   private readonly inventoryVersionFactory: () => string;
+  private readonly calendarAvailabilityService: CalendarAvailabilityService | null;
 
   constructor(dependencies: AvailabilityServiceDependencies) {
     this.repository = dependencies.repository;
     this.nowProvider = dependencies.now ?? (() => new Date());
     this.inventoryVersionFactory = dependencies.createInventoryVersion ?? (() => `inventory-${randomUUID()}`);
+    this.calendarAvailabilityService = this.createCalendarAvailabilityService();
   }
 
   async runInitialAvailabilityCheck(stay: StayDetailsInput, reservationId?: string): Promise<AvailabilityCheckResult> {
@@ -177,7 +195,8 @@ export class AvailabilityService {
   }
 
   private async check(input: CheckInput): Promise<AvailabilityCheckResult> {
-    const checkedAt = this.nowProvider().toISOString();
+    const now = this.nowProvider();
+    const checkedAt = now.toISOString();
     const inventoryVersion = this.inventoryVersionFactory();
 
     const conflicts: AvailabilityConflict[] = [];
@@ -215,6 +234,72 @@ export class AvailabilityService {
       });
     }
 
+    if (nightCount !== null) {
+      const overlapReason = await this.findOverlappingConflict(input);
+      if (overlapReason) {
+        conflicts.push({
+          code: "sold_out",
+          field: "stay",
+          message: "Those dates are currently held or booked for the selected residence.",
+        });
+        reasons.push(overlapReason);
+      }
+    }
+
+    if (conflicts.length > 0) {
+      if (reasons.length === 0) {
+        reasons.push(`Availability check failed at ${input.checkpoint}.`);
+      }
+
+      return toUnavailable(input, checkedAt, inventoryVersion, conflicts, reasons);
+    }
+
+    reasons.push(`Availability check passed at ${input.checkpoint}.`);
+    return toAvailable(input, checkedAt, inventoryVersion, reasons);
+  }
+
+  private createCalendarAvailabilityService(): CalendarAvailabilityService | null {
+    if (!this.repository.listAvailabilityBlocksByFlat) {
+      return null;
+    }
+
+    const listBlocksByFlat = this.repository.listAvailabilityBlocksByFlat.bind(this.repository);
+
+    return new CalendarAvailabilityService({
+      repository: {
+        listByFlat: async (flatId: FlatId): Promise<CalendarAvailabilityBlock[]> => {
+          const blocks = await listBlocksByFlat(flatId);
+          return blocks.map((block) => ({
+            id: block.id,
+            flatId: block.flatId,
+            sourceType: block.sourceType,
+            sourceId: block.sourceId,
+            blockType: block.blockType,
+            startDate: block.startDate,
+            endDate: block.endDate,
+            status: block.status,
+            expiresAt: block.expiresAt,
+          }));
+        },
+      },
+      now: this.nowProvider,
+    });
+  }
+
+  private async findOverlappingConflict(input: CheckInput): Promise<string | null> {
+    if (this.calendarAvailabilityService) {
+      const overlap = await this.calendarAvailabilityService.checkProposedStayAvailability({
+        flatId: input.stay.flatId,
+        checkIn: input.stay.checkIn,
+        checkOut: input.stay.checkOut,
+        excludeSourceId: input.reservationId,
+      });
+
+      if (overlap.overlappingBlocks.length > 0) {
+        return `Inventory overlap found with availability block ${overlap.overlappingBlocks[0].blockId}.`;
+      }
+    }
+
     const reservations = await this.repository.listReservationsByFlat(input.stay.flatId);
     const overlappingReservation = reservations.find((reservation) => {
       if (!INVENTORY_BLOCKING_STATUSES.includes(reservation.status)) {
@@ -233,24 +318,12 @@ export class AvailabilityService {
       );
     });
 
-    if (overlappingReservation) {
-      conflicts.push({
-        code: "sold_out",
-        field: "stay",
-        message: "Those dates are currently held or booked for the selected residence.",
-      });
-      reasons.push(`Inventory overlap found with reservation ${overlappingReservation.id}.`);
+    if (!overlappingReservation) {
+      return null;
     }
 
-    if (conflicts.length > 0) {
-      if (reasons.length === 0) {
-        reasons.push(`Availability check failed at ${input.checkpoint}.`);
-      }
-
-      return toUnavailable(input, checkedAt, inventoryVersion, conflicts, reasons);
-    }
-
-    reasons.push(`Availability check passed at ${input.checkpoint}.`);
-    return toAvailable(input, checkedAt, inventoryVersion, reasons);
+    return `Inventory overlap found with reservation ${overlappingReservation.id}.`;
   }
 }
+
+

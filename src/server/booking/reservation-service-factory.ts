@@ -1,4 +1,4 @@
-﻿import { NoopReservationInventoryGateway } from "./inventory-gateway";
+import { ReservationAvailabilityGateway } from "./inventory-gateway";
 import { fileReservationRepository } from "./file-reservation-repository";
 import { ReservationService } from "./reservation-service";
 
@@ -11,8 +11,9 @@ export function getSharedReservationService(): ReservationService {
 
   sharedReservationService = new ReservationService({
     repository: fileReservationRepository,
-    inventoryGateway: new NoopReservationInventoryGateway(),
+    inventoryGateway: new ReservationAvailabilityGateway(),
   });
 
   return sharedReservationService;
 }
+

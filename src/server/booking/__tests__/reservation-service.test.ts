@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 
 import {
   ReservationService,
@@ -100,6 +100,21 @@ class InMemoryReservationRepository implements ReservationRepository {
 
 class MockInventoryGateway implements ReservationInventoryGateway {
   readonly reopened: { reservationId: string; reason: "cancelled" | "expired" }[] = [];
+  readonly syncedReservations: Array<{
+    id: string;
+    status: ReservationRepositoryReservation["status"];
+    checkIn: string;
+    checkOut: string;
+  }> = [];
+
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    this.syncedReservations.push({
+      id: reservation.id,
+      status: reservation.status,
+      checkIn: reservation.stay.checkIn,
+      checkOut: reservation.stay.checkOut,
+    });
+  }
 
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     this.reopened.push({ reservationId, reason });
@@ -234,7 +249,7 @@ async function testUpdateDraftReservation(): Promise<void> {
 
 async function testAllowedTransitionToTransferPending(): Promise<void> {
   const existing = createExistingReservation({ token: "token_transition" });
-  const { service } = createServiceHarness({
+  const { service, inventoryGateway } = createServiceHarness({
     reservations: [existing],
     now: "2026-07-01T10:00:00.000Z",
   });
@@ -250,6 +265,7 @@ async function testAllowedTransitionToTransferPending(): Promise<void> {
   assert.equal(transitioned.status, "pending_transfer_submission");
   assert.equal(transitioned.transferHoldStartedAt, "2026-07-01T10:00:00.000Z");
   assert.equal(transitioned.transferHoldExpiresAt, "2026-07-01T11:00:00.000Z");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "pending_transfer_submission");
 }
 
 async function testForbiddenTransitionRejected(): Promise<void> {
@@ -290,6 +306,7 @@ async function testTransferHoldExpiryHandling(): Promise<void> {
   assert.equal(expired[0].status, "cancelled");
   assert.equal(expired[0].inventoryReopenedAt, "2026-07-01T11:05:00.000Z");
   assert.deepEqual(inventoryGateway.reopened, [{ reservationId: "res_expiring", reason: "cancelled" }]);
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "cancelled");
 }
 
 async function testInvalidConfirmationPathBlocked(): Promise<void> {
@@ -344,6 +361,96 @@ async function testForbiddenSwitchMethodFromPendingOnlinePayment(): Promise<void
     /Event is not valid for the current reservation state/
   );
 }
+async function testCalendarSyncTriggeredWhenTransferProofMovesAwaitingVerification(): Promise<void> {
+  const existing = createExistingReservation({
+    token: "token_awaiting_sync",
+    status: "pending_transfer_submission",
+    paymentMethod: "transfer",
+    transferHoldStartedAt: "2026-07-01T10:00:00.000Z",
+    transferHoldExpiresAt: "2026-07-01T11:00:00.000Z",
+  });
+
+  const { service, inventoryGateway } = createServiceHarness({
+    reservations: [existing],
+    now: "2026-07-01T10:20:00.000Z",
+  });
+
+  const transitioned = await service.transitionReservation({
+    token: "token_awaiting_sync",
+    event: "transfer_proof_submitted",
+    actor: "guest",
+    availabilityPassed: true,
+  });
+
+  assert.equal(transitioned.status, "awaiting_transfer_verification");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "awaiting_transfer_verification");
+}
+
+async function testCalendarSyncTriggeredWhenConfirmed(): Promise<void> {
+  const existing = createExistingReservation({
+    token: "token_confirm_sync",
+    status: "pending_online_payment",
+    paymentMethod: "website",
+  });
+
+  const { service, inventoryGateway } = createServiceHarness({
+    reservations: [existing],
+    now: "2026-07-01T10:20:00.000Z",
+  });
+
+  const transitioned = await service.transitionReservation({
+    token: "token_confirm_sync",
+    event: "online_payment_confirmed",
+    actor: "system",
+  });
+
+  assert.equal(transitioned.status, "confirmed");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "confirmed");
+}
+
+async function testCalendarSyncTriggeredWhenFailedPaymentRecorded(): Promise<void> {
+  const existing = createExistingReservation({
+    token: "token_failed_sync",
+    status: "pending_online_payment",
+    paymentMethod: "website",
+  });
+
+  const { service, inventoryGateway } = createServiceHarness({
+    reservations: [existing],
+    now: "2026-07-01T10:20:00.000Z",
+  });
+
+  const transitioned = await service.transitionReservation({
+    token: "token_failed_sync",
+    event: "online_payment_failed",
+    actor: "system",
+  });
+
+  assert.equal(transitioned.status, "failed_payment");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "failed_payment");
+}
+
+async function testCalendarSyncTriggeredWhenDraftDatesChange(): Promise<void> {
+  const existing = createExistingReservation({ token: "token_dates_sync" });
+  const { service, inventoryGateway } = createServiceHarness({ reservations: [existing] });
+
+  const updated = await service.updateDraftReservation("token_dates_sync", {
+    stay: {
+      checkIn: "2026-08-01",
+      checkOut: "2026-08-04",
+    },
+  });
+
+  assert.equal(updated.status, "draft");
+  assert.equal(updated.stay.checkIn, "2026-08-01");
+  assert.equal(updated.stay.checkOut, "2026-08-04");
+  assert.deepEqual(inventoryGateway.syncedReservations.at(-1), {
+    id: updated.id,
+    status: "draft",
+    checkIn: "2026-08-01",
+    checkOut: "2026-08-04",
+  });
+}
 async function run(): Promise<void> {
   await testCreateDraftReservation();
   await testUpdateDraftReservation();
@@ -352,6 +459,10 @@ async function run(): Promise<void> {
   await testTransferHoldExpiryHandling();
   await testInvalidConfirmationPathBlocked();
   await testForbiddenSwitchMethodFromPendingOnlinePayment();
+  await testCalendarSyncTriggeredWhenTransferProofMovesAwaitingVerification();
+  await testCalendarSyncTriggeredWhenConfirmed();
+  await testCalendarSyncTriggeredWhenFailedPaymentRecorded();
+  await testCalendarSyncTriggeredWhenDraftDatesChange();
 
   console.log("reservation-service: ok");
 }

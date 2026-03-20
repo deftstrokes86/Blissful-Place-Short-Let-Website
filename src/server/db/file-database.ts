@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -58,6 +58,7 @@ function createEmptyDatabaseState(): BookingDatabaseState {
     flats: createSeedFlats(now),
     extras: createSeedExtras(now),
     reservations: [],
+    availabilityBlocks: [],
     paymentAttempts: [],
     transferVerifications: [],
     posCoordinations: [],
@@ -85,6 +86,7 @@ async function readDatabaseState(): Promise<BookingDatabaseState> {
     flats: parsed.flats ?? [],
     extras: parsed.extras ?? [],
     reservations: parsed.reservations ?? [],
+    availabilityBlocks: parsed.availabilityBlocks ?? [],
     paymentAttempts: parsed.paymentAttempts ?? [],
     transferVerifications: parsed.transferVerifications ?? [],
     posCoordinations: parsed.posCoordinations ?? [],

@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 
 import {
   OfflinePaymentService,
@@ -105,7 +105,23 @@ class InMemoryReservationRepository implements ReservationRepository {
   }
 }
 
-class NoopInventoryGateway implements ReservationInventoryGateway {
+class SpyInventoryGateway implements ReservationInventoryGateway {
+  readonly syncedReservations: Array<{
+    id: string;
+    status: ReservationRepositoryReservation["status"];
+    checkIn: string;
+    checkOut: string;
+  }> = [];
+
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    this.syncedReservations.push({
+      id: reservation.id,
+      status: reservation.status,
+      checkIn: reservation.stay.checkIn,
+      checkOut: reservation.stay.checkOut,
+    });
+  }
+
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     void reservationId;
     void reason;
@@ -325,9 +341,10 @@ function cloneReservation(value: ReservationRepositoryReservation): ReservationR
 
 function createHarness(options?: { reservations?: ReservationRepositoryReservation[]; now?: string }) {
   const repository = new InMemoryReservationRepository({ reservations: options?.reservations });
+  const inventoryGateway = new SpyInventoryGateway();
   const reservationService = new ReservationService({
     repository,
-    inventoryGateway: new NoopInventoryGateway(),
+    inventoryGateway,
     now: () => new Date(options?.now ?? "2026-07-01T10:00:00.000Z"),
     createId: () => "res_generated",
     createToken: () => "token_generated",
@@ -347,6 +364,7 @@ function createHarness(options?: { reservations?: ReservationRepositoryReservati
     offlineService,
     metadataRepository,
     availabilityGateway,
+    inventoryGateway,
   };
 }
 
@@ -354,7 +372,7 @@ async function testCreatesPendingTransferSubmission(): Promise<void> {
   const draftReservation = createReservation("draft", {
     token: "token_transfer_start",
   });
-  const { offlineService, availabilityGateway } = createHarness({ reservations: [draftReservation] });
+  const { offlineService, availabilityGateway, inventoryGateway } = createHarness({ reservations: [draftReservation] });
 
   const result = await offlineService.createTransferSubmission({
     token: "token_transfer_start",
@@ -366,6 +384,7 @@ async function testCreatesPendingTransferSubmission(): Promise<void> {
   assert.ok(result.reservation.transferHoldExpiresAt !== null);
   assert.equal(availabilityGateway.preHoldCalls.length, 1);
   assert.equal(availabilityGateway.preHoldCalls[0].method, "transfer");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "pending_transfer_submission");
 }
 
 async function testStoresTransferProofAndMovesAwaitingVerification(): Promise<void> {
@@ -375,7 +394,7 @@ async function testStoresTransferProofAndMovesAwaitingVerification(): Promise<vo
     transferHoldStartedAt: "2026-07-01T10:00:00.000Z",
     transferHoldExpiresAt: "2026-07-01T11:00:00.000Z",
   });
-  const { offlineService, metadataRepository } = createHarness({ reservations: [reservation] });
+  const { offlineService, metadataRepository, inventoryGateway } = createHarness({ reservations: [reservation] });
 
   const result = await offlineService.submitTransferProof({
     token: "token_transfer_proof",
@@ -387,6 +406,7 @@ async function testStoresTransferProofAndMovesAwaitingVerification(): Promise<vo
   assert.equal(result.reservation.status, "awaiting_transfer_verification");
   assert.equal(result.transferMetadata.verificationStatus, "pending");
   assert.equal(metadataRepository.transferRecords.length, 1);
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "awaiting_transfer_verification");
 }
 
 async function testConfirmsVerifiedTransferCorrectly(): Promise<void> {
@@ -398,7 +418,7 @@ async function testConfirmsVerifiedTransferCorrectly(): Promise<void> {
     transferHoldExpiresAt: "2026-07-01T11:00:00.000Z",
   });
 
-  const { offlineService, metadataRepository, availabilityGateway } = createHarness({ reservations: [reservation] });
+  const { offlineService, metadataRepository, availabilityGateway, inventoryGateway } = createHarness({ reservations: [reservation] });
 
   await metadataRepository.createTransferMetadata({
     reservationId: "res_transfer_confirm",
@@ -423,6 +443,7 @@ async function testConfirmsVerifiedTransferCorrectly(): Promise<void> {
   assert.equal(result.transferMetadata.verifiedByStaffId, "staff_1");
   assert.equal(availabilityGateway.preConfirmationCalls.length, 1);
   assert.equal(availabilityGateway.preConfirmationCalls[0].method, "transfer");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "confirmed");
 }
 
 async function testCreatesPendingPosCoordination(): Promise<void> {
@@ -430,7 +451,7 @@ async function testCreatesPendingPosCoordination(): Promise<void> {
     token: "token_pos_start",
   });
 
-  const { offlineService, metadataRepository, availabilityGateway } = createHarness({ reservations: [reservation] });
+  const { offlineService, metadataRepository, availabilityGateway, inventoryGateway } = createHarness({ reservations: [reservation] });
 
   const result = await offlineService.createPosCoordinationRequest({
     token: "token_pos_start",
@@ -444,6 +465,7 @@ async function testCreatesPendingPosCoordination(): Promise<void> {
   assert.equal(result.posMetadata.status, "requested");
   assert.equal(metadataRepository.posRecords.length, 1);
   assert.equal(availabilityGateway.preHoldCalls[0].method, "pos");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "pending_pos_coordination");
 }
 
 async function testConfirmsPosPaymentCorrectly(): Promise<void> {
@@ -453,7 +475,7 @@ async function testConfirmsPosPaymentCorrectly(): Promise<void> {
     paymentMethod: "pos",
   });
 
-  const { offlineService, metadataRepository, availabilityGateway } = createHarness({ reservations: [reservation] });
+  const { offlineService, metadataRepository, availabilityGateway, inventoryGateway } = createHarness({ reservations: [reservation] });
 
   await metadataRepository.createPosMetadata({
     reservationId: "res_pos_confirm",
@@ -476,6 +498,7 @@ async function testConfirmsPosPaymentCorrectly(): Promise<void> {
   assert.equal(result.posMetadata.completedByStaffId, "staff_pos_1");
   assert.equal(availabilityGateway.preConfirmationCalls.length, 1);
   assert.equal(availabilityGateway.preConfirmationCalls[0].method, "pos");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "confirmed");
 }
 
 async function testRejectsInvalidStatusTransitions(): Promise<void> {

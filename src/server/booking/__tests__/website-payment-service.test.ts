@@ -114,7 +114,19 @@ class InMemoryReservationRepository implements ReservationRepository {
   }
 }
 
-class NoopInventoryGateway implements ReservationInventoryGateway {
+class SpyInventoryGateway implements ReservationInventoryGateway {
+  readonly syncedReservations: Array<{
+    id: string;
+    status: ReservationRepositoryReservation["status"];
+  }> = [];
+
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    this.syncedReservations.push({
+      id: reservation.id,
+      status: reservation.status,
+    });
+  }
+
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     void reservationId;
     void reason;
@@ -354,9 +366,10 @@ function createHarness(options?: {
   txRef?: string;
 }) {
   const repository = new InMemoryReservationRepository({ reservations: options?.reservations });
+  const inventoryGateway = new SpyInventoryGateway();
   const reservationService = new ReservationService({
     repository,
-    inventoryGateway: new NoopInventoryGateway(),
+    inventoryGateway: inventoryGateway,
     now: () => new Date("2026-07-01T10:00:00.000Z"),
     createId: () => "res_generated",
     createToken: () => "token_generated",
@@ -387,6 +400,7 @@ function createHarness(options?: {
   return {
     service,
     reservationService,
+    inventoryGateway,
     availabilityGateway,
     paymentAttemptRepository,
     flutterwaveClient,
@@ -486,7 +500,7 @@ async function testDoesNotConfirmWhenVerificationDataMismatches(): Promise<void>
     pricing: createEmptyPricing(500000),
   });
 
-  const { service, reservationService, flutterwaveClient } = createHarness({
+  const { service, reservationService, flutterwaveClient, inventoryGateway } = createHarness({
     reservations: [reservation],
     txRef: "tx_ref_fail_1",
   });
@@ -512,6 +526,7 @@ async function testDoesNotConfirmWhenVerificationDataMismatches(): Promise<void>
 
   const updated = await reservationService.getReservationByToken("token_fail_1");
   assert.equal(updated?.status, "failed_payment");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "failed_payment");
 }
 
 async function testRequiresTransactionIdForSuccessfulCallback(): Promise<void> {
@@ -592,7 +607,7 @@ async function testIsSafeToProcessDuplicateWebhookEvents(): Promise<void> {
     pricing: createEmptyPricing(500000),
   });
 
-  const { service, reservationService, flutterwaveClient } = createHarness({
+  const { service, reservationService, flutterwaveClient, inventoryGateway } = createHarness({
     reservations: [reservation],
     txRef: "tx_ref_webhook_2",
   });
@@ -635,6 +650,8 @@ async function testIsSafeToProcessDuplicateWebhookEvents(): Promise<void> {
 
   const updated = await reservationService.getReservationByToken("token_webhook_2");
   assert.equal(updated?.status, "confirmed");
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "confirmed");
+  assert.equal(inventoryGateway.syncedReservations.filter((item) => item.status === "confirmed").length, 1);
 }
 
 async function testCheckoutInitiationIsIdempotent(): Promise<void> {
@@ -818,7 +835,4 @@ async function run(): Promise<void> {
 }
 
 void run();
-
-
-
 

@@ -52,6 +52,17 @@ function run() {
     "transferHoldStartedAt",
     "transferHoldExpiresAt",
   ]);
+  assertModelHasFields(schema, "AvailabilityBlock", [
+    "id",
+    "flatId",
+    "sourceType",
+    "sourceId",
+    "blockType",
+    "startDate",
+    "endDate",
+    "status",
+    "expiresAt",
+  ]);
   assertModelHasFields(schema, "PaymentAttempt", ["id", "reservationId", "outcome", "providerReference"]);
   assertModelHasFields(schema, "TransferVerificationMetadata", [
     "id",

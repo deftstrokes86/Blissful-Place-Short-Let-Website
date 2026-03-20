@@ -1,23 +1,173 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { PageIntro } from "@/components/common/PageIntro";
-import { buildMockAvailabilityMonth } from "@/lib/availability-calendar";
-
-const MOCK_DATES = buildMockAvailabilityMonth({
-  daysInMonth: 31,
-  monthStartWeekdayOffset: 1,
-});
+import { formatCurrency } from "@/lib/booking-utils";
+import { fetchCalendarMonthAvailability, type CalendarBlockedSpanResponse } from "@/lib/booking-frontend-api";
+import { FLATS } from "@/lib/constants";
+import type { FlatId } from "@/types/booking";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
-export default function Availability() {
-  const [selectedDates, setSelectedDates] = useState<number[]>([]);
+interface CalendarDayView {
+  day: number;
+  isoDate: string;
+  blockedSpan: CalendarBlockedSpanResponse | null;
+}
 
-  const toggleDate = (day: number, available: boolean) => {
-    if (!available) return;
+function getCurrentLagosYearMonth(): { year: number; month: number } {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    timeZone: "Africa/Lagos",
+  });
+  const parts = formatter.formatToParts(new Date());
+  const yearText = parts.find((part) => part.type === "year")?.value ?? "";
+  const monthText = parts.find((part) => part.type === "month")?.value ?? "";
+  const year = Number(yearText);
+  const month = Number(monthText);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
+    const fallback = new Date();
+    return {
+      year: fallback.getUTCFullYear(),
+      month: fallback.getUTCMonth() + 1,
+    };
+  }
+
+  return { year, month };
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function getDaysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function getMonthStartWeekday(year: number, month: number): number {
+  return new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+}
+
+function dateFallsInSpan(isoDate: string, span: CalendarBlockedSpanResponse): boolean {
+  return span.startDate <= isoDate && isoDate < span.endDate;
+}
+
+function buildCalendarDays(year: number, month: number, blockedSpans: CalendarBlockedSpanResponse[]): CalendarDayView[] {
+  const daysInMonth = getDaysInMonth(year, month);
+
+  const days: CalendarDayView[] = [];
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const isoDate = `${year}-${pad2(month)}-${pad2(day)}`;
+    const blockedSpan = blockedSpans.find((span) => dateFallsInSpan(isoDate, span)) ?? null;
+
+    days.push({
+      day,
+      isoDate,
+      blockedSpan,
+    });
+  }
+
+  return days;
+}
+
+function formatMonthLabel(year: number, month: number): string {
+  const labelDate = new Date(Date.UTC(year, month - 1, 1));
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "Africa/Lagos",
+  }).format(labelDate);
+}
+
+function formatBlockedSpan(span: CalendarBlockedSpanResponse): string {
+  const start = span.startDate.slice(5);
+  const end = span.endDate.slice(5);
+  const statusLabel = span.blockType === "soft_hold" ? "Held" : "Booked";
+
+  return `${start} to ${end} (${statusLabel})`;
+}
+
+export default function Availability() {
+  const initialCalendarMonth = getCurrentLagosYearMonth();
+  const [selectedFlat, setSelectedFlat] = useState<FlatId>("mayfair");
+  const [selectedYear, setSelectedYear] = useState(initialCalendarMonth.year);
+  const [selectedMonth, setSelectedMonth] = useState(initialCalendarMonth.month);
+  const [selectedDates, setSelectedDates] = useState<number[]>([]);
+  const [blockedSpans, setBlockedSpans] = useState<CalendarBlockedSpanResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const load = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const monthResult = await fetchCalendarMonthAvailability({
+          flatId: selectedFlat,
+          year: selectedYear,
+          month: selectedMonth,
+        });
+
+        if (isCancelled) {
+          return;
+        }
+
+        setBlockedSpans(monthResult.blockedSpans);
+      } catch (error: unknown) {
+        if (isCancelled) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : "Unable to load availability right now.";
+        setBlockedSpans([]);
+        setLoadError(message);
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedFlat, selectedYear, selectedMonth]);
+
+  const selectedFlatDetails = useMemo(
+    () => FLATS.find((flat) => flat.id === selectedFlat) ?? FLATS[0],
+    [selectedFlat]
+  );
+
+  const monthLabel = useMemo(() => formatMonthLabel(selectedYear, selectedMonth), [selectedYear, selectedMonth]);
+  const monthStartOffset = useMemo(() => getMonthStartWeekday(selectedYear, selectedMonth), [selectedYear, selectedMonth]);
+  const calendarDays = useMemo(
+    () => buildCalendarDays(selectedYear, selectedMonth, blockedSpans),
+    [selectedYear, selectedMonth, blockedSpans]
+  );
+
+  const blockedSummary = useMemo(() => {
+    if (blockedSpans.length === 0) {
+      return "No blocked stays for this month.";
+    }
+
+    return blockedSpans.slice(0, 3).map(formatBlockedSpan).join(" | ");
+  }, [blockedSpans]);
+
+  const toggleDate = (day: number, isUnavailable: boolean) => {
+    if (isUnavailable) {
+      return;
+    }
 
     if (selectedDates.includes(day)) {
       setSelectedDates(selectedDates.filter((selectedDay) => selectedDay !== day));
@@ -27,57 +177,101 @@ export default function Availability() {
     setSelectedDates([...selectedDates, day]);
   };
 
+  const shiftMonth = (delta: number) => {
+    const shifted = new Date(Date.UTC(selectedYear, selectedMonth - 1 + delta, 1));
+    setSelectedYear(shifted.getUTCFullYear());
+    setSelectedMonth(shifted.getUTCMonth() + 1);
+    setSelectedDates([]);
+  };
+
   return (
     <main className="container" style={{ paddingTop: "6rem", minHeight: "100vh" }}>
       <PageIntro
         title="Live Availability"
-        description="Review your preferred dates and nightly rates before you continue to booking."
+        description="Review blocked and open dates for each residence before continuing to booking."
         backLabel="Back to Home"
         wrapperStyle={{ marginBottom: "3rem" }}
         titleStyle={{ marginTop: "1rem" }}
       />
 
       <div style={{ background: "var(--bg-panel)", padding: "2rem", borderRadius: "var(--radius-lg)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h2 className="heading-sm">October 2026</h2>
-          <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  background: "transparent",
-                  border: "1px solid var(--border-subtle)",
-                }}
-              />
-              Available
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  background: "var(--primary)",
-                  opacity: "0.2",
-                }}
-              />
-              Booked
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  background: "var(--primary)",
-                }}
-              />
-              Selected
-            </span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <h2 className="heading-sm" style={{ margin: 0 }}>{monthLabel}</h2>
+
+          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
+            <button type="button" className="btn btn-outline" onClick={() => shiftMonth(-1)}>
+              Previous
+            </button>
+            <button type="button" className="btn btn-outline" onClick={() => shiftMonth(1)}>
+              Next
+            </button>
           </div>
         </div>
+
+        <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+          {FLATS.map((flat) => (
+            <button
+              key={flat.id}
+              type="button"
+              className={`btn ${selectedFlat === flat.id ? "btn-primary" : "btn-outline"}`}
+              onClick={() => {
+                setSelectedFlat(flat.id);
+                setSelectedDates([]);
+              }}
+            >
+              {flat.name}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                borderRadius: "50%",
+                background: "transparent",
+                border: "1px solid var(--border-subtle)",
+              }}
+            />
+            Available
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                borderRadius: "50%",
+                background: "var(--primary)",
+                opacity: "0.2",
+              }}
+            />
+            Unavailable
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                borderRadius: "50%",
+                background: "var(--primary)",
+              }}
+            />
+            Selected
+          </span>
+        </div>
+
+        {loadError && <div className="booking-inline-note booking-inline-note-muted">{loadError}</div>}
 
         <div
           style={{
@@ -85,6 +279,7 @@ export default function Availability() {
             gridTemplateColumns: "repeat(7, 1fr)",
             gap: "1rem",
             textAlign: "center",
+            opacity: isLoading ? 0.7 : 1,
           }}
         >
           {DAYS_OF_WEEK.map((day) => (
@@ -101,41 +296,43 @@ export default function Availability() {
             </div>
           ))}
 
-          <div />
-          <div />
-          <div />
-          <div />
+          {Array.from({ length: monthStartOffset }).map((_, index) => (
+            <div key={`offset-${index}`} />
+          ))}
 
-          {MOCK_DATES.map(({ day, available, priceLabel }) => {
-            const isSelected = selectedDates.includes(day);
+          {calendarDays.map((entry) => {
+            const isSelected = selectedDates.includes(entry.day);
+            const unavailable = entry.blockedSpan !== null;
+            const statusLabel = entry.blockedSpan?.blockType === "soft_hold" ? "Held" : "Booked";
+
             return (
               <button
-                key={day}
-                onClick={() => toggleDate(day, available)}
-                disabled={!available}
+                key={entry.isoDate}
+                onClick={() => toggleDate(entry.day, unavailable)}
+                disabled={unavailable}
                 style={{
                   aspectRatio: "1",
                   borderRadius: "var(--radius-md)",
                   border: `1px solid ${isSelected ? "var(--primary)" : "var(--border-subtle)"}`,
                   background: isSelected
                     ? "var(--primary)"
-                    : available
-                      ? "transparent"
-                      : "rgba(238, 29, 82, 0.05)",
-                  color: isSelected ? "#fff" : available ? "var(--text-primary)" : "var(--text-secondary)",
+                    : unavailable
+                      ? "rgba(238, 29, 82, 0.05)"
+                      : "transparent",
+                  color: isSelected ? "#fff" : unavailable ? "var(--text-secondary)" : "var(--text-primary)",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.25rem",
-                  opacity: available ? 1 : 0.5,
-                  cursor: available ? "pointer" : "not-allowed",
+                  opacity: unavailable ? 0.6 : 1,
+                  cursor: unavailable ? "not-allowed" : "pointer",
                   transition: "all 0.2s",
                   position: "relative",
                   overflow: "hidden",
                 }}
               >
-                {!available && (
+                {unavailable && (
                   <div
                     style={{
                       position: "absolute",
@@ -149,8 +346,9 @@ export default function Availability() {
                   />
                 )}
 
-                <span style={{ fontSize: "1.25rem", fontWeight: "bold", position: "relative", zIndex: 1 }}>{day}</span>
-                {available && (
+                <span style={{ fontSize: "1.25rem", fontWeight: "bold", position: "relative", zIndex: 1 }}>{entry.day}</span>
+
+                {!unavailable && (
                   <span
                     style={{
                       fontSize: "0.65rem",
@@ -159,10 +357,11 @@ export default function Availability() {
                       zIndex: 1,
                     }}
                   >
-                    {priceLabel}
+                    {formatCurrency(selectedFlatDetails.rate)}
                   </span>
                 )}
-                {!available && (
+
+                {unavailable && (
                   <span
                     style={{
                       fontSize: "0.6rem",
@@ -173,7 +372,7 @@ export default function Availability() {
                       zIndex: 1,
                     }}
                   >
-                    Booked
+                    {statusLabel}
                   </span>
                 )}
               </button>
@@ -197,6 +396,9 @@ export default function Availability() {
             <h3 className="heading-sm serif">Selected Dates</h3>
             <p className="text-secondary">
               {selectedDates.length > 0 ? `${selectedDates.length} nights selected` : "None selected"}
+            </p>
+            <p className="text-secondary" style={{ marginTop: "0.5rem", fontSize: "0.82rem" }}>
+              {isLoading ? "Loading unavailable dates..." : blockedSummary}
             </p>
           </div>
 

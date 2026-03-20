@@ -19,6 +19,10 @@ interface StayDetailsStepProps {
   onOpenCheckOutPicker: () => void;
   checkInInputRef: RefObject<HTMLInputElement | null>;
   checkOutInputRef: RefObject<HTMLInputElement | null>;
+  blockedDateSummary: string | null;
+  blockedDateSelectionWarning: string | null;
+  blockedDateError: string | null;
+  isLoadingBlockedDates: boolean;
 }
 
 export function StayDetailsStep({
@@ -35,6 +39,10 @@ export function StayDetailsStep({
   onOpenCheckOutPicker,
   checkInInputRef,
   checkOutInputRef,
+  blockedDateSummary,
+  blockedDateSelectionWarning,
+  blockedDateError,
+  isLoadingBlockedDates,
 }: StayDetailsStepProps) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -136,6 +144,26 @@ export function StayDetailsStep({
             {stayTouched.guests && stayValidation.guests && <p className="booking-inline-error">{stayValidation.guests}</p>}
           </div>
         </div>
+
+        {isLoadingBlockedDates && (
+          <p className="booking-inline-note booking-inline-note-muted" style={{ marginTop: "1rem" }}>
+            Loading unavailable dates for this residence...
+          </p>
+        )}
+
+        {blockedDateError && (
+          <p className="booking-inline-note booking-inline-note-muted" style={{ marginTop: "1rem" }}>
+            {blockedDateError}
+          </p>
+        )}
+
+        {!isLoadingBlockedDates && !blockedDateError && blockedDateSummary && (
+          <p className="booking-inline-note booking-inline-note-muted" style={{ marginTop: "1rem" }}>
+            {blockedDateSummary}
+          </p>
+        )}
+
+        {blockedDateSelectionWarning && <p className="booking-inline-error">{blockedDateSelectionWarning}</p>}
       </div>
 
       <div className="booking-section">
@@ -173,3 +201,4 @@ export function StayDetailsStep({
     </>
   );
 }
+

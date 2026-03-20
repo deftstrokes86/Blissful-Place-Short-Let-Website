@@ -1,4 +1,4 @@
-﻿import { NoopReservationInventoryGateway } from "../booking/inventory-gateway";
+import { ReservationAvailabilityGateway } from "../booking/inventory-gateway";
 import { fileReservationRepository } from "../booking/file-reservation-repository";
 import type { ReservationRepositoryReservation } from "../booking/reservation-repository";
 import { ReservationService } from "../booking/reservation-service";
@@ -41,7 +41,7 @@ export async function runTransferHoldExpiryJob(nowMs: number = Date.now()): Prom
   const fixedNow = new Date(nowMs);
   const reservationService = new ReservationService({
     repository: fileReservationRepository,
-    inventoryGateway: new NoopReservationInventoryGateway(),
+    inventoryGateway: new ReservationAvailabilityGateway(),
     now: () => fixedNow,
   });
 
@@ -52,3 +52,4 @@ export async function runTransferHoldExpiryJob(nowMs: number = Date.now()): Prom
 
   return job.run();
 }
+

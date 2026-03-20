@@ -1,4 +1,11 @@
-import type { ReservationStatus } from "@/types/booking";
+import type {
+  AvailabilityCheckpoint,
+  AvailabilityResult,
+  FlatId,
+  PaymentMethod,
+  ReservationStatus,
+  StayDetailsInput,
+} from "@/types/booking";
 
 interface ApiErrorShape {
   ok: false;
@@ -52,6 +59,25 @@ export interface WebsiteDraftPayload {
     specialRequests: string;
   };
   paymentMethod: "website";
+}
+
+export interface CalendarBlockedSpanResponse {
+  blockId: string;
+  sourceType: "reservation" | "manual";
+  sourceId: string;
+  blockType: "hard_block" | "soft_hold";
+  startDate: string;
+  endDate: string;
+  expiresAt: string | null;
+}
+
+export interface CalendarMonthAvailabilityResponse {
+  flatId: FlatId;
+  month: string;
+  startDate: string;
+  endDate: string;
+  timezone: string;
+  blockedSpans: CalendarBlockedSpanResponse[];
 }
 
 function createFallbackId(): string {
@@ -124,3 +150,60 @@ export async function initiateWebsiteCheckout(input: {
 
   return readJsonResponse<WebsiteCheckoutResponse>(response);
 }
+
+export async function runAvailabilityCheckpoint(input: {
+  checkpoint: AvailabilityCheckpoint;
+  stay: StayDetailsInput;
+  paymentMethod?: PaymentMethod;
+  reservationId?: string;
+}): Promise<AvailabilityResult> {
+  const body: {
+    checkpoint: AvailabilityCheckpoint;
+    stay: StayDetailsInput;
+    paymentMethod?: PaymentMethod;
+    reservationId?: string;
+  } = {
+    checkpoint: input.checkpoint,
+    stay: input.stay,
+  };
+
+  if (input.paymentMethod) {
+    body.paymentMethod = input.paymentMethod;
+  }
+
+  if (input.reservationId) {
+    body.reservationId = input.reservationId;
+  }
+
+  const response = await fetch("/api/availability/check", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = await readJsonResponse<{ result: AvailabilityResult }>(response);
+  return payload.result;
+}
+
+export async function fetchCalendarMonthAvailability(input: {
+  flatId: FlatId;
+  year: number;
+  month: number;
+}): Promise<CalendarMonthAvailabilityResponse> {
+  const params = new URLSearchParams({
+    flatId: input.flatId,
+    year: String(input.year),
+    month: String(input.month),
+  });
+
+  const response = await fetch(`/api/availability/calendar?${params.toString()}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  const payload = await readJsonResponse<{ month: CalendarMonthAvailabilityResponse }>(response);
+  return payload.month;
+}
+

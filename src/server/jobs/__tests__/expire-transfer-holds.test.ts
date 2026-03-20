@@ -87,6 +87,17 @@ class InMemoryReservationRepository implements ReservationRepository {
 
 class SpyInventoryGateway implements ReservationInventoryGateway {
   readonly reopened: { reservationId: string; reason: "cancelled" | "expired" }[] = [];
+  readonly syncedReservations: Array<{
+    id: string;
+    status: ReservationRepositoryReservation["status"];
+  }> = [];
+
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    this.syncedReservations.push({
+      id: reservation.id,
+      status: reservation.status,
+    });
+  }
 
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     this.reopened.push({ reservationId, reason });
@@ -200,6 +211,7 @@ async function testExpiresTransferHoldAfterWindow(): Promise<void> {
   assert.deepEqual(result.expiredReservationIds, ["res_expire_1"]);
   assert.equal(updated?.status, "cancelled");
   assert.deepEqual(inventoryGateway.reopened, [{ reservationId: "res_expire_1", reason: "cancelled" }]);
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "cancelled");
 }
 
 async function testIgnoresReservationsStillWithinWindow(): Promise<void> {
@@ -288,6 +300,7 @@ async function testIsSafeToRunRepeatedly(): Promise<void> {
   assert.equal(firstRun.expiredCount, 1);
   assert.equal(secondRun.expiredCount, 0);
   assert.equal(inventoryGateway.reopened.length, 1);
+  assert.equal(inventoryGateway.syncedReservations.at(-1)?.status, "cancelled");
 }
 
 async function run(): Promise<void> {
@@ -301,3 +314,4 @@ async function run(): Promise<void> {
 }
 
 void run();
+

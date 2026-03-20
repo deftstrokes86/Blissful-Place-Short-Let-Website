@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   EXTRAS,
@@ -31,7 +31,14 @@ import {
 } from "@/lib/booking-branch-config";
 import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
 import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
-import { createIdempotencyKey, createWebsiteDraft, initiateWebsiteCheckout } from "@/lib/booking-frontend-api";
+import {
+  createIdempotencyKey,
+  createWebsiteDraft,
+  fetchCalendarMonthAvailability,
+  initiateWebsiteCheckout,
+  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,
+  type CalendarBlockedSpanResponse,
+} from "@/lib/booking-frontend-api";
 import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
 import {
   getGuestValidationState,
@@ -53,6 +60,7 @@ import { GuestDetailsStep } from "@/components/booking/steps/GuestDetailsStep";
 import { PaymentMethodStep } from "@/components/booking/steps/PaymentMethodStep";
 import { StayDetailsStep } from "@/components/booking/steps/StayDetailsStep";
 import type {
+  AvailabilityCheckpoint,
   ExtraId,
   GuestFormState,
   GuestTouchedState,
@@ -84,6 +92,9 @@ export default function BookingPage() {
   const [flowNotice, setFlowNotice] = useState<string | null>(null);
   const [branchResetNotice, setBranchResetNotice] = useState<string | null>(null);
   const [draftToken, setDraftToken] = useState<string | null>(null);
+  const [blockedDateSpans, setBlockedDateSpans] = useState<CalendarBlockedSpanResponse[]>([]);
+  const [isLoadingBlockedDates, setIsLoadingBlockedDates] = useState(false);
+  const [blockedDatesError, setBlockedDatesError] = useState<string | null>(null);
 
   // Prevent duplicate prototype submissions when branch actions are triggered quickly.
   const branchActionLockRef = useRef(false);
@@ -124,6 +135,134 @@ export default function BookingPage() {
       }),
     [selectedFlat?.name, nights, stay.guests],
   );
+
+  const blockedDateSelectionWarning = useMemo(() => {
+    if (!stay.checkIn || !stay.checkOut) {
+      return null;
+    }
+
+    const overlapsBlockedSpan = blockedDateSpans.some(
+      (span) => stay.checkIn < span.endDate && span.startDate < stay.checkOut
+    );
+
+    if (!overlapsBlockedSpan) {
+      return null;
+    }
+
+    return "Selected stay overlaps unavailable dates for this residence.";
+  }, [stay.checkIn, stay.checkOut, blockedDateSpans]);
+
+  const blockedDateSummary = useMemo(() => {
+    if (!selectedFlat) {
+      return "Select a residence to load blocked dates.";
+    }
+
+    if (blockedDateSpans.length === 0) {
+      return `No blocked dates currently recorded for ${selectedFlat.name}.`;
+    }
+
+    const preview = blockedDateSpans
+      .slice(0, 3)
+      .map((span) => {
+        const statusLabel = span.blockType === "soft_hold" ? "Held" : "Booked";
+        return `${span.startDate} to ${span.endDate} (${statusLabel})`;
+      })
+      .join(" | ");
+
+    const suffix = blockedDateSpans.length > 3 ? " | ..." : "";
+    return `Unavailable ranges for ${selectedFlat.name}: ${preview}${suffix}`;
+  }, [blockedDateSpans, selectedFlat]);
+
+  const monthQueries = useMemo(() => {
+    const unique = new Set<string>();
+    const result: Array<{ year: number; month: number }> = [];
+
+    const now = new Date();
+    const checkInDate = stay.checkIn ? new Date(`${stay.checkIn}T00:00:00`) : now;
+    const checkOutDate = stay.checkOut ? new Date(`${stay.checkOut}T00:00:00`) : null;
+
+    const pushQuery = (date: Date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const key = `${year}-${month}`;
+
+      if (unique.has(key)) {
+        return;
+      }
+
+      unique.add(key);
+      result.push({ year, month });
+    };
+
+    pushQuery(checkInDate);
+
+    if (checkOutDate) {
+      pushQuery(checkOutDate);
+    }
+
+    return result;
+  }, [stay.checkIn, stay.checkOut]);
+
+  useEffect(() => {
+    if (!selectedFlat) {
+      setBlockedDateSpans([]);
+      setBlockedDatesError(null);
+      setIsLoadingBlockedDates(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    setIsLoadingBlockedDates(true);
+    setBlockedDatesError(null);
+
+    Promise.all(
+      monthQueries.map((query) =>
+        fetchCalendarMonthAvailability({
+          flatId: selectedFlat.id,
+          year: query.year,
+          month: query.month,
+        })
+      )
+    )
+      .then((results) => {
+        if (cancelled) {
+          return;
+        }
+
+        const uniqueSpans = new Map<string, CalendarBlockedSpanResponse>();
+
+        for (const monthResult of results) {
+          for (const span of monthResult.blockedSpans) {
+            const key = `${span.blockId}:${span.startDate}:${span.endDate}:${span.blockType}`;
+            uniqueSpans.set(key, span);
+          }
+        }
+
+        const sorted = Array.from(uniqueSpans.values()).sort(
+          (left, right) => left.startDate.localeCompare(right.startDate) || left.endDate.localeCompare(right.endDate)
+        );
+
+        setBlockedDateSpans(sorted);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
+
+        setBlockedDateSpans([]);
+        setBlockedDatesError(getRequestErrorMessage(error));
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoadingBlockedDates(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedFlat, monthQueries]);
 
   function clearBranchTransientState() {
     setWebsiteState(INITIAL_WEBSITE_STATE);
@@ -211,17 +350,56 @@ export default function BookingPage() {
     setPaymentMethod(nextMethod);
   }
 
-  async function runAvailabilityCheckpoint(reason: string): Promise<boolean> {
-    if (!stayReady) {
+  function buildAvailabilityStayInput() {
+    if (!stay.flatId || !stay.checkIn || !stay.checkOut || stay.guests < 1) {
+      return null;
+    }
+
+    return {
+      flatId: stay.flatId,
+      checkIn: stay.checkIn,
+      checkOut: stay.checkOut,
+      guests: stay.guests,
+      extraIds: [...stay.extraIds],
+    };
+  }
+
+  async function runAvailabilityCheckpoint(input: {
+    checkpoint: AvailabilityCheckpoint;
+    reason: string;
+    paymentMethod?: PaymentMethod;
+  }): Promise<boolean> {
+    const stayInput = buildAvailabilityStayInput();
+
+    if (!stayReady || !stayInput) {
       setAvailabilityNote("Complete valid stay details before running availability checks.");
       return false;
     }
 
     setIsCheckingAvailability(true);
-    await wait(600);
-    setIsCheckingAvailability(false);
-    setAvailabilityNote(`Availability check passed ${reason}. Ready to proceed.`);
-    return true;
+
+    try {
+      const result = await runAvailabilityCheckpointRequest({
+        checkpoint: input.checkpoint,
+        stay: stayInput,
+        paymentMethod: input.paymentMethod,
+      });
+
+      if (!result.isAvailable) {
+        const firstConflict = result.conflicts[0]?.message;
+        const firstReason = result.reasons[0];
+        setAvailabilityNote(firstConflict ?? firstReason ?? "Selected dates are currently unavailable.");
+        return false;
+      }
+
+      setAvailabilityNote(`Availability check passed ${input.reason}. Ready to proceed.`);
+      return true;
+    } catch (error) {
+      setAvailabilityNote(getRequestErrorMessage(error));
+      return false;
+    } finally {
+      setIsCheckingAvailability(false);
+    }
   }
 
   // Drives the shared pre-branch flow and hands off into the selected payment branch.
@@ -234,7 +412,10 @@ export default function BookingPage() {
       setStayTouched({ flatId: true, checkIn: true, checkOut: true, guests: true });
       if (!stayReady) return;
 
-      const ok = await runAvailabilityCheckpoint(getAvailabilityReasonForStep(stepIndex, paymentMethod));
+      const ok = await runAvailabilityCheckpoint({
+        checkpoint: "stay_details_entry",
+        reason: getAvailabilityReasonForStep(stepIndex, paymentMethod),
+      });
       if (ok) setStepIndex(STEP1);
       return;
     }
@@ -252,7 +433,11 @@ export default function BookingPage() {
       setPaymentTouched(true);
       if (!paymentMethod) return;
 
-      const ok = await runAvailabilityCheckpoint(getAvailabilityReasonForStep(stepIndex, paymentMethod));
+      const ok = await runAvailabilityCheckpoint({
+        checkpoint: "pre_hold_request",
+        reason: getAvailabilityReasonForStep(stepIndex, paymentMethod),
+        paymentMethod,
+      });
       if (!ok) return;
 
       setBranchResetNotice(null);
@@ -287,7 +472,10 @@ export default function BookingPage() {
       if (!paymentMethod) return;
 
       if (paymentMethod === "website") {
-        const ok = await runAvailabilityCheckpoint(getAvailabilityReasonForStep(stepIndex, paymentMethod));
+        const ok = await runAvailabilityCheckpoint({
+          checkpoint: "pre_online_payment_handoff",
+          reason: getAvailabilityReasonForStep(stepIndex, paymentMethod),
+        });
         if (!ok) return;
         setWebsiteState(INITIAL_WEBSITE_STATE);
       } else {
@@ -591,6 +779,10 @@ export default function BookingPage() {
                 onOpenCheckOutPicker={() => openDatePicker(checkOutInputRef.current)}
                 checkInInputRef={checkInInputRef}
                 checkOutInputRef={checkOutInputRef}
+                blockedDateSummary={blockedDateSummary}
+                blockedDateSelectionWarning={blockedDateSelectionWarning}
+                blockedDateError={blockedDatesError}
+                isLoadingBlockedDates={isLoadingBlockedDates}
               />
             )}
 
@@ -688,5 +880,20 @@ export default function BookingPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

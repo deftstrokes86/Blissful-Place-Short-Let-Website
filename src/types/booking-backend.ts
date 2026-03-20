@@ -6,6 +6,7 @@
   ExtraId,
   FlatId,
   GuestDetailsInput,
+  ISODateString,
   ISODateTimeString,
   PaymentMethod,
   ReservationEventType,
@@ -112,6 +113,25 @@ export interface PosCoordinationMetadataRecord {
   updatedAt: ISODateTimeString;
 }
 
+export type AvailabilityBlockSourceType = "reservation" | "manual";
+export type AvailabilityBlockType = "hard_block" | "soft_hold";
+export type AvailabilityBlockStatus = "active" | "released";
+
+export interface AvailabilityBlockRecord {
+  id: string;
+  flatId: FlatId;
+  sourceType: AvailabilityBlockSourceType;
+  sourceId: string;
+  blockType: AvailabilityBlockType;
+  startDate: ISODateString;
+  endDate: ISODateString;
+  status: AvailabilityBlockStatus;
+  expiresAt: ISODateTimeString | null;
+  releasedAt: ISODateTimeString | null;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
 export interface IdempotencyKeyRecord {
   key: string;
   action: string;
@@ -135,6 +155,7 @@ export interface BookingDatabaseState {
   flats: FlatRecord[];
   extras: ExtraRecord[];
   reservations: ReservationRecord[];
+  availabilityBlocks: AvailabilityBlockRecord[];
   paymentAttempts: PaymentAttemptRecord[];
   transferVerifications: TransferVerificationMetadataRecord[];
   posCoordinations: PosCoordinationMetadataRecord[];

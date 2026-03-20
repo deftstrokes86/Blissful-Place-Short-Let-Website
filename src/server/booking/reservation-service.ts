@@ -25,6 +25,7 @@ import type {
 } from "./reservation-repository";
 
 export interface ReservationInventoryGateway {
+  syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void>;
   reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void>;
 }
 
@@ -157,6 +158,7 @@ export class ReservationService {
 
     applyDraftPatch(reservation, input);
     reservation.pricing = await this.calculatePricingSnapshot(reservation.stay);
+    await this.inventoryGateway.syncAvailabilityBlock(reservation);
 
     return this.repository.create(reservation);
   }
@@ -171,6 +173,7 @@ export class ReservationService {
     applyDraftPatch(reservation, input);
     reservation.pricing = await this.calculatePricingSnapshot(reservation.stay);
     reservation.updatedAt = toIso(this.nowProvider());
+    await this.inventoryGateway.syncAvailabilityBlock(reservation);
 
     return this.repository.update(reservation);
   }
@@ -232,6 +235,8 @@ export class ReservationService {
       reservation.cancelledAt = toIso(now);
     }
 
+    await this.inventoryGateway.syncAvailabilityBlock(reservation);
+
     if (shouldReopenInventory(decision.to)) {
       reservation.inventoryReopenedAt = toIso(now);
       await this.inventoryGateway.reopenAvailability(reservation.id, decision.to);
@@ -289,4 +294,3 @@ export class ReservationService {
     return reservation;
   }
 }
-

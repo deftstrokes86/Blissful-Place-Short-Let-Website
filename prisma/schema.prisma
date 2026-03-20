@@ -45,14 +45,30 @@ enum PosCoordinationStatus {
   cancelled
 }
 
+enum AvailabilityBlockSourceType {
+  reservation
+  manual
+}
+
+enum AvailabilityBlockType {
+  hard_block
+  soft_hold
+}
+
+enum AvailabilityBlockStatus {
+  active
+  released
+}
+
 model Flat {
-  id          String        @id
-  name        String
-  nightlyRate Int
-  maxGuests   Int
-  reservations Reservation[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                 String              @id
+  name               String
+  nightlyRate        Int
+  maxGuests          Int
+  reservations       Reservation[]
+  availabilityBlocks AvailabilityBlock[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model Extra {
@@ -65,12 +81,12 @@ model Extra {
 }
 
 model Reservation {
-  id                         String                       @id @default(cuid())
-  token                      String                       @unique
-  status                     ReservationStatus            @default(draft)
+  id                         String                         @id @default(cuid())
+  token                      String                         @unique
+  status                     ReservationStatus              @default(draft)
   paymentMethod              PaymentMethod?
   flatId                     String
-  flat                       Flat                         @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  flat                       Flat                           @relation(fields: [flatId], references: [id], onDelete: Restrict)
   checkIn                    DateTime
   checkOut                   DateTime
   guests                     Int
@@ -79,11 +95,11 @@ model Reservation {
   guestEmail                 String?
   guestPhone                 String?
   guestSpecialRequests       String?
-  currency                   String                       @default("NGN")
+  currency                   String                         @default("NGN")
   nightlyRate                Int?
   nights                     Int?
   staySubtotal               Int?
-  extrasSubtotal             Int                          @default(0)
+  extrasSubtotal             Int                            @default(0)
   estimatedTotal             Int?
   transferHoldStartedAt      DateTime?
   transferHoldExpiresAt      DateTime?
@@ -99,13 +115,33 @@ model Reservation {
   transferVerifications      TransferVerificationMetadata[]
   posCoordinations           PosCoordinationMetadata[]
   idempotencyKeys            IdempotencyKey[]
-  createdAt                  DateTime                     @default(now())
-  updatedAt                  DateTime                     @updatedAt
+  createdAt                  DateTime                       @default(now())
+  updatedAt                  DateTime                       @updatedAt
 
   @@index([status])
   @@index([paymentMethod])
   @@index([transferHoldExpiresAt])
   @@index([flatId, checkIn, checkOut])
+}
+
+model AvailabilityBlock {
+  id         String                      @id @default(cuid())
+  flatId     String
+  flat       Flat                        @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  sourceType AvailabilityBlockSourceType
+  sourceId   String
+  blockType  AvailabilityBlockType
+  startDate  DateTime                    @db.Date
+  endDate    DateTime                    @db.Date
+  status     AvailabilityBlockStatus     @default(active)
+  expiresAt  DateTime?
+  releasedAt DateTime?
+  createdAt  DateTime                    @default(now())
+  updatedAt  DateTime                    @updatedAt
+
+  @@unique([sourceType, sourceId])
+  @@index([flatId, status, startDate, endDate])
+  @@index([expiresAt])
 }
 
 model ReservationExtra {
@@ -120,19 +156,19 @@ model ReservationExtra {
 }
 
 model PaymentAttempt {
-  id               String               @id @default(cuid())
-  reservationId    String
-  reservation      Reservation          @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  paymentMethod    PaymentMethod
-  provider         String
-  outcome          PaymentAttemptOutcome @default(pending)
-  amount           Int
-  currency         String               @default("NGN")
+  id                String                @id @default(cuid())
+  reservationId     String
+  reservation       Reservation           @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  paymentMethod     PaymentMethod
+  provider          String
+  outcome           PaymentAttemptOutcome @default(pending)
+  amount            Int
+  currency          String                @default("NGN")
   providerReference String?
-  idempotencyKey   String
-  metadata         Json?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
+  idempotencyKey    String
+  metadata          Json?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
 
   @@index([reservationId, createdAt])
   @@index([provider, providerReference])
@@ -140,19 +176,19 @@ model PaymentAttempt {
 }
 
 model TransferVerificationMetadata {
-  id                String                     @id @default(cuid())
-  reservationId     String
-  reservation       Reservation                @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  transferReference String
-  proofNote         String
-  proofReceivedAt   DateTime
+  id                 String                     @id @default(cuid())
+  reservationId      String
+  reservation        Reservation                @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  transferReference  String
+  proofNote          String
+  proofReceivedAt    DateTime
   verificationStatus TransferVerificationStatus @default(pending)
-  verifiedByStaffId String?
-  verifiedAt        DateTime?
-  verificationNote  String?
-  idempotencyKey    String
-  createdAt         DateTime                   @default(now())
-  updatedAt         DateTime                   @updatedAt
+  verifiedByStaffId  String?
+  verifiedAt         DateTime?
+  verificationNote   String?
+  idempotencyKey     String
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
 
   @@index([reservationId, createdAt])
   @@index([verificationStatus])
@@ -160,9 +196,9 @@ model TransferVerificationMetadata {
 }
 
 model PosCoordinationMetadata {
-  id                 String               @id @default(cuid())
+  id                 String                @id @default(cuid())
   reservationId      String
-  reservation        Reservation          @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservation        Reservation           @relation(fields: [reservationId], references: [id], onDelete: Cascade)
   contactWindow      String
   coordinationNote   String?
   status             PosCoordinationStatus @default(requested)
@@ -170,8 +206,8 @@ model PosCoordinationMetadata {
   completedAt        DateTime?
   completedByStaffId String?
   idempotencyKey     String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   @@index([reservationId, requestedAt])
   @@index([status])

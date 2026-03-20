@@ -92,6 +92,10 @@ class InMemoryReservationRepository implements ReservationRepository {
 }
 
 class NoopInventoryGateway implements ReservationInventoryGateway {
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    void reservation;
+  }
+
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     void reservationId;
     void reason;
@@ -276,3 +280,4 @@ async function run(): Promise<void> {
 }
 
 void run();
+

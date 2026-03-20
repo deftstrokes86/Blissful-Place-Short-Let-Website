@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   BookingToken,
   ExtraId,
   FlatId,
@@ -111,6 +111,10 @@ export class InMemoryReservationRepository implements ReservationRepository {
 }
 
 export class NoopInventoryGateway implements ReservationInventoryGateway {
+  async syncAvailabilityBlock(reservation: ReservationRepositoryReservation): Promise<void> {
+    void reservation;
+  }
+
   async reopenAvailability(reservationId: string, reason: "cancelled" | "expired"): Promise<void> {
     void reservationId;
     void reason;
@@ -396,4 +400,5 @@ export function createFlutterwaveHarness(options?: {
     repository,
   };
 }
+
 
