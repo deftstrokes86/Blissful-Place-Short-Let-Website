@@ -326,6 +326,10 @@ export function createReservation(
       specialRequests: "",
     },
     pricing: createEmptyPricing(500000),
+    progressContext: {
+      currentStep: 0,
+      activeBranch: null,
+    },
     transferHoldStartedAt: null,
     transferHoldExpiresAt: null,
     inventoryReopenedAt: null,
@@ -334,6 +338,7 @@ export function createReservation(
     cancelledAt: null,
     createdAt: "2026-07-01T10:00:00.000Z",
     updatedAt: "2026-07-01T10:00:00.000Z",
+    lastTouchedAt: "2026-07-01T10:00:00.000Z",
     ...overrides,
   };
 }
@@ -350,6 +355,9 @@ export function cloneReservation(value: ReservationRepositoryReservation): Reser
     },
     pricing: {
       ...value.pricing,
+    },
+    progressContext: {
+      ...value.progressContext,
     },
   };
 }
@@ -400,5 +408,7 @@ export function createFlutterwaveHarness(options?: {
     repository,
   };
 }
+
+
 
 

@@ -1,5 +1,8 @@
-import { getSharedDraftService } from "@/server/booking/draft-service-factory";
-import { parseDraftInput } from "@/server/http/reservation-payload";
+import { getSharedResumableDraftService } from "@/server/booking/resumable-draft-service-factory";
+import {
+  handleLoadResumableDraftRequest,
+  handleSaveResumableDraftRequest,
+} from "@/server/booking/resumable-draft-http";
 import {
   jsonError,
   jsonErrorFromUnknown,
@@ -22,8 +25,8 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Reservation token is required.", 400, "invalid_request");
     }
 
-    const draftService = getSharedDraftService();
-    const result = await draftService.resumeDraft(token);
+    const resumableDraftService = getSharedResumableDraftService();
+    const result = await handleLoadResumableDraftRequest(resumableDraftService, { token });
 
     return jsonSuccess(result);
   } catch (error) {
@@ -39,10 +42,12 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const body = await readJsonObject(request);
-    const input = parseDraftInput(body);
 
-    const draftService = getSharedDraftService();
-    const result = await draftService.saveDraftProgress(token, input);
+    const resumableDraftService = getSharedResumableDraftService();
+    const result = await handleSaveResumableDraftRequest(resumableDraftService, {
+      token,
+      body,
+    });
 
     return jsonSuccess(result);
   } catch (error) {

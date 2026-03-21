@@ -218,6 +218,10 @@ function createReservation(
       extrasSubtotal: 0,
       estimatedTotal: 750000,
     },
+    progressContext: {
+      currentStep: 0,
+      activeBranch: null,
+    },
     transferHoldStartedAt: "2026-10-01T09:00:00.000Z",
     transferHoldExpiresAt: "2026-10-01T10:00:00.000Z",
     inventoryReopenedAt: null,
@@ -226,6 +230,7 @@ function createReservation(
     cancelledAt: null,
     createdAt: "2026-10-01T09:00:00.000Z",
     updatedAt: "2026-10-01T09:00:00.000Z",
+    lastTouchedAt: "2026-10-01T09:00:00.000Z",
     ...overrides,
   };
 }
@@ -242,6 +247,9 @@ function cloneReservation(value: ReservationRepositoryReservation): ReservationR
     },
     pricing: {
       ...value.pricing,
+    },
+    progressContext: {
+      ...value.progressContext,
     },
   };
 }
@@ -530,6 +538,8 @@ async function run(): Promise<void> {
 }
 
 void run();
+
+
 
 
 

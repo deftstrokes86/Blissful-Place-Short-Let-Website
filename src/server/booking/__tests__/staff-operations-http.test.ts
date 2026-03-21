@@ -263,6 +263,10 @@ function createReservation(token: string): ReservationRepositoryReservation {
       extrasSubtotal: 0,
       estimatedTotal: 750000,
     },
+    progressContext: {
+      currentStep: 5,
+      activeBranch: "transfer",
+    },
     transferHoldStartedAt: "2026-10-01T09:00:00.000Z",
     transferHoldExpiresAt: "2026-10-01T10:00:00.000Z",
     inventoryReopenedAt: null,
@@ -271,6 +275,7 @@ function createReservation(token: string): ReservationRepositoryReservation {
     cancelledAt: null,
     createdAt: "2026-10-01T09:00:00.000Z",
     updatedAt: "2026-10-01T09:58:00.000Z",
+    lastTouchedAt: "2026-10-01T09:58:00.000Z",
   };
 }
 
@@ -549,6 +554,9 @@ async function run(): Promise<void> {
 }
 
 void run();
+
+
+
 
 
 

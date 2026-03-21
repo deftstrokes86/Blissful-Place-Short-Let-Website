@@ -5,14 +5,59 @@ import { dirname, join } from "node:path";
 
 import type {
   BookingDatabaseState,
+  DraftProgressContext,
+  DraftProgressStep,
   ExtraRecord,
   FlatRecord,
+  ReservationRecord,
 } from "@/types/booking-backend";
+import type { PaymentMethod } from "@/types/booking";
 
 const DATA_FILE_PATH = join(process.cwd(), ".data", "booking-mvp-db.json");
+const MIN_DRAFT_STEP: DraftProgressStep = 0;
+const MAX_DRAFT_STEP: DraftProgressStep = 5;
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function isPaymentMethod(value: unknown): value is PaymentMethod {
+  return value === "website" || value === "transfer" || value === "pos";
+}
+
+function isDraftProgressStep(value: unknown): value is DraftProgressStep {
+  return typeof value === "number" && Number.isInteger(value) && value >= MIN_DRAFT_STEP && value <= MAX_DRAFT_STEP;
+}
+
+function normalizeProgressContext(
+  value: ReservationRecord["progressContext"] | undefined,
+  paymentMethod: PaymentMethod | null
+): DraftProgressContext {
+  const fallback: DraftProgressContext = {
+    currentStep: MIN_DRAFT_STEP,
+    activeBranch: paymentMethod,
+  };
+
+  if (!value || typeof value !== "object") {
+    return fallback;
+  }
+
+  return {
+    currentStep: isDraftProgressStep(value.currentStep) ? value.currentStep : fallback.currentStep,
+    activeBranch: isPaymentMethod(value.activeBranch) ? value.activeBranch : fallback.activeBranch,
+  };
+}
+
+function normalizeReservationRecord(value: ReservationRecord): ReservationRecord {
+  const paymentMethod = isPaymentMethod(value.paymentMethod) ? value.paymentMethod : null;
+  const updatedAt = value.updatedAt ?? value.createdAt ?? nowIso();
+
+  return {
+    ...value,
+    paymentMethod,
+    progressContext: normalizeProgressContext(value.progressContext, paymentMethod),
+    lastTouchedAt: value.lastTouchedAt ?? updatedAt,
+  };
 }
 
 function createSeedFlats(now: string): FlatRecord[] {
@@ -85,7 +130,7 @@ async function readDatabaseState(): Promise<BookingDatabaseState> {
   return {
     flats: parsed.flats ?? [],
     extras: parsed.extras ?? [],
-    reservations: parsed.reservations ?? [],
+    reservations: (parsed.reservations ?? []).map(normalizeReservationRecord),
     availabilityBlocks: parsed.availabilityBlocks ?? [],
     paymentAttempts: parsed.paymentAttempts ?? [],
     transferVerifications: parsed.transferVerifications ?? [],

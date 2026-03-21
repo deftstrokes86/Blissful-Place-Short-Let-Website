@@ -134,6 +134,10 @@ function createExistingReservation(overrides: Partial<ReservationRepositoryReser
       specialRequests: "",
     },
     pricing: createEmptyPricing(),
+    progressContext: {
+      currentStep: 2,
+      activeBranch: null,
+    },
     transferHoldStartedAt: null,
     transferHoldExpiresAt: null,
     inventoryReopenedAt: null,
@@ -142,6 +146,7 @@ function createExistingReservation(overrides: Partial<ReservationRepositoryReser
     cancelledAt: null,
     createdAt: "2026-07-01T10:00:00.000Z",
     updatedAt: "2026-07-01T10:00:00.000Z",
+    lastTouchedAt: "2026-07-01T10:00:00.000Z",
     ...overrides,
   };
 }
@@ -158,6 +163,9 @@ function cloneReservation(value: ReservationRepositoryReservation): ReservationR
     },
     pricing: {
       ...value.pricing,
+    },
+    progressContext: {
+      ...value.progressContext,
     },
   };
 }
@@ -177,7 +185,7 @@ function createDraftServiceHarness(options?: { reservations?: ReservationReposit
   return { draftService };
 }
 
-async function testCreateNewDraft(): Promise<void> {
+async function testCreateNewDraftWithResumableIdentity(): Promise<void> {
   const { draftService } = createDraftServiceHarness();
 
   const created = await draftService.createDraft({
@@ -195,13 +203,20 @@ async function testCreateNewDraft(): Promise<void> {
       phone: "+2348000000000",
       specialRequests: "",
     },
+    progressContext: {
+      currentStep: 1,
+      activeBranch: null,
+    },
   });
 
+  assert.equal(created.reservation.id, "res_generated");
   assert.equal(created.reservation.status, "draft");
   assert.equal(created.resumeToken, "token_generated");
+  assert.equal(created.reservation.progressContext.currentStep, 1);
+  assert.equal(created.reservation.lastTouchedAt, "2026-07-01T10:00:00.000Z");
 }
 
-async function testUpdateExistingDraft(): Promise<void> {
+async function testUpdateExistingDraftWithBookingDataAndProgressContext(): Promise<void> {
   const existing = createExistingReservation({ token: "token_update" });
   const { draftService } = createDraftServiceHarness({ reservations: [existing] });
 
@@ -210,31 +225,56 @@ async function testUpdateExistingDraft(): Promise<void> {
       checkOut: "2026-07-13",
       extraIds: ["airport", "pantry"],
     },
+    paymentMethod: "transfer",
+    progressContext: {
+      currentStep: 3,
+      activeBranch: "transfer",
+    },
   });
 
   assert.equal(updated.reservation.pricing.nights, 3);
   assert.equal(updated.reservation.pricing.extrasSubtotal, 110000);
+  assert.equal(updated.reservation.paymentMethod, "transfer");
+  assert.equal(updated.reservation.progressContext.currentStep, 3);
+  assert.equal(updated.reservation.progressContext.activeBranch, "transfer");
+  assert.equal(updated.reservation.lastTouchedAt, "2026-07-01T10:00:00.000Z");
 }
 
-async function testResumeDraft(): Promise<void> {
-  const existing = createExistingReservation({ token: "token_resume" });
+async function testLoadDraftByResumableTokenReference(): Promise<void> {
+  const existing = createExistingReservation({
+    token: "token_resume",
+    paymentMethod: "transfer",
+    progressContext: {
+      currentStep: 4,
+      activeBranch: "transfer",
+    },
+  });
   const { draftService } = createDraftServiceHarness({ reservations: [existing] });
 
   const resumed = await draftService.resumeDraft("token_resume");
 
   assert.equal(resumed.reservation.token, "token_resume");
   assert.equal(resumed.reservation.status, "draft");
+  assert.equal(resumed.reservation.paymentMethod, "transfer");
+  assert.equal(resumed.reservation.progressContext.currentStep, 4);
+  assert.equal(resumed.reservation.progressContext.activeBranch, "transfer");
 }
 
-async function testPreservesSharedDataOnPartialUpdate(): Promise<void> {
+async function testPreservesBranchDataOnPartialUpdate(): Promise<void> {
   const existing = createExistingReservation({ token: "token_shared" });
   const { draftService } = createDraftServiceHarness({ reservations: [existing] });
 
   const updated = await draftService.saveDraftProgress("token_shared", {
-    paymentMethod: "transfer",
+    paymentMethod: "website",
+    progressContext: {
+      currentStep: 2,
+      activeBranch: "website",
+    },
   });
 
-  assert.equal(updated.reservation.paymentMethod, "transfer");
+  assert.equal(updated.reservation.paymentMethod, "website");
+  assert.equal(updated.reservation.progressContext.currentStep, 2);
+  assert.equal(updated.reservation.progressContext.activeBranch, "website");
   assert.equal(updated.reservation.stay.checkIn, existing.stay.checkIn);
   assert.equal(updated.reservation.guest.email, existing.guest.email);
 }
@@ -248,6 +288,32 @@ async function testRejectsInvalidDraftUpdate(): Promise<void> {
       await draftService.saveDraftProgress("token_invalid", {} as DraftUpdateInput);
     },
     /Draft update payload is empty/
+  );
+}
+
+async function testRejectsMalformedOrMissingResumeTokenLookupsCleanly(): Promise<void> {
+  const existing = createExistingReservation({ token: "token_valid_1" });
+  const { draftService } = createDraftServiceHarness({ reservations: [existing] });
+
+  await assert.rejects(
+    async () => {
+      await draftService.resumeDraft("");
+    },
+    /Malformed draft token/
+  );
+
+  await assert.rejects(
+    async () => {
+      await draftService.resumeDraft("   ");
+    },
+    /Malformed draft token/
+  );
+
+  await assert.rejects(
+    async () => {
+      await draftService.resumeDraft("bad token with spaces");
+    },
+    /Malformed draft token/
   );
 }
 
@@ -269,15 +335,15 @@ async function testRejectsSavingNonDraftReservation(): Promise<void> {
 }
 
 async function run(): Promise<void> {
-  await testCreateNewDraft();
-  await testUpdateExistingDraft();
-  await testResumeDraft();
-  await testPreservesSharedDataOnPartialUpdate();
+  await testCreateNewDraftWithResumableIdentity();
+  await testUpdateExistingDraftWithBookingDataAndProgressContext();
+  await testLoadDraftByResumableTokenReference();
+  await testPreservesBranchDataOnPartialUpdate();
   await testRejectsInvalidDraftUpdate();
+  await testRejectsMalformedOrMissingResumeTokenLookupsCleanly();
   await testRejectsSavingNonDraftReservation();
 
   console.log("draft-service: ok");
 }
 
 void run();
-

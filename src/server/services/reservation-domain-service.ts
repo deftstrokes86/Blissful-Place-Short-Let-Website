@@ -26,6 +26,8 @@ import type {
 } from "@/types/booking";
 import type {
   DraftCreateInput,
+  DraftProgressContext,
+  DraftProgressStep,
   DraftUpdateInput,
   ReservationEventRecord,
   ReservationPricingSnapshot,
@@ -75,6 +77,41 @@ function createDefaultGuest() {
     phone: "",
     specialRequests: "",
   };
+}
+
+const MIN_DRAFT_STEP: DraftProgressStep = 0;
+const MAX_DRAFT_STEP: DraftProgressStep = 5;
+
+function isDraftProgressStep(value: unknown): value is DraftProgressStep {
+  return typeof value === "number" && Number.isInteger(value) && value >= MIN_DRAFT_STEP && value <= MAX_DRAFT_STEP;
+}
+
+function defaultProgressContext(paymentMethod: PaymentMethod | null): DraftProgressContext {
+  return {
+    currentStep: MIN_DRAFT_STEP,
+    activeBranch: paymentMethod,
+  };
+}
+
+function applyProgressContextPatch(reservation: ReservationRecord, input: DraftUpdateInput | DraftCreateInput): void {
+  if (!input.progressContext) {
+    return;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(input.progressContext, "currentStep")) {
+    const nextStep = input.progressContext.currentStep;
+    if (nextStep === null) {
+      reservation.progressContext.currentStep = null;
+    } else if (isDraftProgressStep(nextStep)) {
+      reservation.progressContext.currentStep = nextStep;
+    } else {
+      throw new Error("Invalid draft progress currentStep. Expected a step between 0 and 5.");
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(input.progressContext, "activeBranch")) {
+    reservation.progressContext.activeBranch = input.progressContext.activeBranch ?? null;
+  }
 }
 
 function buildPricingSnapshot(
@@ -134,7 +171,12 @@ function applyDraftPatch(reservation: ReservationRecord, input: DraftUpdateInput
 
   if (Object.prototype.hasOwnProperty.call(input, "paymentMethod")) {
     reservation.paymentMethod = input.paymentMethod ?? null;
+    if (!input.progressContext || input.progressContext.activeBranch === undefined) {
+      reservation.progressContext.activeBranch = reservation.paymentMethod;
+    }
   }
+
+  applyProgressContextPatch(reservation, input);
 }
 
 function shouldReopenInventory(status: ReservationStatus): boolean {
@@ -170,6 +212,7 @@ export class ReservationDomainService {
             token: randomUUID(),
             status: "draft",
             paymentMethod: input.paymentMethod ?? null,
+            progressContext: defaultProgressContext(input.paymentMethod ?? null),
             stay: createDefaultStay(),
             guest: createDefaultGuest(),
             pricing: {
@@ -188,6 +231,7 @@ export class ReservationDomainService {
             cancelledAt: null,
             createdAt,
             updatedAt: createdAt,
+            lastTouchedAt: createdAt,
           };
 
           applyDraftPatch(reservation, input);
@@ -236,7 +280,9 @@ export class ReservationDomainService {
             reservation.stay,
             reservation.id
           );
-          reservation.updatedAt = nowIso();
+          const updatedAt = nowIso();
+          reservation.updatedAt = updatedAt;
+          reservation.lastTouchedAt = updatedAt;
 
           return reservation;
         });
@@ -267,6 +313,7 @@ export class ReservationDomainService {
           }
 
           reservation.paymentMethod = input.paymentMethod;
+          reservation.progressContext.activeBranch = input.paymentMethod;
 
           const availability = await bookingAvailabilityService.runPreHoldRecheck(
             reservation.stay,
@@ -287,7 +334,9 @@ export class ReservationDomainService {
           }
 
           reservation.status = decision.to;
-          reservation.updatedAt = nowIso();
+          const updatedAt = nowIso();
+          reservation.updatedAt = updatedAt;
+          reservation.lastTouchedAt = updatedAt;
 
           if (input.paymentMethod === "transfer") {
             const startedAt = nowIso();
@@ -366,10 +415,13 @@ export class ReservationDomainService {
       }
 
       reservation.status = decision.to;
-      reservation.updatedAt = nowIso();
+      const updatedAt = nowIso();
+      reservation.updatedAt = updatedAt;
+      reservation.lastTouchedAt = updatedAt;
 
       if (input.event === "switch_payment_method" && input.paymentMethod) {
         reservation.paymentMethod = input.paymentMethod;
+        reservation.progressContext.activeBranch = input.paymentMethod;
         applyTransferHoldForMethodChange(reservation, decision.to);
       }
 
@@ -441,3 +493,6 @@ export class ReservationDomainService {
 }
 
 export const reservationDomainService = new ReservationDomainService();
+
+
+

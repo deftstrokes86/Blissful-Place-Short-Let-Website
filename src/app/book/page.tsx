@@ -32,13 +32,21 @@ import {
 import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
 import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
 import {
+  createBookingDraft,
   createIdempotencyKey,
-  createWebsiteDraft,
   fetchCalendarMonthAvailability,
   initiateWebsiteCheckout,
+  loadBookingDraft,
+  revalidateResumedDraftProgression,
   runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,
+  saveBookingDraftProgress,
+  type BookingDraftPayload,
   type CalendarBlockedSpanResponse,
+  type DraftSnapshotResponse,
+  type DraftReservationSnapshot,
 } from "@/lib/booking-frontend-api";
+import { deriveResumeStepIndex } from "@/lib/booking-draft-resume";
+import { deriveBookingResumeUxState } from "@/lib/booking-resume-ux";
 import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
 import {
   getGuestValidationState,
@@ -72,6 +80,107 @@ import type {
   TransferTransientState,
   WebsiteTransientState,
 } from "@/types/booking";
+const DRAFT_TOKEN_STORAGE_KEY = "blissful.booking.resumeToken";
+type DraftProgressStep = 0 | 1 | 2 | 3 | 4 | 5;
+
+function hasCompleteDraftStay(stay: StayFormState): boolean {
+  return Boolean(stay.flatId) && Boolean(stay.checkIn) && Boolean(stay.checkOut) && stay.guests > 0;
+}
+
+function hasCompleteDraftGuest(guest: GuestFormState): boolean {
+  return (
+    guest.firstName.trim().length > 0 &&
+    guest.lastName.trim().length > 0 &&
+    guest.email.trim().length > 0 &&
+    guest.phone.trim().length > 0
+  );
+}
+
+function toDraftSnapshotStay(stay: DraftReservationSnapshot["stay"]): StayFormState {
+  return {
+    flatId: stay.flatId,
+    checkIn: stay.checkIn,
+    checkOut: stay.checkOut,
+    guests: stay.guests,
+    extraIds: [...stay.extraIds],
+  };
+}
+
+function toDraftSnapshotGuest(guest: DraftReservationSnapshot["guest"]): GuestFormState {
+  return {
+    firstName: guest.firstName,
+    lastName: guest.lastName,
+    email: guest.email,
+    phone: guest.phone,
+    specialRequests: guest.specialRequests,
+  };
+}
+
+function toProgressStepIndex(step: number | null | undefined): DraftProgressStep | null {
+  if (step === null || step === undefined) {
+    return null;
+  }
+
+  if (step < STEP0 || step > STEP5) {
+    return null;
+  }
+
+  return step as DraftProgressStep;
+}
+
+function getResumeStepIndexFromSnapshot(
+  snapshot: DraftSnapshotResponse,
+  fallback: {
+    paymentMethod: PaymentMethod | null;
+    stayReady: boolean;
+    guestReady: boolean;
+  }
+): number {
+  const savedProgressStep = toProgressStepIndex(snapshot.reservation.progressContext.currentStep);
+  if (savedProgressStep !== null) {
+    return savedProgressStep;
+  }
+
+  const branchSavedStep = toProgressStepIndex(snapshot.branchContext.savedProgressStep);
+  if (branchSavedStep !== null) {
+    return branchSavedStep;
+  }
+
+  const branchResumeStep = toProgressStepIndex(snapshot.branchContext.resumeStepIndex);
+  if (branchResumeStep !== null) {
+    return branchResumeStep;
+  }
+
+  return deriveResumeStepIndex({
+    status: snapshot.reservation.status,
+    paymentMethod: fallback.paymentMethod,
+    stayReady: fallback.stayReady,
+    guestReady: fallback.guestReady,
+  });
+}
+
+function getResumeAvailabilityNotice(snapshot: DraftSnapshotResponse): string | null {
+  const checkpoints = snapshot.availabilityRevalidationNeeds.requiredCheckpoints;
+
+  if (checkpoints.includes("pre_online_payment_handoff")) {
+    return "Availability will be rechecked before secure payment handoff.";
+  }
+
+  if (checkpoints.includes("pre_transfer_confirmation")) {
+    return "Availability will be rechecked before transfer verification can confirm your reservation.";
+  }
+
+  if (checkpoints.includes("pre_pos_confirmation")) {
+    return "Availability will be rechecked before POS confirmation can complete your reservation.";
+  }
+
+  if (checkpoints.includes("pre_hold_request")) {
+    return "Saved draft loaded. Dates are not reserved yet and will be rechecked before branch request creation.";
+  }
+
+  return null;
+}
+
 
 export default function BookingPage() {
   const [stay, setStay] = useState<StayFormState>(INITIAL_STAY);
@@ -95,9 +204,15 @@ export default function BookingPage() {
   const [blockedDateSpans, setBlockedDateSpans] = useState<CalendarBlockedSpanResponse[]>([]);
   const [isLoadingBlockedDates, setIsLoadingBlockedDates] = useState(false);
   const [blockedDatesError, setBlockedDatesError] = useState<string | null>(null);
+  const [isHydratingDraft, setIsHydratingDraft] = useState(true);
+  const [isPersistingDraft, setIsPersistingDraft] = useState(false);
+  const [isResumingDraft, setIsResumingDraft] = useState(false);
+  const [showDraftRestoredNotice, setShowDraftRestoredNotice] = useState(false);
+  const [staleAvailabilityRecoveryNotice, setStaleAvailabilityRecoveryNotice] = useState<string | null>(null);
 
   // Prevent duplicate prototype submissions when branch actions are triggered quickly.
   const branchActionLockRef = useRef(false);
+  const draftPersistCountRef = useRef(0);
   const [isBranchActionLocked, setIsBranchActionLocked] = useState(false);
   const checkInInputRef = useRef<HTMLInputElement | null>(null);
   const checkOutInputRef = useRef<HTMLInputElement | null>(null);
@@ -263,6 +378,127 @@ export default function BookingPage() {
       cancelled = true;
     };
   }, [selectedFlat, monthQueries]);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      if (draftToken) {
+        window.localStorage.setItem(DRAFT_TOKEN_STORAGE_KEY, draftToken);
+      } else {
+        window.localStorage.removeItem(DRAFT_TOKEN_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore storage errors and keep booking flow usable.
+    }
+  }, [draftToken]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function hydrateDraftFromStorage(): Promise<void> {
+      if (typeof window === "undefined") {
+        if (active) {
+          setIsHydratingDraft(false);
+        }
+        return;
+      }
+
+      let resumeToken: string | null = null;
+      try {
+        const queryToken = new URLSearchParams(window.location.search).get("draft");
+        const storedToken = window.localStorage.getItem(DRAFT_TOKEN_STORAGE_KEY);
+        resumeToken = queryToken ?? storedToken;
+      } catch {
+        resumeToken = null;
+      }
+
+      if (!resumeToken) {
+        if (active) {
+          setIsResumingDraft(false);
+          setIsHydratingDraft(false);
+        }
+        return;
+      }
+
+      if (active) {
+        setIsResumingDraft(true);
+        setShowDraftRestoredNotice(false);
+      }
+
+      try {
+        const snapshot = await loadBookingDraft(resumeToken);
+        if (!active) {
+          return;
+        }
+
+        const restoredStay = toDraftSnapshotStay(snapshot.reservation.stay);
+        const restoredGuest = toDraftSnapshotGuest(snapshot.reservation.guest);
+        const restoredPaymentMethod = snapshot.branchContext.resolvedPaymentMethod;
+        const resumeStep = getResumeStepIndexFromSnapshot(snapshot, {
+          paymentMethod: restoredPaymentMethod,
+          stayReady: hasCompleteDraftStay(restoredStay),
+          guestReady: hasCompleteDraftGuest(restoredGuest),
+        });
+
+        const parsedHoldExpiresAt = snapshot.reservation.transferHoldExpiresAt
+          ? new Date(snapshot.reservation.transferHoldExpiresAt).getTime()
+          : null;
+
+        const holdExpiresAt =
+          parsedHoldExpiresAt !== null && Number.isFinite(parsedHoldExpiresAt)
+            ? parsedHoldExpiresAt
+            : null;
+
+        setStay(restoredStay);
+        setGuest(restoredGuest);
+        setStayTouched(INITIAL_STAY_TOUCHED);
+        setGuestTouched(INITIAL_GUEST_TOUCHED);
+        setPaymentMethod(restoredPaymentMethod);
+        setPaymentTouched(Boolean(restoredPaymentMethod));
+        setReservationStatus(snapshot.reservation.status);
+        setStepIndex(resumeStep);
+
+        setWebsiteState(INITIAL_WEBSITE_STATE);
+        setTransferState({
+          ...INITIAL_TRANSFER_STATE,
+          holdExpiresAt: restoredPaymentMethod === "transfer" ? holdExpiresAt : null,
+        });
+        setPosState(INITIAL_POS_STATE);
+        setDraftToken(snapshot.resumeToken);
+        setAvailabilityNote(getResumeAvailabilityNotice(snapshot));
+        setShowDraftRestoredNotice(true);
+        setFlowNotice(null);
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        try {
+          window.localStorage.removeItem(DRAFT_TOKEN_STORAGE_KEY);
+        } catch {
+          // Ignore storage errors.
+        }
+
+        setDraftToken(null);
+        setFlowNotice(
+          `Saved draft could not be restored: ${getRequestErrorMessage(error)}`
+        );
+      } finally {
+        if (active) {
+          setIsResumingDraft(false);
+          setIsHydratingDraft(false);
+        }
+      }
+    }
+
+    void hydrateDraftFromStorage();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function clearBranchTransientState() {
     setWebsiteState(INITIAL_WEBSITE_STATE);
@@ -270,11 +506,9 @@ export default function BookingPage() {
     setPosState(INITIAL_POS_STATE);
     setFlowNotice(null);
     setAvailabilityNote(null);
-    setDraftToken(null);
   }
 
   function toggleExtra(id: ExtraId) {
-    setDraftToken(null);
     setStay((current) => ({
       ...current,
       extraIds: current.extraIds.includes(id)
@@ -284,12 +518,13 @@ export default function BookingPage() {
   }
 
   function handleStayChange<K extends keyof StayFormState>(field: K, value: StayFormState[K]) {
-    setDraftToken(null);
     setStay((current) => ({ ...current, [field]: value }));
+    if (field === "flatId" || field === "checkIn" || field === "checkOut") {
+      setStaleAvailabilityRecoveryNotice(null);
+    }
   }
 
   function handleGuestChange<K extends keyof GuestFormState>(field: K, value: GuestFormState[K]) {
-    setDraftToken(null);
     setGuest((current) => ({ ...current, [field]: value }));
   }
 
@@ -326,7 +561,30 @@ export default function BookingPage() {
     setIsBranchActionLocked(false);
   }
 
+  function beginDraftPersistence() {
+    draftPersistCountRef.current += 1;
+    setIsPersistingDraft(true);
+  }
+
+  function endDraftPersistence() {
+    draftPersistCountRef.current = Math.max(0, draftPersistCountRef.current - 1);
+    if (draftPersistCountRef.current === 0) {
+      setIsPersistingDraft(false);
+    }
+  }
+
+  function createDraftProgressContext(progressStep: number, activeBranch: PaymentMethod | null): NonNullable<BookingDraftPayload["progressContext"]> {
+    return {
+      currentStep: toProgressStepIndex(progressStep),
+      activeBranch,
+    };
+  }
+
   function handlePaymentMethodChange(nextMethod: PaymentMethod) {
+    if (isHydratingDraft || isPersistingDraft) {
+      return;
+    }
+
     if (paymentMethod === nextMethod) {
       return;
     }
@@ -334,7 +592,6 @@ export default function BookingPage() {
     setPaymentTouched(true);
     setBranchResetNotice(null);
     setAvailabilityNote(null);
-    setDraftToken(null);
 
     if (paymentMethod && paymentMethod !== nextMethod) {
       clearBranchTransientState();
@@ -348,6 +605,7 @@ export default function BookingPage() {
     }
 
     setPaymentMethod(nextMethod);
+    syncDraftPaymentMethod(nextMethod);
   }
 
   function buildAvailabilityStayInput() {
@@ -362,6 +620,72 @@ export default function BookingPage() {
       guests: stay.guests,
       extraIds: [...stay.extraIds],
     };
+  }
+  function buildGuestDraftInput() {
+    if (!hasCompleteDraftGuest(guest)) {
+      return null;
+    }
+
+    return {
+      firstName: guest.firstName,
+      lastName: guest.lastName,
+      email: guest.email,
+      phone: guest.phone,
+      specialRequests: guest.specialRequests,
+    };
+  }
+
+  async function upsertDraftProgress(input: {
+    payload: BookingDraftPayload;
+    progressStep?: number;
+    activeBranch?: PaymentMethod | null;
+    createIfMissing?: boolean;
+    onErrorMessage: string;
+  }): Promise<string | null> {
+    if (!draftToken && input.createIfMissing === false) {
+      return null;
+    }
+
+    const payload: BookingDraftPayload = {
+      ...input.payload,
+      progressContext:
+        input.payload.progressContext ??
+        createDraftProgressContext(
+          input.progressStep ?? stepIndex,
+          input.activeBranch === undefined ? paymentMethod : input.activeBranch
+        ),
+    };
+
+    beginDraftPersistence();
+
+    try {
+      if (draftToken) {
+        const updated = await saveBookingDraftProgress(draftToken, payload);
+        setDraftToken(updated.resumeToken);
+        return updated.resumeToken;
+      }
+
+      const created = await createBookingDraft(payload);
+      setDraftToken(created.resumeToken);
+      return created.resumeToken;
+    } catch {
+      setFlowNotice(input.onErrorMessage);
+      return null;
+    } finally {
+      endDraftPersistence();
+    }
+  }
+
+  function syncDraftPaymentMethod(nextMethod: PaymentMethod): void {
+    void upsertDraftProgress({
+      payload: {
+        paymentMethod: nextMethod,
+      },
+      progressStep: STEP2,
+      activeBranch: nextMethod,
+      createIfMissing: false,
+      onErrorMessage: "Payment method changed, but draft sync is temporarily unavailable.",
+    });
   }
 
   async function runAvailabilityCheckpoint(input: {
@@ -392,6 +716,7 @@ export default function BookingPage() {
         return false;
       }
 
+      setStaleAvailabilityRecoveryNotice(null);
       setAvailabilityNote(`Availability check passed ${input.reason}. Ready to proceed.`);
       return true;
     } catch (error) {
@@ -402,11 +727,80 @@ export default function BookingPage() {
     }
   }
 
+  async function runCriticalResumedDraftRevalidation(input: {
+    checkpoint:
+      | "pre_hold_request"
+      | "pre_online_payment_handoff"
+      | "pre_transfer_confirmation"
+      | "pre_pos_confirmation";
+    reason: string;
+    paymentMethod?: PaymentMethod;
+  }): Promise<boolean> {
+    if (!draftToken) {
+      return runAvailabilityCheckpoint(input);
+    }
+
+    const stayInput = buildAvailabilityStayInput();
+
+    if (!stayReady || !stayInput) {
+      setAvailabilityNote("Complete valid stay details before running availability checks.");
+      return false;
+    }
+
+    setIsCheckingAvailability(true);
+
+    try {
+      const result = await revalidateResumedDraftProgression({
+        token: draftToken,
+        checkpoint: input.checkpoint,
+      });
+
+      if (result.canProceed) {
+        setStaleAvailabilityRecoveryNotice(null);
+        setAvailabilityNote(`Availability check passed ${input.reason}. Ready to proceed.`);
+        return true;
+      }
+
+      const firstConflict = result.availability.conflicts[0]?.message;
+      const firstReason = result.availability.reasons[0];
+      const blockingMessage =
+        result.blockingMessage ??
+        "Saved dates are no longer available. Update your stay details or choose another residence to continue.";
+
+      setAvailabilityNote(firstConflict ?? firstReason ?? result.guidance ?? blockingMessage);
+      setFlowNotice(null);
+      setShowDraftRestoredNotice(true);
+      setStaleAvailabilityRecoveryNotice(blockingMessage);
+      setBranchResetNotice(
+        "Please update your stay details and continue. Your guest details and preferences are still saved."
+      );
+      setReservationStatus("draft");
+      setStepIndex(STEP0);
+
+      void upsertDraftProgress({
+        payload: {},
+        progressStep: STEP0,
+        activeBranch: paymentMethod,
+        createIfMissing: false,
+        onErrorMessage: "Draft status updated locally, but save sync is temporarily unavailable.",
+      });
+
+      return false;
+    } catch (error) {
+      setAvailabilityNote(getRequestErrorMessage(error));
+      return false;
+    } finally {
+      setIsCheckingAvailability(false);
+    }
+  }
+
   // Drives the shared pre-branch flow and hands off into the selected payment branch.
   async function handleContinue() {
-    if (isBranchActionLocked) {
+    if (isBranchActionLocked || isHydratingDraft || isPersistingDraft) {
       return;
     }
+
+    setShowDraftRestoredNotice(false);
 
     if (stepIndex === STEP0) {
       setStayTouched({ flatId: true, checkIn: true, checkOut: true, guests: true });
@@ -416,13 +810,43 @@ export default function BookingPage() {
         checkpoint: "stay_details_entry",
         reason: getAvailabilityReasonForStep(stepIndex, paymentMethod),
       });
-      if (ok) setStepIndex(STEP1);
+
+      if (ok) {
+        const stayDraft = buildAvailabilityStayInput();
+        if (stayDraft) {
+          await upsertDraftProgress({
+            payload: {
+              stay: stayDraft,
+            },
+            progressStep: STEP1,
+            activeBranch: paymentMethod,
+            onErrorMessage: "Stay details look good, but draft save is temporarily unavailable.",
+          });
+        }
+
+        setStepIndex(STEP1);
+      }
+
       return;
     }
 
     if (stepIndex === STEP1) {
       setGuestTouched({ firstName: true, lastName: true, email: true, phone: true });
       if (guestReady) {
+        const guestDraft = buildGuestDraftInput();
+
+        if (guestDraft) {
+          await upsertDraftProgress({
+            payload: {
+              guest: guestDraft,
+            },
+            progressStep: STEP2,
+            activeBranch: paymentMethod,
+            createIfMissing: false,
+            onErrorMessage: "Guest details are valid, but draft save is temporarily unavailable.",
+          });
+        }
+
         setAvailabilityNote(null);
         setStepIndex(STEP2);
       }
@@ -454,6 +878,20 @@ export default function BookingPage() {
         return;
       }
 
+      const stayDraft = buildAvailabilityStayInput();
+      const guestDraft = buildGuestDraftInput();
+
+      await upsertDraftProgress({
+        payload: {
+          ...(stayDraft ? { stay: stayDraft } : {}),
+          ...(guestDraft ? { guest: guestDraft } : {}),
+          paymentMethod,
+        },
+        progressStep: STEP3,
+        activeBranch: paymentMethod,
+        onErrorMessage: "Payment method selected, but draft sync is temporarily unavailable.",
+      });
+
       setReservationStatus(pendingStatus);
 
       if (paymentMethod === "transfer" && !transferState.holdExpiresAt) {
@@ -482,12 +920,20 @@ export default function BookingPage() {
         setAvailabilityNote(null);
       }
 
+      await upsertDraftProgress({
+        payload: {},
+        progressStep: STEP4,
+        activeBranch: paymentMethod,
+        createIfMissing: false,
+        onErrorMessage: "Progress saved locally, but draft sync is temporarily unavailable.",
+      });
+
       setStepIndex(STEP4);
     }
   }
 
   function handleBack() {
-    if (stepIndex <= STEP0 || isCheckingAvailability || isBranchActionLocked) {
+    if (stepIndex <= STEP0 || isCheckingAvailability || isBranchActionLocked || isHydratingDraft || isPersistingDraft) {
       return;
     }
 
@@ -497,6 +943,14 @@ export default function BookingPage() {
     setStepIndex(nextStep);
     setBranchResetNotice(null);
     setFlowNotice(null);
+
+    void upsertDraftProgress({
+      payload: {},
+      progressStep: nextStep,
+      activeBranch: nextStep >= STEP3 ? paymentMethod : null,
+      createIfMissing: false,
+      onErrorMessage: "Navigation updated, but draft sync is temporarily unavailable.",
+    });
 
     if (nextStep <= STEP2) {
       setReservationStatus("draft");
@@ -520,46 +974,61 @@ export default function BookingPage() {
     return "Unable to start checkout right now. Please try again.";
   }
 
-  function buildWebsiteDraftPayload() {
-    if (!stay.flatId || !stay.checkIn || !stay.checkOut || stay.guests < 1) {
+  function handleContinueEditingRestoredBooking() {
+    setStepIndex(STEP0);
+    setFlowNotice(null);
+  }
+
+  function handleDismissRestoredNotice() {
+    setShowDraftRestoredNotice(false);
+  }
+
+  function buildWebsiteDraftPayload(): BookingDraftPayload {
+    const stayDraft = buildAvailabilityStayInput();
+    const guestDraft = buildGuestDraftInput();
+
+    if (!stayDraft) {
       throw new Error("Complete valid stay details before starting checkout.");
     }
 
-    if (!guest.firstName || !guest.lastName || !guest.email || !guest.phone) {
+    if (!guestDraft) {
       throw new Error("Complete guest details before starting checkout.");
     }
 
     return {
-      stay: {
-        flatId: stay.flatId,
-        checkIn: stay.checkIn,
-        checkOut: stay.checkOut,
-        guests: stay.guests,
-        extraIds: [...stay.extraIds],
-      },
-      guest: {
-        firstName: guest.firstName,
-        lastName: guest.lastName,
-        email: guest.email,
-        phone: guest.phone,
-        specialRequests: guest.specialRequests,
-      },
-      paymentMethod: "website" as const,
+      stay: stayDraft,
+      guest: guestDraft,
+      paymentMethod: "website",
     };
   }
 
   async function ensureWebsiteDraftToken(): Promise<string> {
-    if (draftToken) {
-      return draftToken;
+    const token = await upsertDraftProgress({
+      payload: buildWebsiteDraftPayload(),
+      progressStep: STEP4,
+      activeBranch: "website",
+      onErrorMessage: "Checkout could not save your draft right now.",
+    });
+
+    if (!token) {
+      throw new Error("Unable to prepare checkout draft.");
     }
 
-    const draft = await createWebsiteDraft(buildWebsiteDraftPayload());
-    setDraftToken(draft.resumeToken);
-    return draft.resumeToken;
+    return token;
   }
 
   async function handleInitiateWebsiteCheckout() {
     if (paymentMethod !== "website") {
+      return;
+    }
+
+    const availabilityOk = await runCriticalResumedDraftRevalidation({
+      checkpoint: "pre_online_payment_handoff",
+      reason: "before checkout handoff",
+      paymentMethod: "website",
+    });
+
+    if (!availabilityOk) {
       return;
     }
 
@@ -595,7 +1064,7 @@ export default function BookingPage() {
     }
   }
   function handleSwitchPaymentMethodFromBranch() {
-    if (isBranchActionLocked || isCheckingAvailability) {
+    if (isBranchActionLocked || isCheckingAvailability || isHydratingDraft || isPersistingDraft) {
       return;
     }
 
@@ -605,6 +1074,16 @@ export default function BookingPage() {
     setReservationStatus("draft");
     setBranchResetNotice("Payment method reset. Choose a new option to rebuild your booking path.");
     setStepIndex(STEP2);
+
+    void upsertDraftProgress({
+      payload: {
+        paymentMethod: null,
+      },
+      progressStep: STEP2,
+      activeBranch: null,
+      createIfMissing: false,
+      onErrorMessage: "Payment method reset locally, but draft sync is temporarily unavailable.",
+    });
   }
 
   function handleTransferReferenceChange(value: string) {
@@ -649,6 +1128,20 @@ export default function BookingPage() {
       return;
     }
 
+    const availabilityOk = await runCriticalResumedDraftRevalidation({
+      checkpoint: "pre_hold_request",
+      reason: "before transfer proof submission",
+      paymentMethod: "transfer",
+    });
+
+    if (!availabilityOk) {
+      setTransferState((current) => ({
+        ...current,
+        error: "Selected dates are no longer available. Update your stay details to continue.",
+      }));
+      return;
+    }
+
     if (!beginBranchActionLock()) {
       return;
     }
@@ -676,6 +1169,15 @@ export default function BookingPage() {
       setTransferState((current) => ({ ...current, isSubmitting: false, error: null }));
       setReservationStatus(nextStatus);
       setFlowNotice("Transfer proof received. Our team will verify and confirm your booking shortly.");
+
+      await upsertDraftProgress({
+        payload: {},
+        progressStep: STEP5,
+        activeBranch: "transfer",
+        createIfMissing: false,
+        onErrorMessage: "Transfer proof submitted, but draft sync is temporarily unavailable.",
+      });
+
       setStepIndex(STEP5);
     } finally {
       endBranchActionLock();
@@ -709,6 +1211,20 @@ export default function BookingPage() {
       return;
     }
 
+    const availabilityOk = await runCriticalResumedDraftRevalidation({
+      checkpoint: "pre_hold_request",
+      reason: "before POS coordination submission",
+      paymentMethod: "pos",
+    });
+
+    if (!availabilityOk) {
+      setPosState((current) => ({
+        ...current,
+        error: "Selected dates are no longer available. Update your stay details to continue.",
+      }));
+      return;
+    }
+
     if (!beginBranchActionLock()) {
       return;
     }
@@ -727,6 +1243,15 @@ export default function BookingPage() {
 
       setReservationStatus("pending_pos_coordination");
       setFlowNotice("Coordination request submitted. A concierge representative will reach out to arrange your POS payment.");
+
+      await upsertDraftProgress({
+        payload: {},
+        progressStep: STEP5,
+        activeBranch: "pos",
+        createIfMissing: false,
+        onErrorMessage: "POS request submitted, but draft sync is temporarily unavailable.",
+      });
+
       setStepIndex(STEP5);
     } finally {
       endBranchActionLock();
@@ -734,8 +1259,15 @@ export default function BookingPage() {
     }
   }
 
+  const resumeUxState = deriveBookingResumeUxState({
+    isResumingDraft,
+    showDraftRestoredNotice,
+    staleAvailabilityRecoveryNotice,
+    flowNotice,
+    isPersistingDraft,
+  });
   const showContinueButton = shouldShowContinueButton(stepIndex);
-  const continueDisabled = isContinueDisabled({
+  const continueDisabled = isHydratingDraft || resumeUxState.disableProgressActions || isContinueDisabled({
     stepIndex,
     isCheckingAvailability,
     isBranchActionLocked,
@@ -756,7 +1288,17 @@ export default function BookingPage() {
 
         <div className="booking-layout">
           <div className="booking-details-col" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <BookingInlineNotices flowNotice={flowNotice} branchResetNotice={branchResetNotice} availabilityNote={availabilityNote} />
+            <BookingInlineNotices
+              resumingNotice={resumeUxState.resumingNotice}
+              restoredNotice={resumeUxState.restoredNotice}
+              recoveryNotice={resumeUxState.recoveryNotice}
+              flowNotice={resumeUxState.effectiveFlowNotice}
+              branchResetNotice={branchResetNotice}
+              availabilityNote={availabilityNote}
+              showContinueEditingAction={resumeUxState.showContinueEditingAction}
+              onContinueEditing={handleContinueEditingRestoredBooking}
+              onDismissRestoredNotice={handleDismissRestoredNotice}
+            />
 
             {stepIndex === STEP0 && (
               <StayDetailsStep
@@ -822,7 +1364,7 @@ export default function BookingPage() {
                 transferState={transferState}
                 posState={posState}
                 transferTimeLeft={transferTimeLeft}
-                isBranchActionLocked={isBranchActionLocked}
+                isBranchActionLocked={isBranchActionLocked || isPersistingDraft}
                 isCheckingAvailability={isCheckingAvailability}
                 onInitiateWebsiteCheckout={handleInitiateWebsiteCheckout}
                 onSwitchMethod={handleSwitchPaymentMethodFromBranch}
@@ -850,8 +1392,9 @@ export default function BookingPage() {
               showContinueButton={showContinueButton}
               continueDisabled={continueDisabled}
               continueLabel={continueLabel}
+              continueLabelOverride={resumeUxState.continueLabelOverride}
               isCheckingAvailability={isCheckingAvailability}
-              isBranchActionLocked={isBranchActionLocked}
+              isBranchActionLocked={isBranchActionLocked || isPersistingDraft}
               onBack={handleBack}
               onContinue={handleContinue}
             />
@@ -880,14 +1423,6 @@ export default function BookingPage() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
 
 
 

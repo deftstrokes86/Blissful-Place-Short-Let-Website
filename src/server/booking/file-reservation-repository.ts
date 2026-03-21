@@ -21,6 +21,9 @@ function cloneReservation(value: ReservationRecord): ReservationRepositoryReserv
     pricing: {
       ...value.pricing,
     },
+    progressContext: {
+      ...value.progressContext,
+    },
   };
 }
 

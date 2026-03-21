@@ -1,5 +1,5 @@
-import { getSharedDraftService } from "@/server/booking/draft-service-factory";
-import { parseDraftInput } from "@/server/http/reservation-payload";
+import { getSharedResumableDraftService } from "@/server/booking/resumable-draft-service-factory";
+import { handleCreateResumableDraftRequest } from "@/server/booking/resumable-draft-http";
 import {
   jsonErrorFromUnknown,
   jsonSuccess,
@@ -11,10 +11,9 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const body = await readJsonObject(request);
-    const input = parseDraftInput(body);
 
-    const draftService = getSharedDraftService();
-    const result = await draftService.createDraft(input);
+    const resumableDraftService = getSharedResumableDraftService();
+    const result = await handleCreateResumableDraftRequest(resumableDraftService, body);
 
     return jsonSuccess(result, 201);
   } catch (error) {

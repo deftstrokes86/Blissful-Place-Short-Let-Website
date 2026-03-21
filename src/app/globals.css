@@ -1315,6 +1315,86 @@ details[open] summary ~ * {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.booking-inline-note p {
+  margin: 0;
+}
+
+.booking-inline-note-soft {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+}
+
+.booking-inline-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-inline-dot span {
+  width: 0.46rem;
+  height: 0.46rem;
+  border-radius: 999px;
+  background: var(--primary);
+  opacity: 0.9;
+  animation: bookingPulse 1.2s ease-in-out infinite;
+}
+
+.booking-inline-note-restored {
+  border-color: rgba(238, 29, 82, 0.35);
+  background: rgba(238, 29, 82, 0.06);
+}
+
+.booking-inline-note-recovery {
+  border-color: rgba(255, 204, 102, 0.45);
+  background: rgba(255, 204, 102, 0.08);
+}
+
+.booking-inline-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.booking-inline-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.16rem 0.55rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.booking-inline-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.booking-inline-action-link {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.booking-inline-action-link.muted {
+  color: var(--text-secondary);
+}
+
 .booking-inline-note-muted {
   border-color: rgba(255, 255, 255, 0.14);
   color: var(--text-secondary);
@@ -1399,6 +1479,21 @@ details[open] summary ~ * {
 
 .animate-in {
   animation: slideBackIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bookingPulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.85);
+    opacity: 0.75;
+  }
 }
 
 @keyframes slideBackIn {

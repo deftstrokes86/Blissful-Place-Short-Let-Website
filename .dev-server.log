@@ -185,3 +185,11 @@ Import trace for requested module:
   page: '/'
 }
  GET / 200 in 1511ms (compile: 32ms, render: 1478ms)
+○ Compiling /_error ...
+ GET / 500 in 4.8s (compile: 4.5s, render: 272ms)
+ GET / 200 in 624ms (compile: 132ms, render: 492ms)
+ GET / 200 in 349ms (compile: 7ms, render: 342ms)
+ GET / 200 in 500ms (compile: 8ms, render: 492ms)
+ GET / 200 in 599ms (compile: 193ms, render: 407ms)
+ GET / 200 in 309ms (compile: 161ms, render: 149ms)
+ GET / 200 in 177ms (compile: 54ms, render: 123ms)

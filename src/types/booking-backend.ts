@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   AvailabilityResult,
   BookingActor,
   BookingId,
@@ -40,6 +40,18 @@ export interface ReservationPricingSnapshot {
   estimatedTotal: number | null;
 }
 
+export type DraftProgressStep = 0 | 1 | 2 | 3 | 4 | 5;
+
+export interface DraftProgressContext {
+  currentStep: DraftProgressStep | null;
+  activeBranch: PaymentMethod | null;
+}
+
+export interface DraftProgressContextInput {
+  currentStep?: DraftProgressStep | null;
+  activeBranch?: PaymentMethod | null;
+}
+
 export interface ReservationDraftPayload {
   stay: StayDetailsInput;
   guest: GuestDetailsInput;
@@ -54,6 +66,7 @@ export interface ReservationRecord {
   guest: GuestDetailsInput;
   paymentMethod: PaymentMethod | null;
   pricing: ReservationPricingSnapshot;
+  progressContext: DraftProgressContext;
   transferHoldStartedAt: ISODateTimeString | null;
   transferHoldExpiresAt: ISODateTimeString | null;
   inventoryReopenedAt: ISODateTimeString | null;
@@ -62,6 +75,7 @@ export interface ReservationRecord {
   cancelledAt: ISODateTimeString | null;
   createdAt: ISODateTimeString;
   updatedAt: ISODateTimeString;
+  lastTouchedAt: ISODateTimeString;
 }
 
 export type PaymentAttemptOutcome = "pending" | "success" | "failed" | "cancelled";
@@ -172,14 +186,12 @@ export interface DraftCreateInput {
   stay?: Partial<StayDetailsInput>;
   guest?: Partial<GuestDetailsInput>;
   paymentMethod?: PaymentMethod | null;
+  progressContext?: DraftProgressContextInput;
 }
 
 export interface DraftUpdateInput {
   stay?: Partial<StayDetailsInput>;
   guest?: Partial<GuestDetailsInput>;
   paymentMethod?: PaymentMethod | null;
+  progressContext?: DraftProgressContextInput;
 }
-
-
-
-

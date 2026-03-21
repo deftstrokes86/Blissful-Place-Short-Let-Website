@@ -2,10 +2,12 @@ import type {
   AvailabilityCheckpoint,
   AvailabilityResult,
   FlatId,
+  GuestDetailsInput,
   PaymentMethod,
   ReservationStatus,
   StayDetailsInput,
 } from "@/types/booking";
+import type { DraftCreateInput, DraftUpdateInput } from "@/types/booking-backend";
 
 interface ApiErrorShape {
   ok: false;
@@ -22,14 +24,52 @@ interface ApiSuccessShape<T> {
 
 type ApiResponseShape<T> = ApiErrorShape | ApiSuccessShape<T>;
 
-interface DraftReservationSnapshot {
+export interface DraftReservationSnapshot {
   token: string;
   status: ReservationStatus;
+  paymentMethod: PaymentMethod | null;
+  stay: StayDetailsInput;
+  guest: GuestDetailsInput;
+  progressContext: {
+    currentStep: number | null;
+    activeBranch: PaymentMethod | null;
+  };
+  transferHoldExpiresAt: string | null;
+  lastTouchedAt: string;
 }
 
-interface DraftSnapshotResponse {
+export interface DraftBranchContextSnapshot {
+  resolvedPaymentMethod: PaymentMethod | null;
+  resumeStepIndex: number;
+  savedProgressStep: number | null;
+  stepLabels: [string, string, string, string, string, string];
+  stayReady: boolean;
+  guestReady: boolean;
+}
+
+export interface DraftAvailabilityRevalidationNeedsSnapshot {
+  createBranchRequest: boolean;
+  onlinePaymentHandoff: boolean;
+  transferConfirmation: boolean;
+  posConfirmation: boolean;
+  requiredCheckpoints: AvailabilityCheckpoint[];
+}
+
+export interface DraftSnapshotResponse {
   resumeToken: string;
   reservation: DraftReservationSnapshot;
+  branchContext: DraftBranchContextSnapshot;
+  availabilityRevalidationNeeds: DraftAvailabilityRevalidationNeedsSnapshot;
+}
+
+export interface ResumedDraftRevalidationResponse {
+  token: string;
+  checkpoint: AvailabilityCheckpoint;
+  canProceed: boolean;
+  requiresStayUpdate: boolean;
+  blockingMessage: string | null;
+  guidance: string | null;
+  availability: AvailabilityResult;
 }
 
 interface WebsiteCheckoutReservation {
@@ -60,6 +100,9 @@ export interface WebsiteDraftPayload {
   };
   paymentMethod: "website";
 }
+
+export type BookingDraftPayload = DraftCreateInput;
+export type BookingDraftUpdatePayload = DraftUpdateInput;
 
 export interface CalendarBlockedSpanResponse {
   blockId: string;
@@ -120,7 +163,7 @@ export function createIdempotencyKey(prefix: string): string {
   return `${prefix}-${createClientId()}`;
 }
 
-export async function createWebsiteDraft(payload: WebsiteDraftPayload): Promise<DraftSnapshotResponse> {
+export async function createBookingDraft(payload: BookingDraftPayload): Promise<DraftSnapshotResponse> {
   const response = await fetch("/api/reservations/drafts", {
     method: "POST",
     headers: {
@@ -130,6 +173,55 @@ export async function createWebsiteDraft(payload: WebsiteDraftPayload): Promise<
   });
 
   return readJsonResponse<DraftSnapshotResponse>(response);
+}
+
+export async function loadBookingDraft(token: string): Promise<DraftSnapshotResponse> {
+  const response = await fetch(`/api/reservations/drafts/${token}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  return readJsonResponse<DraftSnapshotResponse>(response);
+}
+
+export async function saveBookingDraftProgress(
+  token: string,
+  payload: BookingDraftUpdatePayload
+): Promise<DraftSnapshotResponse> {
+  const response = await fetch(`/api/reservations/drafts/${token}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return readJsonResponse<DraftSnapshotResponse>(response);
+}
+
+export async function revalidateResumedDraftProgression(input: {
+  token: string;
+  checkpoint:
+    | "pre_hold_request"
+    | "pre_online_payment_handoff"
+    | "pre_transfer_confirmation"
+    | "pre_pos_confirmation";
+}): Promise<ResumedDraftRevalidationResponse> {
+  const response = await fetch(`/api/reservations/drafts/${input.token}/revalidate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      checkpoint: input.checkpoint,
+    }),
+  });
+
+  return readJsonResponse<ResumedDraftRevalidationResponse>(response);
+}
+
+export async function createWebsiteDraft(payload: WebsiteDraftPayload): Promise<DraftSnapshotResponse> {
+  return createBookingDraft(payload);
 }
 
 export async function initiateWebsiteCheckout(input: {

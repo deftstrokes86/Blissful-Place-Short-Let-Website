@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   token TEXT NOT NULL UNIQUE,
   status TEXT NOT NULL,
   payment_method TEXT,
+  progress_context_json TEXT NOT NULL,
   stay_json TEXT NOT NULL,
   guest_json TEXT NOT NULL,
   pricing_json TEXT NOT NULL,
@@ -32,7 +33,8 @@ CREATE TABLE IF NOT EXISTS reservations (
   confirmed_at TEXT,
   cancelled_at TEXT,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  last_touched_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS availability_blocks (
@@ -122,4 +124,3 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
   expires_at TEXT,
   PRIMARY KEY (key, action)
 );
-

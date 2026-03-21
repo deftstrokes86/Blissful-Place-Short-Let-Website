@@ -18,8 +18,20 @@ export interface DraftSnapshot {
   reservation: ReservationRepositoryReservation;
 }
 
+const RESUME_TOKEN_PATTERN = /^[A-Za-z0-9_-]{8,200}$/;
+
 function hasDraftMutationPayload(input: DraftUpdateInput): boolean {
   return Object.keys(input).length > 0;
+}
+
+function assertValidResumeToken(token: BookingToken): BookingToken {
+  const normalized = token.trim();
+
+  if (!RESUME_TOKEN_PATTERN.test(normalized)) {
+    throw new Error("Malformed draft token.");
+  }
+
+  return normalized;
 }
 
 export class DraftService {
@@ -43,7 +55,8 @@ export class DraftService {
       throw new Error("Draft update payload is empty.");
     }
 
-    const reservation = await this.reservationService.updateDraftReservation(token, input);
+    const resumeToken = assertValidResumeToken(token);
+    const reservation = await this.reservationService.updateDraftReservation(resumeToken, input);
 
     return {
       resumeToken: reservation.token,
@@ -52,7 +65,8 @@ export class DraftService {
   }
 
   async resumeDraft(token: BookingToken): Promise<DraftSnapshot> {
-    const reservation = await this.reservationService.getReservationByToken(token);
+    const resumeToken = assertValidResumeToken(token);
+    const reservation = await this.reservationService.getReservationByToken(resumeToken);
     if (!reservation) {
       throw new Error("Draft reservation not found.");
     }

@@ -91,6 +91,8 @@ model Reservation {
   token                      String                         @unique
   status                     ReservationStatus              @default(draft)
   paymentMethod              PaymentMethod?
+  draftCurrentStep           Int?
+  draftActiveBranch          PaymentMethod?
   flatId                     String
   flat                       Flat                           @relation(fields: [flatId], references: [id], onDelete: Restrict)
   checkIn                    DateTime
@@ -123,6 +125,7 @@ model Reservation {
   idempotencyKeys            IdempotencyKey[]
   createdAt                  DateTime                       @default(now())
   updatedAt                  DateTime                       @updatedAt
+  lastTouchedAt              DateTime                       @default(now())
 
   @@index([status])
   @@index([paymentMethod])
@@ -238,5 +241,3 @@ model IdempotencyKey {
   @@index([reservationId])
   @@index([createdAt])
 }
-
-

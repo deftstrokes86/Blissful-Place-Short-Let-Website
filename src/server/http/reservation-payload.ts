@@ -1,4 +1,9 @@
-import type { DraftCreateInput, DraftUpdateInput } from "@/types/booking-backend";
+import type {
+  DraftCreateInput,
+  DraftProgressContextInput,
+  DraftProgressStep,
+  DraftUpdateInput,
+} from "@/types/booking-backend";
 import type {
   AvailabilityCheckpoint,
   ExtraId,
@@ -18,6 +23,8 @@ const AVAILABILITY_CHECKPOINTS: readonly AvailabilityCheckpoint[] = [
   "pre_transfer_confirmation",
   "pre_pos_confirmation",
 ];
+const MIN_DRAFT_STEP: DraftProgressStep = 0;
+const MAX_DRAFT_STEP: DraftProgressStep = 5;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -80,6 +87,54 @@ function parseFlatId(value: unknown): FlatId | null {
   }
 
   return FLAT_IDS.includes(value as FlatId) ? (value as FlatId) : null;
+}
+
+function parseDraftProgressStep(value: unknown): DraftProgressStep | null {
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    return null;
+  }
+
+  if (value < MIN_DRAFT_STEP || value > MAX_DRAFT_STEP) {
+    return null;
+  }
+
+  return value as DraftProgressStep;
+}
+
+function parseProgressContext(value: unknown): DraftProgressContextInput | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const context: DraftProgressContextInput = {};
+
+  if (Object.prototype.hasOwnProperty.call(value, "currentStep")) {
+    if (value.currentStep === null) {
+      context.currentStep = null;
+    } else {
+      const currentStep = parseDraftProgressStep(value.currentStep);
+      if (currentStep === null) {
+        throw new Error("Invalid progressContext.currentStep");
+      }
+
+      context.currentStep = currentStep;
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(value, "activeBranch")) {
+    if (value.activeBranch === null) {
+      context.activeBranch = null;
+    } else {
+      const activeBranch = parsePaymentMethod(value.activeBranch);
+      if (!activeBranch) {
+        throw new Error("Invalid progressContext.activeBranch");
+      }
+
+      context.activeBranch = activeBranch;
+    }
+  }
+
+  return context;
 }
 
 function parseStayPatch(value: unknown): Partial<StayDetailsInput> | null {
@@ -210,6 +265,14 @@ export function parseDraftInput(body: Record<string, unknown>): DraftCreateInput
       }
       input.paymentMethod = paymentMethod;
     }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, "progressContext")) {
+    const progressContext = parseProgressContext(body.progressContext);
+    if (!progressContext) {
+      throw new Error("Invalid progressContext payload");
+    }
+    input.progressContext = progressContext;
   }
 
   return input;

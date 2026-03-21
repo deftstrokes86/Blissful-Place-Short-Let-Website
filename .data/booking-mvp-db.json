@@ -1,0 +1,58 @@
+{
+  "flats": [
+    {
+      "id": "windsor",
+      "name": "Windsor Residence",
+      "nightlyRate": 150000,
+      "maxGuests": 6,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    },
+    {
+      "id": "kensington",
+      "name": "Kensington Lodge",
+      "nightlyRate": 180000,
+      "maxGuests": 6,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    },
+    {
+      "id": "mayfair",
+      "name": "Mayfair Suite",
+      "nightlyRate": 250000,
+      "maxGuests": 6,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    }
+  ],
+  "extras": [
+    {
+      "id": "airport",
+      "title": "Premium Airport Transfer",
+      "flatFee": 65000,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    },
+    {
+      "id": "pantry",
+      "title": "Pantry Pre-Stocking",
+      "flatFee": 45000,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    },
+    {
+      "id": "celebration",
+      "title": "Celebration Setup",
+      "flatFee": 75000,
+      "createdAt": "2026-03-20T21:33:23.976Z",
+      "updatedAt": "2026-03-20T21:33:23.976Z"
+    }
+  ],
+  "reservations": [],
+  "availabilityBlocks": [],
+  "paymentAttempts": [],
+  "transferVerifications": [],
+  "posCoordinations": [],
+  "reservationEvents": [],
+  "idempotencyKeys": []
+}

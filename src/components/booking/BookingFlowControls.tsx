@@ -9,6 +9,7 @@ interface BookingFlowControlsProps {
   showContinueButton: boolean;
   continueDisabled: boolean;
   continueLabel: string;
+  continueLabelOverride: string | null;
   isCheckingAvailability: boolean;
   isBranchActionLocked: boolean;
   onBack: () => void;
@@ -20,6 +21,7 @@ export function BookingFlowControls({
   showContinueButton,
   continueDisabled,
   continueLabel,
+  continueLabelOverride,
   isCheckingAvailability,
   isBranchActionLocked,
   onBack,
@@ -49,7 +51,9 @@ export function BookingFlowControls({
               disabled={continueDisabled}
               style={{ opacity: continueDisabled ? 0.6 : 1 }}
             >
-              {isCheckingAvailability ? "Verifying Availability..." : continueLabel}
+              {isCheckingAvailability
+                ? "Verifying Availability..."
+                : continueLabelOverride ?? continueLabel}
             </button>
           )}
         </div>
