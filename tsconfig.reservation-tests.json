@@ -16,10 +16,12 @@
                     "src/server/booking/**/*.ts",
                     "src/server/jobs/**/*.ts",
                     "src/server/payments/**/*.ts",
+                    "src/server/auth/**/*.ts",
                     "src/lib/booking-state-machine.ts",
                     "src/lib/booking-pricing.ts",
                     "src/types/booking.ts",
                     "src/types/booking-backend.ts",
+                    "src/types/auth.ts",
                     "src/lib/notifications/**/*.ts",
                     "src/server/notifications/**/*.ts"
                 ]

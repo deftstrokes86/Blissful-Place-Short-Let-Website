@@ -25,6 +25,12 @@ enum PaymentMethod {
   pos
 }
 
+enum AuthRole {
+  admin
+  staff
+}
+
+
 enum PaymentAttemptOutcome {
   pending
   success
@@ -241,3 +247,32 @@ model IdempotencyKey {
   @@index([reservationId])
   @@index([createdAt])
 }
+model AuthUser {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  role         AuthRole
+  isActive     Boolean       @default(true) @map("is_active")
+  sessions     AuthSession[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@index([isActive])
+  @@map("users")
+}
+
+model AuthSession {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  user         AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionToken String   @unique @map("session_token")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+

@@ -3,7 +3,10 @@ import {
   handleListManualBlocksRequest,
 } from "@/server/booking/staff-operations-http";
 import { getSharedOperationsService } from "@/server/booking/operations-service-factory";
+import { AuthorizationError } from "@/server/auth/require-auth";
+import { requireStaffOrAdminRequest } from "@/server/auth/require-role";
 import {
+  jsonError,
   jsonErrorFromUnknown,
   jsonSuccess,
   pickIdempotencyKey,
@@ -16,6 +19,8 @@ export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   try {
+    await requireStaffOrAdminRequest(request);
+
     const url = new URL(request.url);
     const service = getSharedOperationsService();
 
@@ -26,12 +31,18 @@ export async function GET(request: Request) {
 
     return jsonSuccess(result);
   } catch (error) {
+    if (error instanceof AuthorizationError) {
+      return jsonError(error.message, error.status, error.code);
+    }
+
     return jsonErrorFromUnknown(error, "manual_block_list_failed");
   }
 }
 
 export async function POST(request: Request) {
   try {
+    await requireStaffOrAdminRequest(request);
+
     const body = await readJsonObject(request);
     const service = getSharedOperationsService();
 
@@ -49,6 +60,10 @@ export async function POST(request: Request) {
 
     return jsonSuccess(result, 201);
   } catch (error) {
+    if (error instanceof AuthorizationError) {
+      return jsonError(error.message, error.status, error.code);
+    }
+
     return jsonErrorFromUnknown(error, "manual_block_create_failed");
   }
 }

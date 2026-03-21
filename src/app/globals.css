@@ -1802,3 +1802,79 @@ details[open] summary ~ * {
     grid-template-columns: 1fr;
   }
 }
+/* Auth UI */
+.auth-page {
+  min-height: 100vh;
+  padding-top: 6.5rem;
+  padding-bottom: 4rem;
+}
+
+.auth-container {
+  max-width: 560px;
+}
+
+.auth-card {
+  border: 1px solid rgba(238, 29, 82, 0.35);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-copy {
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.auth-meta {
+  font-size: 0.85rem;
+}
+
+.auth-meta a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Admin session controls */
+.admin-session-controls {
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.admin-session-error {
+  margin: 0;
+  color: #ff9db7;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .auth-page {
+    padding-top: 5.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .auth-card {
+    padding: 1rem;
+  }
+
+  .admin-session-controls {
+    align-items: stretch;
+  }
+
+  .admin-session-controls .btn {
+    width: 100%;
+  }
+}

@@ -1,4 +1,5 @@
 import {
+  jsonError,
   jsonErrorFromUnknown,
   jsonSuccess,
   pickIdempotencyKey,
@@ -9,11 +10,15 @@ import {
   handleConfirmPosPaymentRequest,
 } from "@/server/booking/staff-operations-http";
 import { getSharedStaffOperationsService } from "@/server/booking/staff-operations-service-factory";
+import { AuthorizationError } from "@/server/auth/require-auth";
+import { requireStaffOrAdminRequest } from "@/server/auth/require-role";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    await requireStaffOrAdminRequest(request);
+
     const body = await readJsonObject(request);
     const service = getSharedStaffOperationsService();
     const result = await handleConfirmPosPaymentRequest(service, {
@@ -24,6 +29,10 @@ export async function POST(request: Request) {
 
     return jsonSuccess({ reservation: result.reservation, posMetadata: result.posMetadata });
   } catch (error) {
+    if (error instanceof AuthorizationError) {
+      return jsonError(error.message, error.status, error.code);
+    }
+
     return jsonErrorFromUnknown(error, "pos_payment_confirmation_failed");
   }
 }

@@ -1,15 +1,23 @@
 import { getSharedStaffOperationsService } from "@/server/booking/staff-operations-service-factory";
-import { jsonErrorFromUnknown, jsonSuccess } from "@/server/http/route-helpers";
+import { AuthorizationError } from "@/server/auth/require-auth";
+import { requireStaffOrAdminRequest } from "@/server/auth/require-role";
+import { jsonError, jsonErrorFromUnknown, jsonSuccess } from "@/server/http/route-helpers";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    await requireStaffOrAdminRequest(request);
+
     const service = getSharedStaffOperationsService();
     const queues = await service.listPendingQueues();
 
     return jsonSuccess({ queues });
   } catch (error) {
+    if (error instanceof AuthorizationError) {
+      return jsonError(error.message, error.status, error.code);
+    }
+
     return jsonErrorFromUnknown(error, "operations_queue_failed");
   }
 }

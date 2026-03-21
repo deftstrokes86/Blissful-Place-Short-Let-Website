@@ -1,7 +1,11 @@
 import { AdminNotificationsPanel } from "@/components/admin/notifications/AdminNotificationsPanel";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { PageIntro } from "@/components/common/PageIntro";
+import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
-export default function AdminNotificationsPage() {
+export default async function AdminNotificationsPage() {
+  await requireAdminPageAccessOrRedirect();
+
   return (
     <main className="admin-notifications-page">
       <section className="container">
@@ -13,6 +17,8 @@ export default function AdminNotificationsPage() {
           backLabel="Back to Booking Administration"
           wrapperStyle={{ marginBottom: "2rem" }}
         />
+
+        <AdminLogoutButton />
 
         <AdminNotificationsPanel />
       </section>

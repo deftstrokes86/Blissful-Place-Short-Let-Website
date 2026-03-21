@@ -1,7 +1,11 @@
 import { PageIntro } from "@/components/common/PageIntro";
 import { AdminBookingsPanel } from "@/components/admin/bookings/AdminBookingsPanel";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
-export default function AdminBookingsPage() {
+export default async function AdminBookingsPage() {
+  await requireAdminPageAccessOrRedirect();
+
   return (
     <main className="admin-bookings-page">
       <section className="container">
@@ -13,6 +17,8 @@ export default function AdminBookingsPage() {
           backLabel="Back to Homepage"
           wrapperStyle={{ marginBottom: "2rem" }}
         />
+
+        <AdminLogoutButton />
 
         <AdminBookingsPanel />
       </section>
