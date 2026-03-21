@@ -1738,3 +1738,67 @@ details[open] summary ~ * {
     width: 100%;
   }
 }
+
+/* Admin Notifications UI */
+.admin-notifications-page {
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.admin-notifications-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-notifications-toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-notification-summary {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.admin-notifications-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.admin-status-pending {
+  border-color: rgba(255, 204, 102, 0.75);
+  color: #ffcc66;
+}
+
+.admin-status-failed {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.admin-notification-failed {
+  border-top: 1px solid rgba(255, 157, 183, 0.25);
+  padding-top: 0.55rem;
+  color: #ff9db7;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 960px) {
+  .admin-notifications-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-notifications-page {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .admin-notifications-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}

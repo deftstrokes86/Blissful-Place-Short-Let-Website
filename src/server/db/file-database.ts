@@ -9,6 +9,11 @@ import type {
   DraftProgressStep,
   ExtraRecord,
   FlatRecord,
+  NotificationAudience,
+  NotificationChannel,
+  NotificationEventType,
+  NotificationStatus,
+  ReservationNotificationRecord,
   ReservationRecord,
 } from "@/types/booking-backend";
 import type { PaymentMethod } from "@/types/booking";
@@ -23,6 +28,22 @@ function nowIso(): string {
 
 function isPaymentMethod(value: unknown): value is PaymentMethod {
   return value === "website" || value === "transfer" || value === "pos";
+}
+
+function isNotificationAudience(value: unknown): value is NotificationAudience {
+  return value === "guest" || value === "staff";
+}
+
+function isNotificationChannel(value: unknown): value is NotificationChannel {
+  return value === "email" || value === "internal";
+}
+
+function isNotificationStatus(value: unknown): value is NotificationStatus {
+  return value === "pending" || value === "sent" || value === "failed";
+}
+
+function isNotificationEventType(value: unknown): value is NotificationEventType {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function isDraftProgressStep(value: unknown): value is DraftProgressStep {
@@ -57,6 +78,33 @@ function normalizeReservationRecord(value: ReservationRecord): ReservationRecord
     paymentMethod,
     progressContext: normalizeProgressContext(value.progressContext, paymentMethod),
     lastTouchedAt: value.lastTouchedAt ?? updatedAt,
+  };
+}
+
+function normalizeNotificationRecord(value: ReservationNotificationRecord): ReservationNotificationRecord {
+  const updatedAt = value.updatedAt ?? value.createdAt ?? nowIso();
+  const createdAt = value.createdAt ?? updatedAt;
+
+  return {
+    ...value,
+    eventType: isNotificationEventType(value.eventType) ? value.eventType : "reservation_request_received",
+    templateKey: isNotificationEventType(value.templateKey) ? value.templateKey : "reservation_request_received",
+    audience: isNotificationAudience(value.audience) ? value.audience : "guest",
+    channel: isNotificationChannel(value.channel) ? value.channel : "internal",
+    recipient: value.recipient ?? "",
+    title: value.title ?? "Notification",
+    body: value.body ?? null,
+    templateRef: value.templateRef ?? null,
+    status: isNotificationStatus(value.status) ? value.status : "pending",
+    dedupeKey: value.dedupeKey ?? `legacy-${value.id}`,
+    payload: value.payload ?? {},
+    reservationId: value.reservationId ?? null,
+    reservationToken: value.reservationToken ?? null,
+    paymentAttemptId: value.paymentAttemptId ?? null,
+    errorMessage: value.errorMessage ?? null,
+    sentAt: value.sentAt ?? null,
+    createdAt,
+    updatedAt,
   };
 }
 
@@ -108,6 +156,7 @@ function createEmptyDatabaseState(): BookingDatabaseState {
     transferVerifications: [],
     posCoordinations: [],
     reservationEvents: [],
+    reservationNotifications: [],
     idempotencyKeys: [],
   };
 }
@@ -136,6 +185,7 @@ async function readDatabaseState(): Promise<BookingDatabaseState> {
     transferVerifications: parsed.transferVerifications ?? [],
     posCoordinations: parsed.posCoordinations ?? [],
     reservationEvents: parsed.reservationEvents ?? [],
+    reservationNotifications: (parsed.reservationNotifications ?? []).map(normalizeNotificationRecord),
     idempotencyKeys: parsed.idempotencyKeys ?? [],
   };
 }

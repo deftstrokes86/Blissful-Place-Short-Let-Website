@@ -21,6 +21,7 @@ import type {
   DraftUpdateInput,
   ReservationPricingSnapshot,
 } from "../../types/booking-backend";
+import type { ReservationNotificationGateway } from "./notification-service";
 import type {
   ReservationRepository,
   ReservationRepositoryReservation,
@@ -34,6 +35,7 @@ export interface ReservationInventoryGateway {
 interface ReservationServiceDependencies {
   repository: ReservationRepository;
   inventoryGateway: ReservationInventoryGateway;
+  notificationGateway?: ReservationNotificationGateway;
   now?: () => Date;
   createId?: () => string;
   createToken?: () => string;
@@ -174,9 +176,29 @@ function clearTransferHold(reservation: ReservationRepositoryReservation): void 
   reservation.transferHoldExpiresAt = null;
 }
 
+function cloneReservation(value: ReservationRepositoryReservation): ReservationRepositoryReservation {
+  return {
+    ...value,
+    stay: {
+      ...value.stay,
+      extraIds: [...value.stay.extraIds],
+    },
+    guest: {
+      ...value.guest,
+    },
+    pricing: {
+      ...value.pricing,
+    },
+    progressContext: {
+      ...value.progressContext,
+    },
+  };
+}
+
 export class ReservationService {
   private readonly repository: ReservationRepository;
   private readonly inventoryGateway: ReservationInventoryGateway;
+  private readonly notificationGateway: ReservationNotificationGateway | null;
   private readonly nowProvider: () => Date;
   private readonly createId: () => string;
   private readonly createToken: () => string;
@@ -184,6 +206,7 @@ export class ReservationService {
   constructor(dependencies: ReservationServiceDependencies) {
     this.repository = dependencies.repository;
     this.inventoryGateway = dependencies.inventoryGateway;
+    this.notificationGateway = dependencies.notificationGateway ?? null;
     this.nowProvider = dependencies.now ?? (() => new Date());
     this.createId = dependencies.createId ?? (() => `res_${randomUUID()}`);
     this.createToken = dependencies.createToken ?? (() => randomUUID());
@@ -252,6 +275,7 @@ export class ReservationService {
 
   async transitionReservation(input: TransitionReservationInput): Promise<ReservationRepositoryReservation> {
     const reservation = await this.requireReservation(input.token);
+    const previous = cloneReservation(reservation);
     const now = this.nowProvider();
 
     const decision = getNextReservationState({
@@ -322,7 +346,19 @@ export class ReservationService {
       await this.inventoryGateway.reopenAvailability(reservation.id, decision.to);
     }
 
-    return this.repository.update(reservation);
+    const persisted = await this.repository.update(reservation);
+
+    if (this.notificationGateway) {
+      await this.notificationGateway.onReservationTransition({
+        previous,
+        current: persisted,
+        event: input.event,
+        actor: input.actor,
+        metadata: input.metadata,
+      });
+    }
+
+    return persisted;
   }
 
   async expireTransferHolds(): Promise<ReservationRepositoryReservation[]> {

@@ -170,6 +170,60 @@ export interface ReservationEventRecord {
   metadata: Record<string, string | number | boolean | null>;
 }
 
+export type NotificationChannel = "email" | "internal";
+export type NotificationAudience = "guest" | "staff";
+export type NotificationStatus = "pending" | "sent" | "failed";
+
+export type NotificationEventType =
+  | "reservation_request_received"
+  | "transfer_pending_confirmation"
+  | "booking_confirmed"
+  | "pending_transfer_created"
+  | "transfer_proof_submitted"
+  | "pending_pos_created"
+  | "reservation_cancelled_staff_alert"
+  | "reservation_confirmed_staff_alert"
+  | "reservation_expired"
+  | "website_payment_pending"
+  | "website_payment_confirmed"
+  | "website_payment_failed"
+  | "transfer_payment_pending"
+  | "transfer_payment_awaiting_verification"
+  | "transfer_payment_confirmed"
+  | "pos_request_submitted"
+  | "pos_payment_confirmed"
+  | "reservation_cancelled"
+  | "reservation_expired_or_hold_expired"
+  | "staff_transfer_pending_created"
+  | "staff_transfer_proof_submitted"
+  | "staff_pos_pending_created"
+  | "staff_reservation_cancelled"
+  | "staff_reservation_confirmed"
+  | "staff_transfer_hold_nearing_expiry";
+
+export type NotificationTemplateKey = NotificationEventType;
+export interface ReservationNotificationRecord {
+  id: string;
+  eventType: NotificationEventType;
+  templateKey: NotificationTemplateKey;
+  audience: NotificationAudience;
+  channel: NotificationChannel;
+  recipient: string;
+  title: string;
+  body: string | null;
+  templateRef: string | null;
+  status: NotificationStatus;
+  dedupeKey: string;
+  payload: Record<string, string | number | boolean | null>;
+  reservationId: BookingId | null;
+  reservationToken: BookingToken | null;
+  paymentAttemptId: string | null;
+  errorMessage: string | null;
+  sentAt: ISODateTimeString | null;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
 export interface BookingDatabaseState {
   flats: FlatRecord[];
   extras: ExtraRecord[];
@@ -179,6 +233,7 @@ export interface BookingDatabaseState {
   transferVerifications: TransferVerificationMetadataRecord[];
   posCoordinations: PosCoordinationMetadataRecord[];
   reservationEvents: ReservationEventRecord[];
+  reservationNotifications: ReservationNotificationRecord[];
   idempotencyKeys: IdempotencyKeyRecord[];
 }
 
@@ -195,3 +250,6 @@ export interface DraftUpdateInput {
   paymentMethod?: PaymentMethod | null;
   progressContext?: DraftProgressContextInput;
 }
+
+
+

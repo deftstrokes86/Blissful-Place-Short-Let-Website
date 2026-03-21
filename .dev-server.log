@@ -193,3 +193,111 @@ Import trace for requested module:
  GET / 200 in 599ms (compile: 193ms, render: 407ms)
  GET / 200 in 309ms (compile: 161ms, render: 149ms)
  GET / 200 in 177ms (compile: 54ms, render: 123ms)
+ GET /admin/bookings 200 in 1807ms (compile: 1578ms, render: 229ms)
+ GET / 200 in 554ms (compile: 28ms, render: 526ms)
+ GET /api/operations/staff/pos/pending 200 in 1972ms (compile: 1912ms, render: 61ms)
+ GET /api/operations/staff/transfers/pending 200 in 1978ms (compile: 1915ms, render: 63ms)
+ GET /admin/bookings 200 in 254ms (compile: 59ms, render: 196ms)
+ GET /api/operations/staff/transfers/pending 200 in 19ms (compile: 5ms, render: 15ms)
+ GET /api/operations/staff/pos/pending 200 in 21ms (compile: 10ms, render: 11ms)
+ GET /admin/availability 404 in 839ms (compile: 765ms, render: 74ms)
+ GET / 200 in 337ms (compile: 21ms, render: 316ms)
+ GET /admin/bookings 200 in 70ms (compile: 10ms, render: 60ms)
+ GET /api/operations/staff/transfers/pending 200 in 49ms (compile: 24ms, render: 25ms)
+ GET /api/operations/staff/pos/pending 200 in 51ms (compile: 36ms, render: 15ms)
+ GET /api/operations/staff/transfers/pending 200 in 19ms (compile: 5ms, render: 14ms)
+ GET /api/operations/staff/pos/pending 200 in 20ms (compile: 10ms, render: 10ms)
+⨯ ./src/app/book/page.tsx
+Error:   x Unexpected token `no substitution template literal`. Expected identifier or string
+    ,-[E:\Blissful_Place - Copy\src\app\book\page.tsx:34:1]
+ 31 | } from "@/lib/booking-branch-config";
+ 32 | import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+ 33 | import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+ 34 | import {`r`n  createBookingDraft,`r`n  createIdempotencyKey,`r`n  fetchCalendarMonthAvailability,`r`n  initiateWebsiteCheckout,`r`n  loadBookingDraft,`r`n  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,`r`n  saveBookingDraftProgress,`r`n  type BookingDraftPayload,`r`n  type CalendarBlockedSpanResponse,`r`n  type DraftReservationSnapshot,`r`n} from "@/lib/booking-frontend-api";
+    :         ^^^
+ 35 | import { deriveResumeStepIndex, resolveResumePaymentMethod } from "@/lib/booking-draft-resume";`r`nimport { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+ 36 | import {
+ 36 |   getGuestValidationState,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/book/page.tsx
+⨯ ./src/app/book/page.tsx
+Error:   x Unexpected token `no substitution template literal`. Expected identifier or string
+    ,-[E:\Blissful_Place - Copy\src\app\book\page.tsx:34:1]
+ 31 | } from "@/lib/booking-branch-config";
+ 32 | import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+ 33 | import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+ 34 | import {`r`n  createBookingDraft,`r`n  createIdempotencyKey,`r`n  fetchCalendarMonthAvailability,`r`n  initiateWebsiteCheckout,`r`n  loadBookingDraft,`r`n  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,`r`n  saveBookingDraftProgress,`r`n  type BookingDraftPayload,`r`n  type CalendarBlockedSpanResponse,`r`n  type DraftReservationSnapshot,`r`n} from "@/lib/booking-frontend-api";
+    :         ^^^
+ 35 | import { deriveResumeStepIndex, resolveResumePaymentMethod } from "@/lib/booking-draft-resume";`r`nimport { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+ 36 | import {
+ 36 |   getGuestValidationState,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/book/page.tsx
+⨯ ./src/app/book/page.tsx
+Error:   x Unexpected token `no substitution template literal`. Expected identifier or string
+    ,-[E:\Blissful_Place - Copy\src\app\book\page.tsx:34:1]
+ 31 | } from "@/lib/booking-branch-config";
+ 32 | import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+ 33 | import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+ 34 | import {`r`n  createBookingDraft,`r`n  createIdempotencyKey,`r`n  fetchCalendarMonthAvailability,`r`n  initiateWebsiteCheckout,`r`n  loadBookingDraft,`r`n  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,`r`n  saveBookingDraftProgress,`r`n  type BookingDraftPayload,`r`n  type CalendarBlockedSpanResponse,`r`n  type DraftReservationSnapshot,`r`n} from "@/lib/booking-frontend-api";
+    :         ^^^
+ 35 | import { deriveResumeStepIndex, resolveResumePaymentMethod } from "@/lib/booking-draft-resume";`r`nimport { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+ 36 | import {
+ 36 |   getGuestValidationState,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/book/page.tsx
+⨯ ./src/app/book/page.tsx
+Error:   x Unexpected token `no substitution template literal`. Expected identifier or string
+    ,-[E:\Blissful_Place - Copy\src\app\book\page.tsx:34:1]
+ 31 | } from "@/lib/booking-branch-config";
+ 32 | import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+ 33 | import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+ 34 | import {`r`n  createBookingDraft,`r`n  createIdempotencyKey,`r`n  fetchCalendarMonthAvailability,`r`n  initiateWebsiteCheckout,`r`n  loadBookingDraft,`r`n  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,`r`n  saveBookingDraftProgress,`r`n  type BookingDraftPayload,`r`n  type CalendarBlockedSpanResponse,`r`n  type DraftReservationSnapshot,`r`n} from "@/lib/booking-frontend-api";
+    :         ^^^
+ 35 | import { deriveResumeStepIndex, resolveResumePaymentMethod } from "@/lib/booking-draft-resume";`r`nimport { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+ 36 | import {
+ 36 |   getGuestValidationState,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/book/page.tsx
+⨯ ./src/app/book/page.tsx
+Error:   x Unexpected token `no substitution template literal`. Expected identifier or string
+    ,-[E:\Blissful_Place - Copy\src\app\book\page.tsx:34:1]
+ 31 | } from "@/lib/booking-branch-config";
+ 32 | import { calculateBookingPricing, createBookingReviewLabels } from "@/lib/booking-pricing";
+ 33 | import { getNextReservationState, isWithinTransferHold, resolveTransition } from "@/lib/booking-state-machine";
+ 34 | import {`r`n  createBookingDraft,`r`n  createIdempotencyKey,`r`n  fetchCalendarMonthAvailability,`r`n  initiateWebsiteCheckout,`r`n  loadBookingDraft,`r`n  runAvailabilityCheckpoint as runAvailabilityCheckpointRequest,`r`n  saveBookingDraftProgress,`r`n  type BookingDraftPayload,`r`n  type CalendarBlockedSpanResponse,`r`n  type DraftReservationSnapshot,`r`n} from "@/lib/booking-frontend-api";
+    :         ^^^
+ 35 | import { deriveResumeStepIndex, resolveResumePaymentMethod } from "@/lib/booking-draft-resume";`r`nimport { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
+ 36 | import {
+ 36 |   getGuestValidationState,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/book/page.tsx
+ GET /admin/bookings 200 in 234ms (compile: 200ms, render: 34ms)
+ GET / 200 in 679ms (compile: 295ms, render: 384ms)
+ GET /admin/bookings 200 in 20.5s (compile: 4.2s, render: 16.3s)
+ GET / 200 in 26.3s (compile: 6.3s, render: 20.0s)

@@ -114,6 +114,29 @@ CREATE TABLE IF NOT EXISTS reservation_events (
   FOREIGN KEY (reservation_id) REFERENCES reservations(id)
 );
 
+CREATE TABLE IF NOT EXISTS reservation_notifications (
+  id TEXT PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  template_key TEXT NOT NULL,
+  audience TEXT NOT NULL,
+  channel TEXT NOT NULL,
+  recipient TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT,
+  template_ref TEXT,
+  status TEXT NOT NULL,
+  dedupe_key TEXT NOT NULL UNIQUE,
+  payload_json TEXT NOT NULL,
+  reservation_id TEXT,
+  reservation_token TEXT,
+  payment_attempt_id TEXT,
+  error_message TEXT,
+  sent_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (reservation_id) REFERENCES reservations(id),
+  FOREIGN KEY (payment_attempt_id) REFERENCES payment_attempts(id)
+);
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   key TEXT NOT NULL,
   action TEXT NOT NULL,
@@ -124,3 +147,5 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
   expires_at TEXT,
   PRIMARY KEY (key, action)
 );
+
+
