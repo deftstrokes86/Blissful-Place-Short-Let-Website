@@ -6,11 +6,14 @@ import type { AuthenticatedUser } from "./auth-service";
 import { getSharedAuthService } from "./auth-service-factory";
 import {
   AuthorizationError,
+  buildAdminLoginRedirectPath,
   DEFAULT_AUTH_SESSION_COOKIE_NAME,
   requireAuthenticatedUser,
   type SessionUserResolver,
 } from "./require-auth";
 import { requireRole } from "./require-role";
+
+export { DEFAULT_ADMIN_LOGIN_ROUTE } from "./require-auth";
 
 const DEFAULT_ALLOWED_ADMIN_ROLES: readonly AuthRole[] = ["admin", "staff"];
 
@@ -37,15 +40,26 @@ export async function requireAdminSessionUser(
 
 interface RequireAdminPageAccessOrRedirectOptions {
   redirectTo?: string;
+  requestedPath?: string;
   cookieName?: string;
   allowedRoles?: readonly AuthRole[];
   resolveUser?: SessionUserResolver;
 }
 
+export function resolveAdminPageRedirectTarget(
+  options: Pick<RequireAdminPageAccessOrRedirectOptions, "redirectTo" | "requestedPath"> = {}
+): string {
+  if (options.redirectTo) {
+    return options.redirectTo;
+  }
+
+  return buildAdminLoginRedirectPath(options.requestedPath);
+}
+
 export async function requireAdminPageAccessOrRedirect(
   options: RequireAdminPageAccessOrRedirectOptions = {}
 ): Promise<AuthenticatedUser> {
-  const redirectTo = options.redirectTo ?? "/login";
+  const redirectTo = resolveAdminPageRedirectTarget(options);
   const cookieName = options.cookieName ?? DEFAULT_AUTH_SESSION_COOKIE_NAME;
   const cookieStore = await cookies();
 
@@ -63,4 +77,3 @@ export async function requireAdminPageAccessOrRedirect(
     throw error;
   }
 }
-

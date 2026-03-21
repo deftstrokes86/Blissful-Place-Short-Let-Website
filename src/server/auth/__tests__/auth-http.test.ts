@@ -98,6 +98,25 @@ async function testSuccessfulLoginFlow(): Promise<void> {
   assert.equal(result.sessionToken, "login-session-token");
 }
 
+async function testSuccessfulLoginFlowUsesSafeNextDestinationWhenProvided(): Promise<void> {
+  const repository = new InMemoryAuthRepository();
+  const service = createService(repository);
+
+  await service.createInternalUser({
+    email: "staff@example.test",
+    password: "Staff-Password-123!",
+    role: "staff",
+  });
+
+  const result = await handleLoginRequest(service, {
+    email: "staff@example.test",
+    password: "Staff-Password-123!",
+    next: "/admin/notifications",
+  });
+
+  assert.equal(result.redirectTo, "/admin/notifications");
+}
+
 async function testFailedLoginFlow(): Promise<void> {
   const repository = new InMemoryAuthRepository();
   const service = createService(repository);
@@ -184,10 +203,13 @@ async function testCurrentSessionLookupFlow(): Promise<void> {
 async function testRedirectBehaviorAfterLogin(): Promise<void> {
   assert.equal(resolvePostLoginRedirect("admin"), "/admin/bookings");
   assert.equal(resolvePostLoginRedirect("staff"), "/admin/bookings");
+  assert.equal(resolvePostLoginRedirect("staff", "/admin/availability"), "/admin/availability");
+  assert.equal(resolvePostLoginRedirect("staff", "https://evil.example"), "/admin/bookings");
 }
 
 async function run(): Promise<void> {
   await testSuccessfulLoginFlow();
+  await testSuccessfulLoginFlowUsesSafeNextDestinationWhenProvided();
   await testFailedLoginFlow();
   await testLogoutFlow();
   await testCurrentSessionLookupFlow();
@@ -197,4 +219,3 @@ async function run(): Promise<void> {
 }
 
 void run();
-

@@ -4,7 +4,7 @@ import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
 export default async function AdminNotificationsPage() {
-  await requireAdminPageAccessOrRedirect();
+  await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/notifications" });
 
   return (
     <main className="admin-notifications-page">

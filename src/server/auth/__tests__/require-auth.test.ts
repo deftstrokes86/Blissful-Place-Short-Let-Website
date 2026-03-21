@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 
 import {
   AuthorizationError,
+  buildAdminLoginRedirectPath,
+  DEFAULT_ADMIN_LOGIN_ROUTE,
   getSessionTokenFromRequest,
   requireAuthenticatedRequest,
   requireAuthenticatedUser,
@@ -59,6 +61,20 @@ function testSessionTokenResolutionPrefersBearerThenExplicitHeaderThenCookie(): 
   );
 
   assert.equal(token, "preferred-bearer-token");
+}
+
+function testProtectedPageRedirectPathUsesSecureAreaByDefault(): void {
+  assert.equal(DEFAULT_ADMIN_LOGIN_ROUTE, "/admin/secure-area");
+  assert.equal(buildAdminLoginRedirectPath(), "/admin/secure-area");
+  assert.equal(buildAdminLoginRedirectPath("/book"), "/admin/secure-area");
+}
+
+function testProtectedPageRedirectPathCanCarrySafeAdminNextRoute(): void {
+  const withNext = buildAdminLoginRedirectPath("/admin/notifications");
+  assert.equal(withNext, "/admin/secure-area?next=%2Fadmin%2Fnotifications");
+
+  const ignoresAbsoluteUrl = buildAdminLoginRedirectPath("https://evil.example");
+  assert.equal(ignoresAbsoluteUrl, "/admin/secure-area");
 }
 
 async function testAnonymousUserRejected(): Promise<void> {
@@ -163,6 +179,8 @@ async function testActiveUserWithAllowedRoleAccepted(): Promise<void> {
 async function run(): Promise<void> {
   testSessionTokenParsingAcrossSupportedHeadersAndCookies();
   testSessionTokenResolutionPrefersBearerThenExplicitHeaderThenCookie();
+  testProtectedPageRedirectPathUsesSecureAreaByDefault();
+  testProtectedPageRedirectPathCanCarrySafeAdminNextRoute();
   await testAnonymousUserRejected();
   await testAuthenticatedUserAccepted();
   await testWrongRoleRejectedWhereRoleChecksApply();

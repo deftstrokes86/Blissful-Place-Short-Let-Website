@@ -189,6 +189,28 @@ async function testInactiveUserRejection(): Promise<void> {
   );
 }
 
+async function testCreateAuthenticatedSessionForExistingUser(): Promise<void> {
+  const repository = new InMemoryAuthRepository();
+  const service = new AuthService({
+    repository,
+    now: () => new Date("2026-10-01T09:00:00.000Z"),
+    createSessionToken: () => "session-token-created-directly",
+  });
+
+  const createdUser = await service.createInternalUser({
+    email: "direct-session@example.test",
+    password: "Direct-Password-123!",
+    role: "staff",
+  });
+
+  const session = await service.createAuthenticatedSession(createdUser, 60_000);
+  assert.equal(session.sessionToken, "session-token-created-directly");
+
+  const currentUser = await service.getCurrentSessionUser(session.sessionToken);
+  assert.ok(currentUser);
+  assert.equal(currentUser?.id, createdUser.id);
+}
+
 async function testLogoutSessionInvalidation(): Promise<void> {
   const repository = new InMemoryAuthRepository();
   const service = new AuthService({
@@ -216,6 +238,30 @@ async function testLogoutSessionInvalidation(): Promise<void> {
 
   const afterLogout = await service.getCurrentSessionUser(loggedIn.sessionToken);
   assert.equal(afterLogout, null);
+}
+
+async function testInvalidateSessionAlias(): Promise<void> {
+  const repository = new InMemoryAuthRepository();
+  const service = new AuthService({
+    repository,
+    now: () => new Date("2026-10-01T09:00:00.000Z"),
+    createSessionToken: () => "session-token-invalidate",
+  });
+
+  await service.createInternalUser({
+    email: "invalidate@example.test",
+    password: "Invalidate-Password-123!",
+    role: "admin",
+  });
+
+  const loggedIn = await service.login({
+    email: "invalidate@example.test",
+    password: "Invalidate-Password-123!",
+  });
+
+  await service.invalidateSession(loggedIn.sessionToken);
+  const currentUser = await service.getCurrentSessionUser(loggedIn.sessionToken);
+  assert.equal(currentUser, null);
 }
 
 async function testLoadCurrentAuthenticatedUserFromSession(): Promise<void> {
@@ -279,7 +325,9 @@ async function run(): Promise<void> {
   await testSuccessfulLoginSessionCreation();
   await testInvalidPasswordRejection();
   await testInactiveUserRejection();
+  await testCreateAuthenticatedSessionForExistingUser();
   await testLogoutSessionInvalidation();
+  await testInvalidateSessionAlias();
   await testLoadCurrentAuthenticatedUserFromSession();
   await testExpiredSessionIsRejectedAndInvalidated();
 

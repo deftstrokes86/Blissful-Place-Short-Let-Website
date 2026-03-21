@@ -51,6 +51,7 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
 export async function loginStaffAdmin(input: {
   email: string;
   password: string;
+  next?: string;
 }): Promise<LoginStaffAdminResponse> {
   const response = await fetch("/api/auth/login", {
     method: "POST",
@@ -60,6 +61,7 @@ export async function loginStaffAdmin(input: {
     body: JSON.stringify({
       email: input.email,
       password: input.password,
+      next: input.next,
     }),
   });
 

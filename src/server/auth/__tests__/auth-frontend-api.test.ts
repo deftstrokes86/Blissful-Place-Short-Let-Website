@@ -74,6 +74,37 @@ async function testSuccessfulLoginFrontendFlow(): Promise<void> {
   }
 }
 
+async function testSuccessfulLoginFrontendFlowIncludesNextWhenProvided(): Promise<void> {
+  const originalFetch = globalThis.fetch;
+  let capturedInit: RequestInit | undefined;
+
+  globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+    capturedInit = init;
+
+    return createApiSuccess({
+      user: {
+        id: "user_1",
+        email: "staff@example.test",
+        role: "staff",
+      },
+      redirectTo: "/admin/notifications",
+    });
+  }) as typeof fetch;
+
+  try {
+    await loginStaffAdmin({
+      email: "staff@example.test",
+      password: "Staff-Password-123!",
+      next: "/admin/notifications",
+    });
+
+    const body = JSON.parse(String(capturedInit?.body));
+    assert.equal(body.next, "/admin/notifications");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
 async function testFailedLoginFrontendFlow(): Promise<void> {
   const originalFetch = globalThis.fetch;
 
@@ -120,6 +151,7 @@ async function testLogoutFrontendFlow(): Promise<void> {
 
 async function run(): Promise<void> {
   await testSuccessfulLoginFrontendFlow();
+  await testSuccessfulLoginFrontendFlowIncludesNextWhenProvided();
   await testFailedLoginFrontendFlow();
   await testLogoutFrontendFlow();
 

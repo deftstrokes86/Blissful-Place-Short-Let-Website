@@ -4,7 +4,7 @@ import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
 export default async function AdminBookingsPage() {
-  await requireAdminPageAccessOrRedirect();
+  await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/bookings" });
 
   return (
     <main className="admin-bookings-page">

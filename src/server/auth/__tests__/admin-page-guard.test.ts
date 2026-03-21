@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 
 import { AuthorizationError } from "../require-auth";
-import { requireAdminSessionUser } from "../admin-page-guard";
+import {
+  DEFAULT_ADMIN_LOGIN_ROUTE,
+  requireAdminSessionUser,
+  resolveAdminPageRedirectTarget,
+} from "../admin-page-guard";
 import type { AuthenticatedUser } from "../auth-service";
 
 function createUser(role: "admin" | "staff", isActive: boolean = true): AuthenticatedUser {
@@ -11,6 +15,23 @@ function createUser(role: "admin" | "staff", isActive: boolean = true): Authenti
     role,
     isActive,
   };
+}
+
+function testDefaultAdminLoginRoutePath(): void {
+  assert.equal(DEFAULT_ADMIN_LOGIN_ROUTE, "/admin/secure-area");
+}
+
+function testUnauthenticatedAdminPageRedirectTargetDefaultsToSecureArea(): void {
+  assert.equal(resolveAdminPageRedirectTarget(), "/admin/secure-area");
+}
+
+function testUnauthenticatedAdminPageRedirectTargetIncludesRequestedDestinationWhenSafe(): void {
+  assert.equal(
+    resolveAdminPageRedirectTarget({ requestedPath: "/admin/notifications" }),
+    "/admin/secure-area?next=%2Fadmin%2Fnotifications"
+  );
+
+  assert.equal(resolveAdminPageRedirectTarget({ requestedPath: "/book" }), "/admin/secure-area");
 }
 
 async function testAnonymousPageAccessRejected(): Promise<void> {
@@ -69,6 +90,9 @@ async function testForbiddenRoleRejected(): Promise<void> {
 }
 
 async function run(): Promise<void> {
+  testDefaultAdminLoginRoutePath();
+  testUnauthenticatedAdminPageRedirectTargetDefaultsToSecureArea();
+  testUnauthenticatedAdminPageRedirectTargetIncludesRequestedDestinationWhenSafe();
   await testAnonymousPageAccessRejected();
   await testAuthenticatedPageAccessAccepted();
   await testForbiddenRoleRejected();

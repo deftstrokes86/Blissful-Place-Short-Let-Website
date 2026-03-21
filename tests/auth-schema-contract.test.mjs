@@ -54,14 +54,27 @@ function run() {
   assert.ok(authUserModel, "Expected model AuthUser to exist");
   assert.match(authUserModel[1], /@@map\("users"\)/, "Expected AuthUser to map to users table");
   assert.match(authUserModel[1], /email\s+String\s+@unique/, "Expected AuthUser.email unique constraint");
+  assert.match(authUserModel[1], /passwordHash\s+String\s+@map\("password_hash"\)/, "Expected password_hash mapping");
+  assert.match(authUserModel[1], /isActive\s+Boolean\s+@default\(true\)\s+@map\("is_active"\)/, "Expected is_active mapping");
+  assert.match(authUserModel[1], /createdAt\s+DateTime\s+@default\(now\(\)\)\s+@map\("created_at"\)/, "Expected created_at mapping");
+  assert.match(authUserModel[1], /updatedAt\s+DateTime\s+@updatedAt\s+@map\("updated_at"\)/, "Expected updated_at mapping");
 
   const authSessionModel = schema.match(/model\s+AuthSession\s+\{([\s\S]*?)\}/m);
   assert.ok(authSessionModel, "Expected model AuthSession to exist");
   assert.match(authSessionModel[1], /@@map\("sessions"\)/, "Expected AuthSession to map to sessions table");
   assert.match(
     authSessionModel[1],
-    /sessionToken\s+String\s+@unique/,
-    "Expected AuthSession.sessionToken unique constraint"
+    /sessionToken\s+String\s+@unique\s+@map\("session_token"\)/,
+    "Expected AuthSession.sessionToken unique constraint with session_token mapping"
+  );
+  assert.match(authSessionModel[1], /userId\s+String\s+@map\("user_id"\)/, "Expected user_id mapping");
+  assert.match(authSessionModel[1], /expiresAt\s+DateTime\s+@map\("expires_at"\)/, "Expected expires_at mapping");
+  assert.match(authSessionModel[1], /createdAt\s+DateTime\s+@default\(now\(\)\)\s+@map\("created_at"\)/, "Expected created_at mapping");
+  assert.match(authSessionModel[1], /updatedAt\s+DateTime\s+@updatedAt\s+@map\("updated_at"\)/, "Expected updated_at mapping");
+  assert.match(
+    authSessionModel[1],
+    /user\s+AuthUser\s+@relation\(fields: \[userId\], references: \[id\], onDelete: Cascade\)/,
+    "Expected AuthSession to link user_id to AuthUser.id"
   );
 
   console.log("auth-schema-contract: ok");

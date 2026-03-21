@@ -174,14 +174,85 @@ async function testBootstrapRequiresEnabledFlag(): Promise<void> {
   );
 }
 
+async function testBootstrapIsIdempotentForExistingEmail(): Promise<void> {
+  const { repository, authService } = createHarness();
+
+  const firstRun = await bootstrapInitialAuthUser(
+    {
+      enabled: true,
+      email: "admin@example.test",
+      password: "Admin-Password-123!",
+      role: "admin",
+    },
+    {
+      authService,
+      userStore: repository,
+    }
+  );
+
+  const secondRun = await bootstrapInitialAuthUser(
+    {
+      enabled: true,
+      email: "admin@example.test",
+      password: "Different-Password-123!",
+      role: "admin",
+    },
+    {
+      authService,
+      userStore: repository,
+    }
+  );
+
+  assert.equal(firstRun.created, true);
+  assert.equal(secondRun.created, false);
+  assert.equal(secondRun.user.email, "admin@example.test");
+  assert.equal(await repository.countUsers(), 1);
+}
+
+async function testBootstrapBlockedAfterAnyInitialUserExists(): Promise<void> {
+  const { repository, authService } = createHarness();
+
+  await authService.createInternalUser({
+    email: "existing@example.test",
+    password: "Existing-Password-123!",
+    role: "admin",
+  });
+
+  await assert.rejects(
+    async () => {
+      await bootstrapInitialAuthUser(
+        {
+          enabled: true,
+          email: "new-admin@example.test",
+          password: "New-Password-123!",
+          role: "admin",
+        },
+        {
+          authService,
+          userStore: repository,
+        }
+      );
+    },
+    (error: unknown) => {
+      if (!(error instanceof BootstrapAuthError)) {
+        return false;
+      }
+
+      assert.equal(error.code, "bootstrap_already_completed");
+      return true;
+    }
+  );
+}
+
 async function run(): Promise<void> {
   await testBootstrapCreatesAdminUser();
   await testBootstrapAssignsRequestedRole();
   await testBootstrapHashesPassword();
   await testBootstrapRequiresEnabledFlag();
+  await testBootstrapIsIdempotentForExistingEmail();
+  await testBootstrapBlockedAfterAnyInitialUserExists();
 
   console.log("bootstrap-auth-user: ok");
 }
 
 void run();
-

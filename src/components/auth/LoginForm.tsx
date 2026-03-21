@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { loginStaffAdmin } from "@/lib/auth-frontend-api";
 
@@ -13,6 +14,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +34,7 @@ export function LoginForm() {
       const result = await loginStaffAdmin({
         email,
         password,
+        next: searchParams.get("next") ?? undefined,
       });
 
       window.location.assign(result.redirectTo);

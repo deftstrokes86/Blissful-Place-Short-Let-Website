@@ -1,5 +1,8 @@
 import { AuthService, AuthServiceError, type AuthenticatedUser, type LoginResult } from "./auth-service";
-import { getSessionTokenFromRequest } from "./require-auth";
+import {
+  getSessionTokenFromRequest,
+  resolveAdminPostLoginRedirect,
+} from "./require-auth";
 
 export class AuthHttpError extends Error {
   readonly status: number;
@@ -22,6 +25,7 @@ export interface AuthHttpInterface {
 interface ParsedLoginBody {
   email: string;
   password: string;
+  next: string | null;
 }
 
 export interface AuthLoginHttpResult {
@@ -45,10 +49,25 @@ function pickRequiredString(body: Record<string, unknown>, field: string): strin
   return normalized;
 }
 
+function pickOptionalString(body: Record<string, unknown>, field: string): string | null {
+  const value = body[field];
+  if (typeof value === "undefined" || value === null) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    throw new AuthHttpError(400, "invalid_request", `${field} must be a string when provided.`);
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 function parseLoginBody(body: Record<string, unknown>): ParsedLoginBody {
   return {
     email: pickRequiredString(body, "email").toLowerCase(),
     password: pickRequiredString(body, "password"),
+    next: pickOptionalString(body, "next"),
   };
 }
 
@@ -60,13 +79,13 @@ function mapAuthServiceError(error: AuthServiceError): AuthHttpError {
   return new AuthHttpError(500, "auth_failed", "Authentication failed.");
 }
 
-export function resolvePostLoginRedirect(role: "admin" | "staff"): string {
+export function resolvePostLoginRedirect(role: "admin" | "staff", requestedPath?: string | null): string {
   switch (role) {
     case "admin":
     case "staff":
-      return "/admin/bookings";
+      return resolveAdminPostLoginRedirect(requestedPath);
     default:
-      return "/admin/bookings";
+      return resolveAdminPostLoginRedirect();
   }
 }
 
@@ -86,7 +105,7 @@ export async function handleLoginRequest(
       user: result.user,
       sessionToken: result.sessionToken,
       expiresAt: result.expiresAt,
-      redirectTo: resolvePostLoginRedirect(result.user.role),
+      redirectTo: resolvePostLoginRedirect(result.user.role, parsed.next),
     };
   } catch (error) {
     if (error instanceof AuthServiceError) {
@@ -130,4 +149,3 @@ export function isAuthHttpError(error: unknown): error is AuthHttpError {
 export function asAuthHttpInterface(service: AuthService): AuthHttpInterface {
   return service;
 }
-

@@ -2,6 +2,8 @@ import type { AuthenticatedUser } from "./auth-service";
 import { getSharedAuthService } from "./auth-service-factory";
 
 export const DEFAULT_AUTH_SESSION_COOKIE_NAME = "blissful_admin_session";
+export const DEFAULT_ADMIN_LOGIN_ROUTE = "/admin/secure-area";
+export const DEFAULT_ADMIN_POST_LOGIN_ROUTE = "/admin/bookings";
 
 export type AuthorizationErrorCode = "unauthenticated" | "forbidden";
 
@@ -73,6 +75,49 @@ function parseCookieToken(cookieHeader: string | null, cookieName: string): stri
   }
 
   return null;
+}
+
+function isSafeAdminRoute(path: string): boolean {
+  if (!path.startsWith("/admin/")) {
+    return false;
+  }
+
+  if (path.startsWith("//")) {
+    return false;
+  }
+
+  return true;
+}
+
+export function resolveSafeAdminDestination(requestedPath?: string | null): string | null {
+  const candidate = requestedPath?.trim() ?? "";
+  if (!candidate) {
+    return null;
+  }
+
+  if (!isSafeAdminRoute(candidate)) {
+    return null;
+  }
+
+  if (candidate === DEFAULT_ADMIN_LOGIN_ROUTE) {
+    return null;
+  }
+
+  return candidate;
+}
+
+export function buildAdminLoginRedirectPath(requestedPath?: string | null): string {
+  const safeDestination = resolveSafeAdminDestination(requestedPath);
+  if (!safeDestination) {
+    return DEFAULT_ADMIN_LOGIN_ROUTE;
+  }
+
+  return `${DEFAULT_ADMIN_LOGIN_ROUTE}?next=${encodeURIComponent(safeDestination)}`;
+}
+
+export function resolveAdminPostLoginRedirect(requestedPath?: string | null): string {
+  const safeDestination = resolveSafeAdminDestination(requestedPath);
+  return safeDestination ?? DEFAULT_ADMIN_POST_LOGIN_ROUTE;
 }
 
 export function getSessionTokenFromRequest(

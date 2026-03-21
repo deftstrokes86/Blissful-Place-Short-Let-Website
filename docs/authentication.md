@@ -1,137 +1,116 @@
 # Authentication (Phase Scope)
 
 ## Purpose
-This document defines the authentication scope for the current internal protection phase.
-It is intentionally limited to admin and staff access control.
+Define the minimal internal authentication scope for protecting staff/admin surfaces in this phase.
 
-## In Scope (Current Phase)
-- Internal staff/admin authentication only.
-- Protect internal admin pages and sensitive admin APIs.
-- Server-validated session model.
-- Role-aware access checks for `admin` and `staff`.
+## 1) Scope
+In scope:
+- Internal `admin`/`staff` protection only.
+- Session-based authentication for protected admin pages and admin APIs/actions.
+- Server-side enforcement for route and action protection.
 
-## Out of Scope (Current Phase)
-- Public guest account system.
+Out of scope:
+- Public guest accounts.
 - Guest signup/login.
-- Social login.
-- Password reset flow.
+- Social auth.
+- Password reset.
 - MFA.
-- Full enterprise RBAC model.
+- Large RBAC matrix.
 
-## Roles
+## 2) Roles And Access Surface
+Roles:
 - `admin`
 - `staff`
 
-## Required Auth Capabilities
-1. Login
-- Staff/admin can authenticate using internal credentials.
-- Credentials are validated server-side.
+Login route:
+- `/admin/secure-area`
 
-2. Logout
-- Session invalidation endpoint/action.
-- Session cookie is cleared on logout.
-
-3. Session Validation
-- Every protected page/API validates session server-side.
-- Frontend state alone is never trusted.
-
-4. Route Protection
-- Anonymous users cannot access protected admin routes.
-- Unauthorized users are redirected to login or shown 401/403 depending on route type.
-
-5. Action/API Protection
-- Sensitive backend actions require a valid authenticated session.
-- Role checks are applied server-side before action execution.
-
-6. Role-Aware Checks
-- `staff` and `admin` share most operational actions in this phase.
-- `admin` may retain access to everything staff can access.
-
-## Protected Routes (Minimum)
+Protected routes (minimum):
 - `/admin/bookings`
 - `/admin/availability`
 - `/admin/notifications`
 
-## Protected Backend Actions (Minimum)
+Protected backend actions (minimum):
 - Transfer verification.
 - POS confirmation.
-- Reservation cancellation (admin workflows).
+- Reservation cancellation from admin workflows.
 - Manual availability block creation/removal.
-- Internal notification log access.
+- Internal notification access.
 
-## Recommended Minimal Technical Direction
-1. Credential Store
-- Internal user records with role and password hash.
-- Passwords are never stored in plaintext.
+## 3) Required Auth Capabilities
+1. Login
+- Accept staff/admin credentials.
+- Validate credentials server-side.
 
-2. Password Handling
-- Use strong one-way hashing (e.g., bcrypt/argon2).
-- Verify hash server-side on login.
+2. Logout
+- Invalidate server session.
+- Clear auth cookie/token.
 
-3. Session Model
-- Session id in secure, httpOnly cookie.
-- Session record stored server-side with user id, role, expiry.
-- Session validation middleware/helper used by pages and API handlers.
+3. Session validation
+- Validate session on every protected page/API request.
+- Reject expired/invalid sessions.
 
-4. Access Helper Layer
-- Central helper for:
-  - `requireAuthenticatedSession`
-  - `requireRole(["staff", "admin"])`
-- Avoid duplicating auth checks inside each route handler.
+4. Route protection
+- Protected admin pages require valid authenticated session.
 
-5. Error Handling
-- Page requests: redirect unauthenticated users to login.
-- API requests: return 401 unauthenticated, 403 unauthorized.
+5. Action/API protection
+- Protected admin actions require auth server-side.
+- Never trust frontend visibility checks for security.
 
-## Security Expectations
-- Passwords must be hashed.
-- Sessions must be validated server-side.
-- Protected actions must not rely on frontend-only checks.
+6. Role-aware checks
+- Enforce allowed roles (`admin`, `staff`) at server boundary.
+
+## 4) Redirect Behavior
+- Unauthenticated access to protected admin routes must redirect to `/admin/secure-area`.
+- On successful login, redirect to the originally requested admin route when present and valid.
+- If no valid requested route is present, redirect to `/admin/bookings`.
+- Requested-route handling must be sanitized to internal admin paths (for example, `/admin/*`) to avoid open redirects.
+
+## 5) Security Expectations
+- Passwords must be hashed (never stored in plaintext).
+- Sessions must be server-validated.
+- Protected actions must not trust frontend checks alone.
 - Admin routes must not be readable by anonymous users.
-- Auth cookies should use secure defaults (`httpOnly`, `secure` in prod, `sameSite`).
+- Use secure cookie/session defaults (`HttpOnly`, `SameSite`, `Secure` in production).
 
-## Implementation Sequence (Auth Phase)
-1. Add internal user + session domain types/models.
-2. Add login/logout/session service.
-3. Add server auth guard helpers.
-4. Protect admin routes.
-5. Protect sensitive operations APIs.
-6. Add focused tests for auth gates and role checks.
+## 6) Bootstrap (Internal Setup)
+A one-time internal bootstrap path can create the first staff/admin user for development or internal setup.
 
-## Future Notes
-- Add audit logging for auth events and critical admin actions.
-- Add stronger permission granularity later.
-- Expand protection to future inventory-management surfaces.
-## Initial Bootstrap (Internal Setup)
-Use a one-time internal bootstrap command to create the first admin/staff user.
-No public signup route is introduced.
+Bootstrap safety rules:
+- Disabled by default via `AUTH_BOOTSTRAP_ENABLED=false`.
+- Must be explicitly enabled per run.
+- Idempotent for the same email (does not create duplicates).
+- Blocked once internal users already exist (except idempotent same-email reruns).
+- Passwords are hashed through normal auth service flow.
+- No public signup route is introduced.
+- No conflict with `/admin/secure-area`: bootstrap is CLI-only, not a public web endpoint.
 
-### Command
-Run:
+### Development Runbook
+1. Set env vars in your local `.env`:
+- `AUTH_BOOTSTRAP_ENABLED=true`
+- `AUTH_BOOTSTRAP_EMAIL=<internal-email>`
+- `AUTH_BOOTSTRAP_PASSWORD=<strong-password>`
+- `AUTH_BOOTSTRAP_ROLE=admin` (or `staff`)
 
+2. Run:
 ```bash
 npm run auth:bootstrap
 ```
 
-### Required Environment Variables
-Set these before running bootstrap:
-- `AUTH_BOOTSTRAP_ENABLED=true`
-- `AUTH_BOOTSTRAP_EMAIL=<internal-email>`
-- `AUTH_BOOTSTRAP_PASSWORD=<strong-password>`
-- `AUTH_BOOTSTRAP_ROLE=admin` or `staff`
+3. Disable bootstrap again:
+- Set `AUTH_BOOTSTRAP_ENABLED=false`
 
-Defaults in `.env.example` keep bootstrap disabled.
+4. Sign in at:
+- `/admin/secure-area`
 
-### Safety Rules
-- Bootstrap is blocked unless `AUTH_BOOTSTRAP_ENABLED=true`.
-- Bootstrap creates a user only when no internal users exist.
-- If the same email already exists, bootstrap is idempotent and does not create duplicates.
-- Passwords are hashed through the normal auth service flow.
-- No permanent bootstrap API endpoint is exposed.
+## 7) Non-Goals
+- No public registration.
+- No guest auth.
+- No social providers.
+- No MFA.
+- No expanded enterprise permission model in this phase.
 
-### Recommended Dev Flow
-1. Set bootstrap env vars in local env.
-2. Run `npm run auth:bootstrap` once.
-3. Set `AUTH_BOOTSTRAP_ENABLED=false` again.
-4. Sign in through `/login` with the bootstrapped account.
-
+## 8) Future-Ready Notes
+- Add audit logging for auth events and sensitive admin actions.
+- Add finer-grained permissions when needed.
+- Reuse this protection model for future inventory/admin surfaces.

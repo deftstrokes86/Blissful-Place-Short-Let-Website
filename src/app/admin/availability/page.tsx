@@ -3,7 +3,7 @@ import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
 export default async function AdminAvailabilityPage() {
-  await requireAdminPageAccessOrRedirect();
+  await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/availability" });
 
   return (
     <main className="admin-availability-page">

@@ -26,7 +26,7 @@ export function AdminLogoutButton() {
 
     try {
       await logoutStaffAdmin();
-      window.location.assign("/login");
+      window.location.assign("/admin/secure-area");
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
       setIsSubmitting(false);
