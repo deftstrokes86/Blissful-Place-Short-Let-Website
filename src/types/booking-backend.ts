@@ -161,6 +161,122 @@ export interface IdempotencyKeyRecord {
   expiresAt: ISODateTimeString | null;
 }
 
+export type InventoryItemCategory = "asset" | "consumable" | "maintenance_supply";
+export type InventoryItemCriticality = "critical" | "important" | "minor";
+
+export interface InventoryItemRecord {
+  id: string;
+  name: string;
+  category: InventoryItemCategory;
+  internalCode: string | null;
+  unitOfMeasure: string;
+  reorderThreshold: number | null;
+  parLevel: number | null;
+  criticality: InventoryItemCriticality;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
+export interface InventoryTemplateRecord {
+  id: string;
+  name: string;
+  description: string | null;
+  flatType: string | null;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
+export interface TemplateItemRecord {
+  id: string;
+  templateId: string;
+  inventoryItemId: string;
+  expectedQuantity: number;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
+export type FlatInventoryConditionStatus = "ok" | "missing" | "damaged" | "needs_replacement";
+
+export interface FlatInventoryRecord {
+  id: string;
+  flatId: FlatId;
+  inventoryItemId: string;
+  expectedQuantity: number;
+  currentQuantity: number;
+  conditionStatus: FlatInventoryConditionStatus;
+  notes: string | null;
+  lastCheckedAt: ISODateTimeString | null;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
+
+export type StockMovementType = "add" | "deduct" | "consume" | "adjust" | "damage" | "replace" | "transfer";
+
+export interface StockMovementRecord {
+  id: string;
+  inventoryItemId: string;
+  flatId: FlatId | null;
+  movementType: StockMovementType;
+  quantity: number;
+  reason: string;
+  notes: string | null;
+  actorId: string | null;
+  createdAt: ISODateTimeString;
+}
+
+export type ReadinessComponentStatus = "ready" | "attention_required" | "blocked";
+export type FlatReadinessStatus = "ready" | "needs_attention" | "out_of_service";
+
+export interface FlatReadinessRecord {
+  flatId: FlatId;
+  cleaningStatus: ReadinessComponentStatus;
+  linenStatus: ReadinessComponentStatus;
+  consumablesStatus: ReadinessComponentStatus;
+  maintenanceStatus: ReadinessComponentStatus;
+  criticalAssetStatus: ReadinessComponentStatus;
+  readinessStatus: FlatReadinessStatus;
+  overrideStatus: FlatReadinessStatus | null;
+  overrideReason: string | null;
+  updatedAt: ISODateTimeString;
+}
+
+export type InventoryAlertType =
+  | "low_stock"
+  | "missing_required_item"
+  | "damaged_critical_asset"
+  | "readiness_issue"
+  | "readiness_impacting_issue";
+
+export type InventoryAlertSeverity = "critical" | "important" | "minor";
+export type InventoryAlertStatus = "open" | "acknowledged" | "resolved";
+
+export interface InventoryAlertRecord {
+  id: string;
+  inventoryItemId: string | null;
+  flatId: FlatId | null;
+  alertType: InventoryAlertType;
+  severity: InventoryAlertSeverity;
+  status: InventoryAlertStatus;
+  message: string;
+  createdAt: ISODateTimeString;
+  resolvedAt: ISODateTimeString | null;
+}
+
+export type MaintenanceIssueStatus = "open" | "in_progress" | "resolved" | "closed";
+
+export interface MaintenanceIssueRecord {
+  id: string;
+  flatId: FlatId;
+  inventoryItemId: string | null;
+  title: string;
+  notes: string | null;
+  severity: InventoryAlertSeverity;
+  status: MaintenanceIssueStatus;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+  resolvedAt: ISODateTimeString | null;
+}
+
 export interface ReservationEventRecord {
   id: string;
   reservationId: BookingId;
@@ -229,6 +345,14 @@ export interface BookingDatabaseState {
   extras: ExtraRecord[];
   reservations: ReservationRecord[];
   availabilityBlocks: AvailabilityBlockRecord[];
+  inventoryItems: InventoryItemRecord[];
+  inventoryTemplates: InventoryTemplateRecord[];
+  templateItems: TemplateItemRecord[];
+  flatInventory: FlatInventoryRecord[];
+  stockMovements: StockMovementRecord[];
+  flatReadiness: FlatReadinessRecord[];
+  inventoryAlerts: InventoryAlertRecord[];
+  maintenanceIssues: MaintenanceIssueRecord[];
   paymentAttempts: PaymentAttemptRecord[];
   transferVerifications: TransferVerificationMetadataRecord[];
   posCoordinations: PosCoordinationMetadataRecord[];
@@ -250,6 +374,7 @@ export interface DraftUpdateInput {
   paymentMethod?: PaymentMethod | null;
   progressContext?: DraftProgressContextInput;
 }
+
 
 
 

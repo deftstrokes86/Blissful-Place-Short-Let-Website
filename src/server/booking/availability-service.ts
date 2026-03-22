@@ -14,6 +14,7 @@ import type {
   ReservationStatus,
   StayDetailsInput,
 } from "../../types/booking";
+import type { FlatReadinessRecord } from "../../types/booking-backend";
 
 const INVENTORY_BLOCKING_STATUSES: readonly ReservationStatus[] = [
   "pending_transfer_submission",
@@ -59,6 +60,7 @@ export interface AvailabilityRepository {
   findFlatById(flatId: FlatId): Promise<AvailabilityRepositoryFlat | null>;
   listReservationsByFlat(flatId: FlatId): Promise<AvailabilityRepositoryReservation[]>;
   listAvailabilityBlocksByFlat?(flatId: FlatId): Promise<AvailabilityRepositoryBlock[]>;
+  findFlatReadiness?(flatId: FlatId): Promise<FlatReadinessRecord | null>;
 }
 
 interface AvailabilityServiceDependencies {
@@ -246,6 +248,18 @@ export class AvailabilityService {
       }
     }
 
+    const readiness = await this.findFlatReadiness(input.stay.flatId);
+    if (readiness?.readinessStatus === "out_of_service") {
+      conflicts.push({
+        code: "sold_out",
+        field: "flat",
+        message: "Selected residence is currently out of service.",
+      });
+      reasons.push("Selected residence is currently out of service due operational readiness.");
+    } else if (readiness?.readinessStatus === "needs_attention") {
+      reasons.push("Selected residence readiness needs attention. Staff follow-up may be required.");
+    }
+
     if (conflicts.length > 0) {
       if (reasons.length === 0) {
         reasons.push(`Availability check failed at ${input.checkpoint}.`);
@@ -324,6 +338,12 @@ export class AvailabilityService {
 
     return `Inventory overlap found with reservation ${overlappingReservation.id}.`;
   }
+
+  private async findFlatReadiness(flatId: FlatId): Promise<FlatReadinessRecord | null> {
+    if (!this.repository.findFlatReadiness) {
+      return null;
+    }
+
+    return this.repository.findFlatReadiness(flatId);
+  }
 }
-
-

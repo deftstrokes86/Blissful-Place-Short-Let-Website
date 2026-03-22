@@ -30,7 +30,6 @@ enum AuthRole {
   staff
 }
 
-
 enum PaymentAttemptOutcome {
   pending
   success
@@ -72,15 +71,88 @@ enum ManualAvailabilityBlockType {
   admin_block
 }
 
+enum InventoryItemCategory {
+  asset
+  consumable
+  maintenance_supply
+}
+
+enum InventoryItemCriticality {
+  critical
+  important
+  minor
+}
+
+enum FlatInventoryConditionStatus {
+  ok
+  missing
+  damaged
+  needs_replacement
+}
+
+enum StockMovementType {
+  add
+  deduct
+  consume
+  adjust
+  damage
+  replace
+  transfer
+}
+
+enum ReadinessComponentStatus {
+  ready
+  attention_required
+  blocked
+}
+
+enum FlatReadinessStatus {
+  ready
+  needs_attention
+  out_of_service
+}
+
+enum InventoryAlertType {
+  low_stock
+  missing_required_item
+  damaged_critical_asset
+  readiness_issue
+  readiness_impacting_issue
+}
+
+enum InventoryAlertSeverity {
+  critical
+  important
+  minor
+}
+
+enum InventoryAlertStatus {
+  open
+  acknowledged
+  resolved
+}
+
+enum MaintenanceIssueStatus {
+  open
+  in_progress
+  resolved
+  closed
+}
+
 model Flat {
-  id                 String              @id
-  name               String
-  nightlyRate        Int
-  maxGuests          Int
-  reservations       Reservation[]
-  availabilityBlocks AvailabilityBlock[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                   String              @id
+  name                 String
+  nightlyRate          Int
+  maxGuests            Int
+  reservations         Reservation[]
+  availabilityBlocks   AvailabilityBlock[]
+  inventoryAssignments FlatInventory[]
+  stockMovements       StockMovement[]
+  readiness            FlatReadiness?
+  inventoryAlerts      InventoryAlert[]
+  maintenanceIssues    MaintenanceIssue[]
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 }
 
 model Extra {
@@ -161,6 +233,138 @@ model AvailabilityBlock {
   @@unique([sourceType, sourceId])
   @@index([flatId, status, startDate, endDate])
   @@index([expiresAt])
+}
+
+model InventoryItem {
+  id                String                    @id @default(cuid())
+  name              String
+  category          InventoryItemCategory
+  internalCode      String?                   @unique
+  unitOfMeasure     String
+  reorderThreshold  Int?
+  parLevel          Int?
+  criticality       InventoryItemCriticality  @default(important)
+  templateItems     TemplateItem[]
+  flatInventory     FlatInventory[]
+  stockMovements    StockMovement[]
+  inventoryAlerts   InventoryAlert[]
+  maintenanceIssues MaintenanceIssue[]
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  @@index([category])
+  @@index([criticality])
+}
+
+model InventoryTemplate {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  flatType      String?
+  templateItems TemplateItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model TemplateItem {
+  id              String            @id @default(cuid())
+  templateId      String
+  template        InventoryTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  inventoryItemId String
+  inventoryItem   InventoryItem     @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+  expectedQuantity Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([templateId])
+  @@index([inventoryItemId])
+  @@unique([templateId, inventoryItemId])
+}
+
+model FlatInventory {
+  id               String                       @id @default(cuid())
+  flatId           String
+  flat             Flat                         @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  inventoryItemId  String
+  inventoryItem    InventoryItem                @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+  expectedQuantity Int
+  currentQuantity  Int
+  conditionStatus  FlatInventoryConditionStatus @default(ok)
+  notes            String?
+  lastCheckedAt    DateTime?
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  @@index([flatId])
+  @@index([inventoryItemId])
+  @@unique([flatId, inventoryItemId])
+}
+
+model StockMovement {
+  id              String            @id @default(cuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem     @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+  flatId          String?
+  flat            Flat?             @relation(fields: [flatId], references: [id], onDelete: SetNull)
+  movementType    StockMovementType
+  quantity        Int
+  reason          String
+  notes           String?
+  actorId         String?
+  createdAt       DateTime          @default(now())
+
+  @@index([inventoryItemId, createdAt])
+  @@index([flatId, createdAt])
+}
+
+model FlatReadiness {
+  flatId              String                   @id
+  flat                Flat                     @relation(fields: [flatId], references: [id], onDelete: Cascade)
+  cleaningStatus      ReadinessComponentStatus @default(attention_required)
+  linenStatus         ReadinessComponentStatus @default(attention_required)
+  consumablesStatus   ReadinessComponentStatus @default(attention_required)
+  maintenanceStatus   ReadinessComponentStatus @default(attention_required)
+  criticalAssetStatus ReadinessComponentStatus @default(attention_required)
+  readinessStatus     FlatReadinessStatus      @default(needs_attention)
+  overrideStatus      FlatReadinessStatus?
+  overrideReason      String?
+  updatedAt           DateTime                 @updatedAt
+}
+
+model InventoryAlert {
+  id              String               @id @default(cuid())
+  inventoryItemId String?
+  inventoryItem   InventoryItem?       @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+  flatId          String?
+  flat            Flat?                @relation(fields: [flatId], references: [id], onDelete: SetNull)
+  alertType       InventoryAlertType
+  severity        InventoryAlertSeverity
+  status          InventoryAlertStatus @default(open)
+  message         String
+  createdAt       DateTime             @default(now())
+  resolvedAt      DateTime?
+
+  @@index([status, severity, createdAt])
+  @@index([flatId])
+  @@index([inventoryItemId])
+}
+
+model MaintenanceIssue {
+  id              String                 @id @default(cuid())
+  flatId          String
+  flat            Flat                   @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  inventoryItemId String?
+  inventoryItem   InventoryItem?         @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+  title           String
+  notes           String?
+  severity        InventoryAlertSeverity
+  status          MaintenanceIssueStatus @default(open)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([flatId, status, createdAt])
+  @@index([inventoryItemId])
 }
 
 model ReservationExtra {
@@ -247,6 +451,7 @@ model IdempotencyKey {
   @@index([reservationId])
   @@index([createdAt])
 }
+
 model AuthUser {
   id           String        @id @default(cuid())
   email        String        @unique
@@ -275,4 +480,5 @@ model AuthSession {
   @@index([expiresAt])
   @@map("sessions")
 }
+
 

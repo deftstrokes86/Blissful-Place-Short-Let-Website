@@ -17,6 +17,7 @@
                     "src/server/jobs/**/*.ts",
                     "src/server/payments/**/*.ts",
                     "src/server/auth/**/*.ts",
+                    "src/server/inventory/**/*.ts",
                     "src/lib/booking-state-machine.ts",
                     "src/lib/booking-pricing.ts",
                     "src/types/booking.ts",

@@ -8,15 +8,18 @@ import {
   type AvailabilityRepositoryReservation,
 } from "../availability-service";
 import type { FlatId, ReservationStatus, StayDetailsInput } from "../../../types/booking";
+import type { FlatReadinessRecord } from "../../../types/booking-backend";
 
 class InMemoryAvailabilityRepository implements AvailabilityRepository {
   private readonly flats = new Map<FlatId, AvailabilityRepositoryFlat>();
   private readonly reservations: AvailabilityRepositoryReservation[];
   private readonly blocks: AvailabilityRepositoryBlock[];
+  private readonly readinessByFlat: Partial<Record<FlatId, FlatReadinessRecord>>;
 
   constructor(options?: {
     reservations?: AvailabilityRepositoryReservation[];
     blocks?: AvailabilityRepositoryBlock[];
+    readinessByFlat?: Partial<Record<FlatId, FlatReadinessRecord>>;
   }) {
     this.flats.set("windsor", { id: "windsor", maxGuests: 6 });
     this.flats.set("kensington", { id: "kensington", maxGuests: 6 });
@@ -24,6 +27,7 @@ class InMemoryAvailabilityRepository implements AvailabilityRepository {
 
     this.reservations = [...(options?.reservations ?? [])];
     this.blocks = [...(options?.blocks ?? [])];
+    this.readinessByFlat = options?.readinessByFlat ?? {};
   }
 
   async findFlatById(flatId: FlatId): Promise<AvailabilityRepositoryFlat | null> {
@@ -36,6 +40,11 @@ class InMemoryAvailabilityRepository implements AvailabilityRepository {
 
   async listAvailabilityBlocksByFlat(flatId: FlatId): Promise<AvailabilityRepositoryBlock[]> {
     return this.blocks.filter((block) => block.flatId === flatId);
+  }
+
+  async findFlatReadiness(flatId: FlatId): Promise<FlatReadinessRecord | null> {
+    const found = this.readinessByFlat[flatId];
+    return found ? { ...found } : null;
   }
 }
 
@@ -77,9 +86,26 @@ function createBlock(overrides?: Partial<AvailabilityRepositoryBlock>): Availabi
   };
 }
 
+function createReadiness(overrides?: Partial<FlatReadinessRecord>): FlatReadinessRecord {
+  return {
+    flatId: "mayfair",
+    cleaningStatus: "ready",
+    linenStatus: "ready",
+    consumablesStatus: "ready",
+    maintenanceStatus: "ready",
+    criticalAssetStatus: "ready",
+    readinessStatus: "ready",
+    overrideStatus: null,
+    overrideReason: null,
+    updatedAt: "2026-07-01T09:00:00.000Z",
+    ...overrides,
+  };
+}
+
 function createService(options?: {
   reservations?: AvailabilityRepositoryReservation[];
   blocks?: AvailabilityRepositoryBlock[];
+  readinessByFlat?: Partial<Record<FlatId, FlatReadinessRecord>>;
 }): AvailabilityService {
   return new AvailabilityService({
     repository: new InMemoryAvailabilityRepository(options),
@@ -226,6 +252,38 @@ async function testCalendarBlocksRemainFlatSpecific(): Promise<void> {
   assert.equal(result.isAvailable, true);
 }
 
+async function testOutOfServiceReadinessPreventsCasualBookability(): Promise<void> {
+  const service = createService({
+    readinessByFlat: {
+      mayfair: createReadiness({
+        readinessStatus: "out_of_service",
+        maintenanceStatus: "blocked",
+      }),
+    },
+  });
+
+  const result = await service.runInitialAvailabilityCheck(createStay());
+  assert.equal(result.isAvailable, false);
+  assert.ok(result.conflicts.some((conflict) => conflict.code === "sold_out" && conflict.field === "flat"));
+  assert.ok(result.reasons.some((reason) => reason.toLowerCase().includes("out of service")));
+}
+
+async function testNeedsAttentionSurfacesWarningWithoutBlocking(): Promise<void> {
+  const service = createService({
+    readinessByFlat: {
+      mayfair: createReadiness({
+        readinessStatus: "needs_attention",
+        consumablesStatus: "attention_required",
+      }),
+    },
+  });
+
+  const result = await service.runInitialAvailabilityCheck(createStay());
+  assert.equal(result.isAvailable, true);
+  assert.equal(result.conflicts.length, 0);
+  assert.ok(result.reasons.some((reason) => reason.toLowerCase().includes("needs attention")));
+}
+
 async function run(): Promise<void> {
   await testInitialAvailabilityCheck();
   await testPreHoldRecheckIntent();
@@ -238,9 +296,10 @@ async function run(): Promise<void> {
   await testExcludeSameReservationIdOnRecheck();
   await testCalendarBlocksRejectBlockedDateRanges();
   await testCalendarBlocksRemainFlatSpecific();
+  await testOutOfServiceReadinessPreventsCasualBookability();
+  await testNeedsAttentionSurfacesWarningWithoutBlocking();
 
   console.log("availability-service: ok");
 }
 
 void run();
-

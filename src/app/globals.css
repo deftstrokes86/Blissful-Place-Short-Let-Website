@@ -1878,3 +1878,135 @@ details[open] summary ~ * {
     width: 100%;
   }
 }
+
+/* Admin Inventory and Readiness UI */
+.admin-inventory-page,
+.admin-readiness-page {
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.admin-inventory-panel,
+.admin-readiness-panel,
+.admin-inventory-snapshot,
+.admin-readiness-snapshot {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.65rem 0.55rem;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.86rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
+.admin-mini-table {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-mini-table-row {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.admin-grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-form-grid {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-dark);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.admin-compact-input {
+  min-width: 210px;
+  width: min(260px, 100%);
+  padding: 0.72rem 0.8rem;
+}
+
+.admin-readiness-ready {
+  border-color: rgba(129, 228, 129, 0.8);
+  color: #81e481;
+}
+
+.admin-readiness-attention {
+  border-color: rgba(255, 204, 102, 0.8);
+  color: #ffcc66;
+}
+
+.admin-readiness-out {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.admin-severity-critical {
+  border-color: rgba(255, 157, 183, 0.9);
+  color: #ff9db7;
+}
+
+.admin-severity-important {
+  border-color: rgba(255, 204, 102, 0.8);
+  color: #ffcc66;
+}
+
+.admin-severity-minor {
+  border-color: rgba(128, 222, 255, 0.75);
+  color: #80deff;
+}
+
+@media (max-width: 960px) {
+  .admin-grid-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-inventory-page,
+  .admin-readiness-page {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .admin-table {
+    min-width: 540px;
+  }
+
+  .admin-form-grid {
+    padding: 0.75rem;
+  }
+}

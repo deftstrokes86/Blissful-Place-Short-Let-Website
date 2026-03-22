@@ -1,5 +1,6 @@
 import { readBookingDatabase } from "../db/file-database";
 import type { FlatId } from "../../types/booking";
+import type { FlatReadinessRecord } from "../../types/booking-backend";
 import type {
   AvailabilityRepository,
   AvailabilityRepositoryBlock,
@@ -54,6 +55,19 @@ export class FileAvailabilityRepository implements AvailabilityRepository {
         status: block.status,
         expiresAt: block.expiresAt,
       }));
+  }
+
+  async findFlatReadiness(flatId: FlatId): Promise<FlatReadinessRecord | null> {
+    const db = await readBookingDatabase();
+    const record = db.flatReadiness.find((entry) => entry.flatId === flatId);
+
+    if (!record) {
+      return null;
+    }
+
+    return {
+      ...record,
+    };
   }
 }
 

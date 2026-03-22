@@ -58,6 +58,113 @@ CREATE TABLE IF NOT EXISTS availability_blocks (
   FOREIGN KEY (flat_id) REFERENCES flats(id)
 );
 
+CREATE TABLE IF NOT EXISTS inventory_items (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  internal_code TEXT UNIQUE,
+  unit_of_measure TEXT NOT NULL,
+  reorder_threshold INTEGER,
+  par_level INTEGER,
+  criticality TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inventory_templates (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  flat_type TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS template_items (
+  id TEXT PRIMARY KEY,
+  template_id TEXT NOT NULL,
+  inventory_item_id TEXT NOT NULL,
+  expected_quantity INTEGER NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE (template_id, inventory_item_id),
+  FOREIGN KEY (template_id) REFERENCES inventory_templates(id) ON DELETE CASCADE,
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
+);
+
+CREATE TABLE IF NOT EXISTS flat_inventory (
+  id TEXT PRIMARY KEY,
+  flat_id TEXT NOT NULL,
+  inventory_item_id TEXT NOT NULL,
+  expected_quantity INTEGER NOT NULL,
+  current_quantity INTEGER NOT NULL,
+  condition_status TEXT NOT NULL,
+  notes TEXT,
+  last_checked_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE (flat_id, inventory_item_id),
+  FOREIGN KEY (flat_id) REFERENCES flats(id),
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
+);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id TEXT PRIMARY KEY,
+  inventory_item_id TEXT NOT NULL,
+  flat_id TEXT,
+  movement_type TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  reason TEXT NOT NULL,
+  notes TEXT,
+  actor_id TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+  FOREIGN KEY (flat_id) REFERENCES flats(id)
+);
+
+CREATE TABLE IF NOT EXISTS flat_readiness (
+  flat_id TEXT PRIMARY KEY,
+  cleaning_status TEXT NOT NULL,
+  linen_status TEXT NOT NULL,
+  consumables_status TEXT NOT NULL,
+  maintenance_status TEXT NOT NULL,
+  critical_asset_status TEXT NOT NULL,
+  readiness_status TEXT NOT NULL,
+  override_status TEXT,
+  override_reason TEXT,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (flat_id) REFERENCES flats(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS inventory_alerts (
+  id TEXT PRIMARY KEY,
+  inventory_item_id TEXT,
+  flat_id TEXT,
+  alert_type TEXT NOT NULL,
+  severity TEXT NOT NULL,
+  status TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  resolved_at TEXT,
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id),
+  FOREIGN KEY (flat_id) REFERENCES flats(id)
+);
+
+CREATE TABLE IF NOT EXISTS maintenance_issues (
+  id TEXT PRIMARY KEY,
+  flat_id TEXT NOT NULL,
+  inventory_item_id TEXT,
+  title TEXT NOT NULL,
+  notes TEXT,
+  severity TEXT NOT NULL,
+  status TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  resolved_at TEXT,
+  FOREIGN KEY (flat_id) REFERENCES flats(id),
+  FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
+);
+
 CREATE TABLE IF NOT EXISTS payment_attempts (
   id TEXT PRIMARY KEY,
   reservation_id TEXT NOT NULL,
@@ -137,6 +244,7 @@ CREATE TABLE IF NOT EXISTS reservation_notifications (
   FOREIGN KEY (reservation_id) REFERENCES reservations(id),
   FOREIGN KEY (payment_attempt_id) REFERENCES payment_attempts(id)
 );
+
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   key TEXT NOT NULL,
   action TEXT NOT NULL,
@@ -167,4 +275,3 @@ CREATE TABLE IF NOT EXISTS sessions (
   updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
