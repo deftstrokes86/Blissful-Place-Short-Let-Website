@@ -37,6 +37,7 @@ export interface InventoryAlertRepository {
   listInventorySignals(flatId: FlatId): Promise<InventoryAlertSignal[]>;
   findFlatReadiness(flatId: FlatId): Promise<FlatReadinessRecord | null>;
   listFlatAlerts(flatId: FlatId): Promise<InventoryAlertRecord[]>;
+  findAlertById(alertId: string): Promise<InventoryAlertRecord | null>;
   createAlert(alert: InventoryAlertRecord): Promise<InventoryAlertRecord>;
   updateAlert(alert: InventoryAlertRecord): Promise<InventoryAlertRecord>;
 }
@@ -62,6 +63,15 @@ function isMissingCondition(condition: InventoryAlertSignal["inventory"]["condit
 
 function buildAlertKey(candidate: Pick<InventoryAlertCandidate, "flatId" | "alertType" | "inventoryItemId">): string {
   return `${candidate.flatId}:${candidate.alertType}:${candidate.inventoryItemId ?? "none"}`;
+}
+
+function normalizeOptionalText(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
 }
 
 export class InventoryAlertService {
@@ -202,6 +212,31 @@ export class InventoryAlertService {
 
       return a.id.localeCompare(b.id);
     });
+  }
+
+  async resolveAlert(input: {
+    alertId: string;
+    note?: string | null;
+  }): Promise<InventoryAlertRecord> {
+    const existing = await this.repository.findAlertById(input.alertId);
+    if (!existing) {
+      throw new Error("Inventory alert not found.");
+    }
+
+    if (existing.status === "resolved") {
+      return existing;
+    }
+
+    const note = normalizeOptionalText(input.note);
+
+    const resolved = createInventoryAlertRecord({
+      ...existing,
+      status: "resolved",
+      message: note ? `${existing.message} (${note})` : existing.message,
+      resolvedAt: this.nowProvider().toISOString(),
+    });
+
+    return this.repository.updateAlert(resolved);
   }
 
   private deriveCandidates(

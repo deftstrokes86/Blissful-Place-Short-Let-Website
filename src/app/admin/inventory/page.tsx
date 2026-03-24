@@ -1,5 +1,5 @@
-import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
-import { AdminInventoryPanel } from "@/components/admin/inventory/AdminInventoryPanel";
+﻿import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { AdminInventoryHubPanel } from "@/components/admin/inventory/AdminInventoryHubPanel";
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
@@ -12,7 +12,7 @@ export default async function AdminInventoryPage() {
         <PageIntro
           subtitle="Internal Operations"
           title="Inventory Administration"
-          description="Review inventory catalog, templates, flat-level stock records, and movement history with clear operational context."
+          description="Supervisor hub for catalog, templates, stock, movement, alerts, and readiness-linked inventory actions."
           backHref="/admin/bookings"
           backLabel="Back to Booking Administration"
           wrapperStyle={{ marginBottom: "2rem" }}
@@ -20,7 +20,7 @@ export default async function AdminInventoryPage() {
 
         <AdminLogoutButton />
 
-        <AdminInventoryPanel />
+        <AdminInventoryHubPanel />
       </section>
     </main>
   );

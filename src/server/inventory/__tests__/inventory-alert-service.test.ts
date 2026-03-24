@@ -71,6 +71,11 @@ class InMemoryInventoryAlertRepository implements InventoryAlertRepository {
       .map((alert) => ({ ...alert }));
   }
 
+  async findAlertById(alertId: string): Promise<InventoryAlertRecord | null> {
+    const found = this.alerts.get(alertId);
+    return found ? { ...found } : null;
+  }
+
   async createAlert(alert: InventoryAlertRecord): Promise<InventoryAlertRecord> {
     this.alerts.set(alert.id, { ...alert });
     return { ...alert };
@@ -284,3 +289,4 @@ async function run(): Promise<void> {
 }
 
 void run();
+

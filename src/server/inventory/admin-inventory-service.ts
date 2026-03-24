@@ -8,6 +8,7 @@ import type {
   MaintenanceIssueRecord,
   StockMovementRecord,
   TemplateItemRecord,
+  WorkerTaskRecord,
 } from "../../types/booking-backend";
 import { InventoryAlertService } from "./inventory-alert-service";
 import { MaintenanceIssueService } from "./maintenance-issue-service";
@@ -17,13 +18,19 @@ interface AdminInventoryServiceDependencies {
     MaintenanceIssueService,
     "createIssue" | "resolveIssue" | "updateIssueStatus"
   >;
-  inventoryAlertService: Pick<InventoryAlertService, "syncFlatAlerts">;
+  inventoryAlertService: Pick<InventoryAlertService, "syncFlatAlerts" | "resolveAlert">;
 }
 
 export interface AdminInventoryOverview {
   generatedAt: string;
   flats: Array<{ id: FlatId; name: string }>;
   inventoryCatalog: InventoryItemRecord[];
+  centralStock?: Array<{
+    inventoryItemId: string;
+    itemName: string;
+    unitOfMeasure: string;
+    quantity: number;
+  }>;
   templates: Array<
     InventoryTemplateRecord & {
       items: Array<TemplateItemRecord & { itemName: string | null }>;
@@ -61,6 +68,7 @@ export interface AdminInventoryOverview {
   }>;
   activeAlerts: InventoryAlertRecord[];
   maintenanceIssues: MaintenanceIssueRecord[];
+  workerTasks: WorkerTaskRecord[];
 }
 
 export class AdminInventoryService {
@@ -93,6 +101,16 @@ export class AdminInventoryService {
           .sort((left, right) => left.inventoryItemId.localeCompare(right.inventoryItemId)),
       }))
       .sort((left, right) => left.name.localeCompare(right.name));
+
+    const centralStockByItem = db.centralStockByItem ?? {};
+    const centralStock = db.inventoryItems
+      .map((item) => ({
+        inventoryItemId: item.id,
+        itemName: item.name,
+        unitOfMeasure: item.unitOfMeasure,
+        quantity: centralStockByItem[item.id] ?? 0,
+      }))
+      .sort((left, right) => left.itemName.localeCompare(right.itemName));
 
     const flatInventory = db.flats
       .map((flat) => ({
@@ -135,6 +153,8 @@ export class AdminInventoryService {
 
     const maintenanceIssues = [...db.maintenanceIssues].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 
+    const workerTasks = [...db.workerTasks].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+
     const readiness = db.flats
       .map((flat) => ({
         flatId: flat.id,
@@ -151,12 +171,14 @@ export class AdminInventoryService {
       generatedAt: new Date().toISOString(),
       flats: db.flats.map((flat) => ({ id: flat.id, name: flat.name })),
       inventoryCatalog: [...db.inventoryItems].sort((left, right) => left.name.localeCompare(right.name)),
+      centralStock,
       templates,
       flatInventory,
       stockMovements,
       readiness,
       activeAlerts,
       maintenanceIssues,
+      workerTasks,
     };
   }
 
@@ -191,6 +213,22 @@ export class AdminInventoryService {
 
     await this.inventoryAlertService.syncFlatAlerts(updated.flatId);
     return updated;
+  }
+
+  async resolveInventoryAlert(input: {
+    alertId: string;
+    note?: string | null;
+  }) {
+    const alert = await this.inventoryAlertService.resolveAlert({
+      alertId: input.alertId,
+      note: input.note,
+    });
+
+    if (alert.flatId) {
+      await this.inventoryAlertService.syncFlatAlerts(alert.flatId);
+    }
+
+    return alert;
   }
 
   private async syncAlertsForAllFlats(): Promise<void> {

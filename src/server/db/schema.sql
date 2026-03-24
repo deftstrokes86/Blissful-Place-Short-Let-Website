@@ -165,6 +165,23 @@ CREATE TABLE IF NOT EXISTS maintenance_issues (
   FOREIGN KEY (inventory_item_id) REFERENCES inventory_items(id)
 );
 
+CREATE TABLE IF NOT EXISTS worker_tasks (
+  id TEXT PRIMARY KEY,
+  flat_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  task_type TEXT NOT NULL,
+  priority TEXT NOT NULL,
+  status TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  source_id TEXT NOT NULL,
+  assigned_to TEXT,
+  completed_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (flat_id) REFERENCES flats(id)
+);
+
 CREATE TABLE IF NOT EXISTS payment_attempts (
   id TEXT PRIMARY KEY,
   reservation_id TEXT NOT NULL,

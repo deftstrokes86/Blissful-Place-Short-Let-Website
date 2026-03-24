@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { AdminInventoryOverview } from "@/lib/admin-inventory-api";
 import {
   formatConditionStatusLabel,
@@ -18,6 +20,8 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
     input.overview.flatInventory.find((entry) => entry.flatId === input.selectedFlatId) ??
     input.overview.flatInventory[0] ??
     null;
+
+  const centralStock = input.overview.centralStock ?? [];
 
   return (
     <div className="admin-inventory-snapshot">
@@ -46,7 +50,9 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
               <tbody>
                 {input.overview.inventoryCatalog.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.name}</td>
+                    <td>
+                      <Link href={`/admin/inventory/items/${item.id}`}>{item.name}</Link>
+                    </td>
                     <td>{formatInventoryCategoryLabel(item.category)}</td>
                     <td>{item.unitOfMeasure}</td>
                     <td>
@@ -55,6 +61,45 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
                     <td>
                       <span className={getSeverityClassName(item.criticality)}>{formatCriticalityLabel(item.criticality)}</span>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="admin-bookings-section" aria-labelledby="central-stock-heading">
+        <div className="admin-bookings-section-header">
+          <h3 id="central-stock-heading" className="heading-sm" style={{ margin: 0 }}>
+            Central Stock
+          </h3>
+          <div className="admin-bookings-actions-row">
+            <span className="admin-count-pill">{centralStock.length} tracked items</span>
+            <Link href="/admin/inventory/movements/new" className="btn btn-outline-primary">
+              Adjust or Transfer
+            </Link>
+          </div>
+        </div>
+
+        {centralStock.length === 0 ? (
+          <p className="text-secondary">No central stock quantities tracked yet.</p>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {centralStock.map((stock) => (
+                  <tr key={stock.inventoryItemId}>
+                    <td>{stock.itemName}</td>
+                    <td>{stock.quantity}</td>
+                    <td>{stock.unitOfMeasure}</td>
                   </tr>
                 ))}
               </tbody>
@@ -150,7 +195,12 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
           <h3 id="stock-movements-heading" className="heading-sm" style={{ margin: 0 }}>
             Stock Movements
           </h3>
-          <span className="admin-count-pill">{input.overview.stockMovements.length} recent</span>
+          <div className="admin-bookings-actions-row">
+            <span className="admin-count-pill">{input.overview.stockMovements.length} recent</span>
+            <Link href="/admin/inventory/movements/new" className="btn btn-outline-primary">
+              Record Movement
+            </Link>
+          </div>
         </div>
 
         {input.overview.stockMovements.length === 0 ? (

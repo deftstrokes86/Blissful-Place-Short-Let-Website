@@ -1989,8 +1989,58 @@ details[open] summary ~ * {
   color: #80deff;
 }
 
+.admin-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-hub-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-dark);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.admin-hub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.admin-hub-note {
+  color: var(--text-secondary);
+  font-size: 0.83rem;
+}
+
+.admin-hub-flat-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-hub-flat-link {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.admin-hub-flat-link:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
 @media (max-width: 960px) {
   .admin-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-hub-grid {
     grid-template-columns: 1fr;
   }
 }

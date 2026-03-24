@@ -133,6 +133,7 @@ function createOverview(): AdminInventoryOverview {
         resolvedAt: null,
       },
     ],
+    workerTasks: [],
     maintenanceIssues: [
       {
         id: "issue_1",

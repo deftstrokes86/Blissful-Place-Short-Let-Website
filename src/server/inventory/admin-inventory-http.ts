@@ -11,7 +11,7 @@ const ISSUE_STATUSES: readonly MaintenanceIssueRecord["status"][] = [
   "closed",
 ];
 
-function normalizeRequiredString(value: string | null | undefined): string | null {
+function normalizeRequiredString(value: string | null | undefined, field: string = "value"): string | null {
   if (typeof value !== "string") {
     return null;
   }
@@ -25,7 +25,7 @@ function normalizeOptionalString(value: string | null | undefined): string | nul
 }
 
 function normalizeFlatId(value: string | null | undefined): FlatId | null {
-  const normalized = normalizeRequiredString(value);
+  const normalized = normalizeRequiredString(value, "flatId");
   if (!normalized) {
     return null;
   }
@@ -73,7 +73,7 @@ export async function handleCreateMaintenanceIssueRequest(
   }
 ) {
   const flatId = normalizeFlatId(input.flatId);
-  const title = normalizeRequiredString(input.title);
+  const title = normalizeRequiredString(input.title, "title");
   const severity = normalizeIssueSeverity(input.severity);
 
   if (!flatId || !title || !severity) {
@@ -99,7 +99,7 @@ export async function handleUpdateMaintenanceIssueStatusRequest(
     notes: string | null;
   }
 ) {
-  const issueId = normalizeRequiredString(input.issueId);
+  const issueId = normalizeRequiredString(input.issueId, "issueId");
   const status = normalizeIssueStatus(input.status);
 
   if (!issueId || !status) {
@@ -113,4 +113,24 @@ export async function handleUpdateMaintenanceIssueStatusRequest(
   });
 
   return { issue };
+}
+
+export async function handleResolveInventoryAlertRequest(
+  service: Pick<AdminInventoryService, "resolveInventoryAlert">,
+  input: {
+    alertId: string | null;
+    note: string | null;
+  }
+) {
+  const alertId = normalizeRequiredString(input.alertId, "alertId");
+  if (!alertId) {
+    throw new Error("alertId is required for alert resolution.");
+  }
+
+  const alert = await service.resolveInventoryAlert({
+    alertId,
+    note: normalizeOptionalString(input.note),
+  });
+
+  return { alert };
 }

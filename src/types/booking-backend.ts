@@ -277,6 +277,27 @@ export interface MaintenanceIssueRecord {
   resolvedAt: ISODateTimeString | null;
 }
 
+export type WorkerTaskType = "restock" | "maintenance" | "readiness" | "inspection";
+export type WorkerTaskPriority = InventoryAlertSeverity;
+export type WorkerTaskStatus = "pending" | "in_progress" | "completed" | "blocked" | "escalated" | "open" | "cancelled";
+export type WorkerTaskSourceType = "alert" | "maintenance_issue" | "readiness" | "manual";
+
+export interface WorkerTaskRecord {
+  id: string;
+  flatId: FlatId;
+  title: string;
+  description: string | null;
+  taskType: WorkerTaskType;
+  priority: WorkerTaskPriority;
+  status: WorkerTaskStatus;
+  sourceType: WorkerTaskSourceType;
+  sourceId: string;
+  assignedTo: string | null;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+  completedAt: ISODateTimeString | null;
+}
+
 export interface ReservationEventRecord {
   id: string;
   reservationId: BookingId;
@@ -345,6 +366,7 @@ export interface BookingDatabaseState {
   extras: ExtraRecord[];
   reservations: ReservationRecord[];
   availabilityBlocks: AvailabilityBlockRecord[];
+  centralStockByItem?: Record<string, number>;
   inventoryItems: InventoryItemRecord[];
   inventoryTemplates: InventoryTemplateRecord[];
   templateItems: TemplateItemRecord[];
@@ -353,6 +375,7 @@ export interface BookingDatabaseState {
   flatReadiness: FlatReadinessRecord[];
   inventoryAlerts: InventoryAlertRecord[];
   maintenanceIssues: MaintenanceIssueRecord[];
+  workerTasks: WorkerTaskRecord[];
   paymentAttempts: PaymentAttemptRecord[];
   transferVerifications: TransferVerificationMetadataRecord[];
   posCoordinations: PosCoordinationMetadataRecord[];
