@@ -361,6 +361,19 @@ export interface ReservationNotificationRecord {
   updatedAt: ISODateTimeString;
 }
 
+export type TourAppointmentStatus = "booked" | "cancelled";
+
+export interface TourAppointmentRecord {
+  id: string;
+  date: ISODateString;
+  time: string;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string | null;
+  status: TourAppointmentStatus;
+  createdAt: ISODateTimeString;
+  updatedAt: ISODateTimeString;
+}
 export interface BookingDatabaseState {
   flats: FlatRecord[];
   extras: ExtraRecord[];
@@ -376,6 +389,7 @@ export interface BookingDatabaseState {
   inventoryAlerts: InventoryAlertRecord[];
   maintenanceIssues: MaintenanceIssueRecord[];
   workerTasks: WorkerTaskRecord[];
+  tourAppointments: TourAppointmentRecord[];
   paymentAttempts: PaymentAttemptRecord[];
   transferVerifications: TransferVerificationMetadataRecord[];
   posCoordinations: PosCoordinationMetadataRecord[];
@@ -397,6 +411,10 @@ export interface DraftUpdateInput {
   paymentMethod?: PaymentMethod | null;
   progressContext?: DraftProgressContextInput;
 }
+
+
+
+
 
 
 

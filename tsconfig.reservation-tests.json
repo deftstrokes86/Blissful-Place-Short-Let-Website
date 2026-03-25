@@ -24,6 +24,10 @@
                     "src/types/booking-backend.ts",
                     "src/types/auth.ts",
                     "src/lib/notifications/**/*.ts",
-                    "src/server/notifications/**/*.ts"
+                    "src/server/notifications/**/*.ts",
+                    "src/server/tour/**/*.ts",
+                    "src/components/tour/**/*.tsx",
+                    "src/lib/tour-frontend-api.ts",
+                    "src/app/api/tour/**/*.ts"
                 ]
 }

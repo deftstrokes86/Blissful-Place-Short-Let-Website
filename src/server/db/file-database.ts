@@ -162,6 +162,7 @@ function createEmptyDatabaseState(): BookingDatabaseState {
     inventoryAlerts: [],
     maintenanceIssues: [],
     workerTasks: [],
+    tourAppointments: [],
     paymentAttempts: [],
     transferVerifications: [],
     posCoordinations: [],
@@ -201,6 +202,7 @@ async function readDatabaseState(): Promise<BookingDatabaseState> {
     inventoryAlerts: parsed.inventoryAlerts ?? [],
     maintenanceIssues: parsed.maintenanceIssues ?? [],
     workerTasks: parsed.workerTasks ?? [],
+    tourAppointments: parsed.tourAppointments ?? [],
     paymentAttempts: parsed.paymentAttempts ?? [],
     transferVerifications: parsed.transferVerifications ?? [],
     posCoordinations: parsed.posCoordinations ?? [],
@@ -245,3 +247,5 @@ export function createDatabaseId(prefix: string): string {
 export function getDatabaseFilePath(): string {
   return DATA_FILE_PATH;
 }
+
+

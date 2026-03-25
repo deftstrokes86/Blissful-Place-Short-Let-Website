@@ -33,8 +33,8 @@ export function SiteFooter() {
                 </Link>
               </div>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.90rem", lineHeight: "1.8" }}>
-                Curating Lagos&apos; most refined stays. We guarantee absolute calm, elite biometric security,
-                uninterrupted power, and blazing enterprise connectivity for the discerning traveler.
+                Premium short-let stays prepared for guests who value order, comfort, and reliable support.
+                Expect clear communication, steady essentials, and a calm hospitality experience from inquiry to checkout.
               </p>
               <div className="footer-socials" style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
                 <a href={SOCIAL_LINKS.instagram} className="social-circle" aria-label="Instagram">
@@ -99,8 +99,8 @@ export function SiteFooter() {
                 style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.9rem" }}
               >
                 <li>
-                  <Link href="/#promise" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
-                    The Blissful Promise
+                  <Link href="/about" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    About
                   </Link>
                 </li>
                 <li>
@@ -197,3 +197,4 @@ export function SiteFooter() {
     </>
   );
 }
+

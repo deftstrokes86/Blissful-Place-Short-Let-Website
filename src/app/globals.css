@@ -142,6 +142,81 @@ button {
   align-items: center;
 }
 
+.nav-item-with-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.nav-item-with-menu::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+}
+
+.nav-parent-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-dropdown-icon {
+  color: var(--text-secondary);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-item-with-menu:hover .nav-dropdown-icon,
+.nav-item-with-menu:focus-within .nav-dropdown-icon {
+  color: var(--primary);
+  transform: translateY(1px);
+}
+
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  min-width: 190px;
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 14, 0.98);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.44);
+  display: grid;
+  gap: 0.2rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  z-index: 1004;
+}
+
+.nav-submenu a {
+  display: block;
+  padding: 0.5rem 0.65rem;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-submenu a:hover,
+.nav-submenu a:focus-visible {
+  color: var(--text-primary);
+  background: rgba(238, 29, 82, 0.12);
+}
+
+.nav-item-with-menu:hover .nav-submenu,
+.nav-item-with-menu:focus-within .nav-submenu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 .nav-actions {
   display: flex;
   gap: 1rem;
@@ -715,6 +790,35 @@ button {
 }
 
 .mobile-nav-links a:hover {
+  color: var(--primary);
+}
+
+.mobile-nav-group {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.mobile-nav-parent {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mobile-nav-submenu {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobile-nav-submenu a {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+}
+
+.mobile-nav-submenu a:hover {
   color: var(--primary);
 }
 
@@ -2058,5 +2162,998 @@ details[open] summary ~ * {
 
   .admin-form-grid {
     padding: 0.75rem;
+  }
+}
+
+/* Private Tour UI */
+.tour-page {
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.tour-page-container {
+  max-width: 1180px;
+}
+
+.tour-flow-shell {
+  border: 1px solid rgba(238, 29, 82, 0.28);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(238, 29, 82, 0.09), transparent 48%),
+    linear-gradient(180deg, rgba(20, 18, 21, 0.92), rgba(10, 10, 12, 0.94));
+  padding: 1.4rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.tour-flow-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tour-flow-subtitle {
+  font-size: 0.94rem;
+  max-width: 62ch;
+}
+
+.tour-live-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(238, 29, 82, 0.46);
+  background: rgba(238, 29, 82, 0.12);
+  color: var(--text-primary);
+  padding: 0.3rem 0.78rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tour-step-strip {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.tour-step-chip {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(7, 8, 10, 0.48);
+  padding: 0.66rem 0.74rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.tour-step-chip.is-active {
+  border-color: rgba(238, 29, 82, 0.52);
+  background: rgba(238, 29, 82, 0.12);
+}
+
+.tour-step-chip.is-complete {
+  border-color: rgba(238, 29, 82, 0.42);
+  background: rgba(238, 29, 82, 0.08);
+}
+
+.tour-step-chip-number {
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tour-step-chip-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tour-flow-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.tour-step-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(8, 9, 12, 0.62);
+  padding: 1rem;
+}
+
+.tour-step-head {
+  margin-bottom: 0.78rem;
+}
+
+.tour-step-kicker {
+  color: var(--primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.28rem;
+}
+
+.tour-step-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 1.95vw, 1.35rem);
+  line-height: 1.25;
+  margin-bottom: 0.3rem;
+}
+
+.tour-step-copy {
+  font-size: 0.9rem;
+}
+
+.tour-calendar-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.75rem;
+}
+
+.tour-calendar-toolbar .btn {
+  padding: 0.58rem 0.88rem;
+  font-size: 0.78rem;
+}
+
+.tour-calendar-month {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  letter-spacing: 0.02em;
+}
+
+.tour-interaction-stage {
+  position: relative;
+  min-height: 365px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  overflow: hidden;
+}
+
+.tour-calendar-surface {
+  width: 100%;
+  height: 100%;
+  padding: 0.8rem;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.tour-interaction-stage.show-time .tour-calendar-surface {
+  transform: translateX(28px) scale(0.985);
+  opacity: 0.5;
+}
+
+.tour-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.tour-calendar-weekdays span {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tour-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.tour-calendar-empty {
+  min-height: 64px;
+}
+
+.tour-calendar-day {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+  min-height: 64px;
+  padding: 0.45rem 0.4rem;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.18rem;
+  transition: border-color 0.22s, background-color 0.22s, transform 0.2s;
+}
+
+.tour-calendar-day:not(:disabled):hover {
+  border-color: rgba(238, 29, 82, 0.52);
+  background: rgba(238, 29, 82, 0.08);
+  transform: translateY(-1px);
+}
+
+.tour-calendar-day.is-selected {
+  border-color: rgba(238, 29, 82, 0.66);
+  background: rgba(238, 29, 82, 0.15);
+}
+
+.tour-calendar-day.is-unavailable {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tour-calendar-day:disabled {
+  cursor: not-allowed;
+}
+
+.tour-calendar-day-number {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tour-calendar-day-meta {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tour-calendar-empty-note {
+  margin-top: 0.7rem;
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+.tour-time-drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(390px, 100%);
+  height: 100%;
+  padding: 0.85rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(16, 15, 19, 0.98), rgba(10, 10, 12, 0.96));
+  transform: translateX(-104%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+}
+
+.tour-time-drawer.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tour-time-drawer-header {
+  margin-bottom: 0.75rem;
+}
+
+.tour-time-drawer-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.tour-time-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.tour-time-option {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  min-height: 52px;
+  padding: 0.6rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+}
+
+.tour-time-option:not(:disabled):hover {
+  border-color: rgba(238, 29, 82, 0.52);
+  background: rgba(238, 29, 82, 0.11);
+  transform: translateY(-1px);
+}
+
+.tour-time-option.is-selected {
+  border-color: rgba(238, 29, 82, 0.66);
+  background: rgba(238, 29, 82, 0.18);
+}
+
+.tour-time-option:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.tour-time-reason {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tour-selection-row {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.tour-selection-chip {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.52rem 0.65rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.tour-right-column {
+  display: grid;
+  gap: 1rem;
+}
+
+.tour-summary-card {
+  border: 1px solid rgba(238, 29, 82, 0.3);
+  border-radius: 18px;
+  background: rgba(17, 16, 18, 0.93);
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  position: sticky;
+  top: 6.8rem;
+}
+
+.tour-summary-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.tour-summary-row {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 0.2rem;
+}
+
+.tour-summary-label {
+  font-size: 0.67rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tour-summary-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.tour-summary-note {
+  font-size: 0.87rem;
+  color: var(--text-secondary);
+}
+
+.tour-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tour-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tour-field-full {
+  grid-column: 1 / -1;
+}
+
+.tour-field-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tour-details-actions {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.tour-secondary-link {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 0.84rem;
+}
+
+.tour-secondary-link:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 1080px) {
+  .tour-step-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tour-flow-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-summary-card {
+    position: static;
+  }
+}
+
+@media (max-width: 840px) {
+  .tour-selection-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-selection-row .btn {
+    width: 100%;
+  }
+
+  .tour-time-drawer {
+    width: 100%;
+  }
+
+  .tour-time-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .tour-page {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .tour-flow-shell {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .tour-step-strip,
+  .tour-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-calendar-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .tour-calendar-toolbar .btn {
+    width: 100%;
+  }
+
+  .tour-interaction-stage {
+    min-height: 336px;
+  }
+
+  .tour-calendar-surface {
+    padding: 0.65rem;
+  }
+
+  .tour-calendar-day {
+    min-height: 58px;
+  }
+
+  .tour-interaction-stage.show-time .tour-calendar-surface {
+    transform: translateX(0);
+    opacity: 0.25;
+  }
+}
+
+/* About Page */
+.about-page {
+  min-height: 100vh;
+  padding-top: 6.2rem;
+  padding-bottom: 4.5rem;
+  background: radial-gradient(circle at 10% 0%, rgba(238, 29, 82, 0.08), transparent 35%);
+  --about-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-page-container {
+  max-width: 1180px;
+  display: grid;
+  gap: 1.55rem;
+}
+
+.about-page [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  filter: blur(0.8px);
+  transition:
+    opacity 0.5s var(--about-ease),
+    transform 0.58s var(--about-ease),
+    filter 0.42s ease;
+  transition-delay: calc(var(--about-reveal-delay, 0ms));
+  will-change: transform, opacity;
+}
+
+.about-page [data-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.about-hero {
+  margin-top: 24px;
+  border: 1px solid rgba(238, 29, 82, 0.25);
+  border-radius: 28px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    linear-gradient(180deg, rgba(17, 16, 18, 0.94), rgba(10, 10, 12, 0.98));
+  padding: 2.1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.about-hero-copy {
+  display: grid;
+  gap: 1rem;
+}
+
+.about-hero-copy .heading-lg {
+  font-size: clamp(2.3rem, 4vw, 3.2rem);
+  line-height: 1.15;
+}
+
+.about-hero-lead {
+  max-width: 62ch;
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.about-hero-actions,
+.about-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.about-hero-actions .btn,
+.about-cta-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  transition:
+    transform 0.24s var(--about-ease),
+    box-shadow 0.24s var(--about-ease),
+    border-color 0.24s var(--about-ease),
+    background-color 0.24s var(--about-ease);
+}
+
+.about-hero-actions .btn:hover,
+.about-cta-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.about-hero-support-links {
+  margin-top: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+}
+
+.about-inline-support-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.about-inline-support-link:hover {
+  color: var(--primary);
+}
+
+.about-hero-side {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.about-hero-side-title,
+.about-mini-kicker {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.about-hero-side-list,
+.about-check-list {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.about-hero-side-list li,
+.about-check-list li,
+.about-location-point,
+.about-trust-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.about-section {
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 24px;
+  background: rgba(12, 12, 14, 0.72);
+  padding: 1.65rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.about-section-soft {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.about-section-contrast {
+  background: rgba(8, 9, 11, 0.82);
+}
+
+.about-section-heading {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.about-section-heading .heading-md {
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+}
+
+.about-copy-stack {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.about-copy-max {
+  max-width: 65ch;
+}
+
+.about-positioning-layout,
+.about-location-layout,
+.about-trust-layout,
+.about-standards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.about-positioning-card,
+.about-location-card,
+.about-trust-anchor,
+.about-standards-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.5rem;
+  transition:
+    transform 0.26s var(--about-ease),
+    border-color 0.26s var(--about-ease),
+    background-color 0.26s var(--about-ease),
+    box-shadow 0.26s var(--about-ease);
+}
+
+.about-positioning-card:hover,
+.about-location-card:hover,
+.about-trust-anchor:hover,
+.about-standards-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(238, 29, 82, 0.28);
+  background: rgba(255, 255, 255, 0.042);
+  box-shadow: 0 10px 26px -18px rgba(238, 29, 82, 0.35);
+}
+
+.about-positioning-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.about-persona-grid,
+.about-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.about-persona-card,
+.about-feature-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.45rem;
+  transition:
+    transform 0.24s var(--about-ease),
+    border-color 0.24s var(--about-ease),
+    background-color 0.24s var(--about-ease),
+    box-shadow 0.24s var(--about-ease);
+}
+
+.about-persona-card:hover,
+.about-feature-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(238, 29, 82, 0.34);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 12px 30px -22px rgba(238, 29, 82, 0.5);
+}
+
+.about-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  border: 1px solid rgba(238, 29, 82, 0.5);
+  background: rgba(238, 29, 82, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: transform 0.24s var(--about-ease), background-color 0.24s var(--about-ease);
+}
+
+.about-persona-card:hover .about-card-icon,
+.about-feature-card:hover .about-card-icon {
+  transform: translateY(-1px);
+  background: rgba(238, 29, 82, 0.18);
+}
+
+.about-persona-card h3,
+.about-feature-card h3,
+.about-trust-anchor h3,
+.about-location-card h3 {
+  font-size: 1.08rem;
+}
+
+.about-persona-card p,
+.about-feature-card p,
+.about-trust-anchor p,
+.about-location-card p {
+  font-size: 0.92rem;
+}
+
+.about-journey-track {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.about-journey-step {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.45rem;
+  transition:
+    transform 0.24s var(--about-ease),
+    border-color 0.24s var(--about-ease),
+    background-color 0.24s var(--about-ease);
+}
+
+.about-journey-step:hover {
+  transform: translateY(-2px);
+  border-color: rgba(238, 29, 82, 0.34);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.about-step-chip {
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(238, 29, 82, 0.6);
+  background: rgba(238, 29, 82, 0.16);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.24s var(--about-ease), background-color 0.24s var(--about-ease);
+}
+
+.about-journey-step:hover .about-step-chip {
+  transform: scale(1.05);
+  background: rgba(238, 29, 82, 0.22);
+}
+
+.about-step-title {
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.about-trust-grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.about-trust-item {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.7rem;
+  transition:
+    transform 0.24s var(--about-ease),
+    border-color 0.24s var(--about-ease),
+    background-color 0.24s var(--about-ease);
+}
+
+.about-trust-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(238, 29, 82, 0.34);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.about-location-points {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.about-location-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.about-location-tags span {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.about-standards-card .about-check-list {
+  gap: 0.45rem;
+}
+
+.about-inquiry-layout {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.about-support-note {
+  font-size: 0.86rem;
+}
+
+.about-final-cta {
+  border: 1px solid rgba(238, 29, 82, 0.36);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 90% 50%, rgba(238, 29, 82, 0.16), transparent 46%),
+    rgba(238, 29, 82, 0.07);
+  padding: 1.75rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (max-width: 1040px) {
+  .about-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .about-positioning-layout,
+  .about-location-layout,
+  .about-trust-layout,
+  .about-standards-grid,
+  .about-persona-grid,
+  .about-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-journey-track {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .about-page {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+
+  .about-page-container {
+    gap: 1rem;
+  }
+
+  .about-page [data-reveal] {
+    transform: translate3d(0, 8px, 0);
+    transition-duration: 0.36s;
+  }
+
+  .about-hero,
+  .about-section,
+  .about-final-cta {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .about-hero-copy .heading-lg {
+    font-size: clamp(1.85rem, 9vw, 2.5rem);
+  }
+
+  .about-hero-lead {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .about-journey-track {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero-actions .btn,
+  .about-cta-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .about-hero-support-links {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-page [data-reveal],
+  .about-page [data-reveal].is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  .about-hero-actions .btn,
+  .about-cta-actions .btn,
+  .about-persona-card,
+  .about-feature-card,
+  .about-journey-step,
+  .about-trust-item,
+  .about-positioning-card,
+  .about-location-card,
+  .about-trust-anchor,
+  .about-standards-card,
+  .about-card-icon,
+  .about-step-chip {
+    transition: none !important;
+    transform: none !important;
   }
 }

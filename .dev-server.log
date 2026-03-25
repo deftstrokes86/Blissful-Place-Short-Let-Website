@@ -477,3 +477,76 @@ Import trace for requested module:
  GET / 200 in 275ms (compile: 74ms, render: 202ms)
  GET /property 200 in 67ms (compile: 6ms, render: 61ms)
  GET / 200 in 75ms (compile: 6ms, render: 69ms)
+
+> blissful-place-residences@0.1.0 dev
+> next dev --webpack
+
+Error: spawn EPERM
+    at ChildProcess.spawn (node:internal/child_process:440:11)
+    at spawn (node:child_process:796:9)
+    at fork (node:child_process:174:10)
+    at E:\Blissful_Place - Copy\node_modules\next\dist\cli\next-dev.js:243:45
+    at new Promise (<anonymous>)
+    at startServer (E:\Blissful_Place - Copy\node_modules\next\dist\cli\next-dev.js:212:16)
+    at runDevServer (E:\Blissful_Place - Copy\node_modules\next\dist\cli\next-dev.js:334:23)
+    at Module.nextDev (E:\Blissful_Place - Copy\node_modules\next\dist\cli\next-dev.js:342:11) {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'spawn'
+}
+
+> blissful-place-residences@0.1.0 dev
+> next dev --webpack
+
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://10.167.130.180:3000
+
+✓ Starting...
+✓ Ready in 5.4s
+○ Compiling / ...
+ GET / 200 in 5.3s (compile: 4.7s, render: 594ms)
+ GET /property 200 in 1010ms (compile: 906ms, render: 104ms)
+ GET / 200 in 85ms (compile: 8ms, render: 76ms)
+ GET /book 200 in 1140ms (compile: 1077ms, render: 63ms)
+ GET /api/availability/calendar?flatId=kensington&year=2026&month=3 200 in 824ms (compile: 791ms, render: 33ms)
+ GET /api/availability/calendar?flatId=kensington&year=2026&month=3 200 in 10ms (compile: 4ms, render: 7ms)
+ GET /api/availability/calendar?flatId=kensington&year=2026&month=3 200 in 15ms (compile: 5ms, render: 10ms)
+ POST /api/availability/check 200 in 715ms (compile: 696ms, render: 19ms)
+ POST /api/reservations/drafts 201 in 499ms (compile: 472ms, render: 27ms)
+ PATCH /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605 200 in 944ms (compile: 923ms, render: 21ms)
+ PATCH /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605 200 in 28ms (compile: 15ms, render: 13ms)
+ POST /api/availability/check 200 in 17ms (compile: 5ms, render: 12ms)
+ PATCH /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605 200 in 31ms (compile: 10ms, render: 21ms)
+ POST /api/availability/check 200 in 17ms (compile: 4ms, render: 13ms)
+ PATCH /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605 200 in 28ms (compile: 12ms, render: 16ms)
+ POST /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605/revalidate 200 in 927ms (compile: 911ms, render: 16ms)
+ PATCH /api/reservations/drafts/6e15b59e-b010-4d1f-afa1-9e77fece5605 200 in 29ms (compile: 11ms, render: 17ms)
+ POST /api/payments/website/checkout 500 in 503ms (compile: 495ms, render: 8ms)
+ GET / 200 in 153ms (compile: 46ms, render: 107ms)
+ GET / 200 in 65ms (compile: 3ms, render: 61ms)
+ GET /tour 200 in 634ms (compile: 600ms, render: 34ms)
+ GET /tour 200 in 142ms (compile: 9ms, render: 134ms)
+ GET /api/tour/schedule?days=14 200 in 1072ms (compile: 985ms, render: 87ms)
+ GET /tour 200 in 2.5s (compile: 2.4s, render: 91ms)
+ GET /tour 200 in 49ms (compile: 6ms, render: 43ms)
+ GET /tour 200 in 47ms (compile: 3ms, render: 44ms)
+⨯ ./src/server/tour/tour-slot-service.ts
+Error:   x Expected ';', '}' or <eof>
+   ,-[E:\Blissful_Place - Copy\src\server\tour\tour-slot-service.ts:1:1]
+ 1 | import { randomUUID } from "node:crypto";`r`nimport type { ISODateString } from "../../types/booking";
+   :                                          ^|^^^^^^^^
+   :                                           `-- This is the expression part of an expression statement
+ 2 | import type { TourAppointmentRecord } from "../../types/booking-backend";
+ 3 | 
+ 4 | const LAGOS_TIMEZONE = "Africa/Lagos";
+   `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/server/tour/tour-slot-service.ts
+./src/server/tour/tour-slot-service-factory.ts
+./src/app/api/tour/schedule/route.ts
+ GET /tour 500 in 1425ms

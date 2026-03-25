@@ -4,23 +4,34 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { BrandLogo } from "@/components/common/BrandLogo";
-import { Menu, X } from "@/lib/lucide-react";
+import { ChevronDown, Menu, X } from "@/lib/lucide-react";
 import { SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
+
+interface NavChildItem {
+  href: string;
+  label: string;
+}
 
 interface NavItem {
   href: string;
   label: string;
+  children?: readonly NavChildItem[];
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
   { href: "/", label: "Home" },
   { href: "/property", label: "Flats" },
-  { href: "/book", label: "Booking" },
-  { href: "/#promise", label: "About" },
+  {
+    href: "/book",
+    label: "Booking",
+    children: [
+      { href: "/availability", label: "Availability" },
+      { href: "/tour", label: "Private Tour" },
+    ],
+  },
+  { href: "/about", label: "About" },
   { href: "/#residences", label: "Location" },
   { href: "/guide", label: "Guest Guide" },
-  { href: "/availability", label: "Availability" },
-  { href: "/tour", label: "Private Tour" },
   { href: "/#contact", label: "Contact" },
 ];
 
@@ -79,11 +90,27 @@ export function SiteHeader({
         </div>
 
         <div className="nav-links hide-on-mobile">
-          {NAV_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.children ? (
+              <div key={item.href} className="nav-item-with-menu">
+                <Link href={item.href} className="nav-parent-link">
+                  {item.label}
+                </Link>
+                <ChevronDown size={14} className="nav-dropdown-icon" aria-hidden />
+                <div className="nav-submenu" role="menu" aria-label={`${item.label} submenu`}>
+                  {item.children.map((child) => (
+                    <Link key={child.href} href={child.href} role="menuitem">
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link key={item.href} href={item.href}>
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
 
         <div className="nav-actions hide-on-mobile">
@@ -111,11 +138,27 @@ export function SiteHeader({
 
         <div className={`mobile-nav ${isMobileMenuOpen ? "open" : ""}`}>
           <div className="mobile-nav-links">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
-                {item.label}
-              </Link>
-            ))}
+            {NAV_ITEMS.map((item) =>
+              item.children ? (
+                <div key={item.href} className="mobile-nav-group">
+                  <Link href={item.href} className="mobile-nav-parent" onClick={() => setIsMobileMenuOpen(false)}>
+                    {item.label}
+                    <ChevronDown size={16} aria-hidden />
+                  </Link>
+                  <div className="mobile-nav-submenu">
+                    {item.children.map((child) => (
+                      <Link key={child.href} href={child.href} onClick={() => setIsMobileMenuOpen(false)}>
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
           <div className="mobile-nav-actions">
             <a
