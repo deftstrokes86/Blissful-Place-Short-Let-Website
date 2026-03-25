@@ -46,6 +46,12 @@ import {
   type DraftReservationSnapshot,
 } from "@/lib/booking-frontend-api";
 import { deriveResumeStepIndex } from "@/lib/booking-draft-resume";
+import {
+  applyFlatPreselectionToStay,
+  deriveFlatSelectionContextNote,
+  resolveBookingFlatPreselection,
+  type BookingFlatPreselectionSource,
+} from "@/lib/booking-flat-preselection";
 import { deriveBookingResumeUxState } from "@/lib/booking-resume-ux";
 import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
 import {
@@ -209,6 +215,8 @@ export default function BookingPage() {
   const [isResumingDraft, setIsResumingDraft] = useState(false);
   const [showDraftRestoredNotice, setShowDraftRestoredNotice] = useState(false);
   const [staleAvailabilityRecoveryNotice, setStaleAvailabilityRecoveryNotice] = useState<string | null>(null);
+  const [flatPreselectionSource, setFlatPreselectionSource] = useState<BookingFlatPreselectionSource>("none");
+  const [urlRequestedFlatParam, setUrlRequestedFlatParam] = useState<string | null>(null);
 
   // Prevent duplicate prototype submissions when branch actions are triggered quickly.
   const branchActionLockRef = useRef(false);
@@ -249,6 +257,16 @@ export default function BookingPage() {
         guests: stay.guests,
       }),
     [selectedFlat?.name, nights, stay.guests],
+  );
+
+  const flatSelectionContextNote = useMemo(
+    () =>
+      deriveFlatSelectionContextNote({
+        urlFlatParam: urlRequestedFlatParam,
+        preselectionSource: flatPreselectionSource,
+        activeFlatId: stay.flatId,
+      }),
+    [urlRequestedFlatParam, flatPreselectionSource, stay.flatId],
   );
 
   const blockedDateSelectionWarning = useMemo(() => {
@@ -406,16 +424,30 @@ export default function BookingPage() {
       }
 
       let resumeToken: string | null = null;
+      let urlFlatParam: string | null = null;
       try {
-        const queryToken = new URLSearchParams(window.location.search).get("draft");
+        const searchParams = new URLSearchParams(window.location.search);
+        const queryToken = searchParams.get("draft");
+        urlFlatParam = searchParams.get("flat");
         const storedToken = window.localStorage.getItem(DRAFT_TOKEN_STORAGE_KEY);
         resumeToken = queryToken ?? storedToken;
       } catch {
         resumeToken = null;
+        urlFlatParam = null;
+      }
+
+      if (active) {
+        setUrlRequestedFlatParam(urlFlatParam);
       }
 
       if (!resumeToken) {
         if (active) {
+          const preselection = resolveBookingFlatPreselection({
+            resumedDraftFlatId: null,
+            urlFlatParam,
+          });
+          setStay((current) => applyFlatPreselectionToStay(current, preselection.flatId));
+          setFlatPreselectionSource(preselection.source);
           setIsResumingDraft(false);
           setIsHydratingDraft(false);
         }
@@ -470,6 +502,7 @@ export default function BookingPage() {
         setAvailabilityNote(getResumeAvailabilityNotice(snapshot));
         setShowDraftRestoredNotice(true);
         setFlowNotice(null);
+        setFlatPreselectionSource(restoredStay.flatId ? "draft" : "none");
       } catch (error) {
         if (!active) {
           return;
@@ -481,6 +514,12 @@ export default function BookingPage() {
           // Ignore storage errors.
         }
 
+        const preselection = resolveBookingFlatPreselection({
+          resumedDraftFlatId: null,
+          urlFlatParam,
+        });
+        setStay((current) => applyFlatPreselectionToStay(current, preselection.flatId));
+        setFlatPreselectionSource(preselection.source);
         setDraftToken(null);
         setFlowNotice(
           `Saved draft could not be restored: ${getRequestErrorMessage(error)}`
@@ -1308,6 +1347,7 @@ export default function BookingPage() {
                 onSelectFlat={(flatId) => {
                   handleStayChange("flatId", flatId);
                   markStayTouched("flatId");
+                  setFlatPreselectionSource("none");
                 }}
                 onCheckInChange={(value) => handleStayChange("checkIn", value)}
                 onCheckOutChange={(value) => handleStayChange("checkOut", value)}
@@ -1325,6 +1365,7 @@ export default function BookingPage() {
                 blockedDateSelectionWarning={blockedDateSelectionWarning}
                 blockedDateError={blockedDatesError}
                 isLoadingBlockedDates={isLoadingBlockedDates}
+                flatSelectionContextNote={flatSelectionContextNote}
               />
             )}
 
@@ -1423,12 +1464,3 @@ export default function BookingPage() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-

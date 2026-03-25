@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Calendar, User } from "@/lib/lucide-react";
+import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { SITE_LOCATION_LABEL } from "@/lib/site-config";
 
 export function HomeHeroSection() {
@@ -54,7 +55,7 @@ export function HomeHeroSection() {
               </select>
             </div>
           </div>
-          <Link href="/book" className="btn btn-primary booking-cta" style={{ padding: "1.25rem 2rem" }}>
+          <Link href={buildBookingHref()} className="btn btn-primary booking-cta" style={{ padding: "1.25rem 2rem" }}>
             Check Availability
           </Link>
         </div>

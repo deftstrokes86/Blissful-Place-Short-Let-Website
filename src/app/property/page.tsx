@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PageIntro } from "@/components/common/PageIntro";
 import { FLATS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/booking-utils";
+import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { SITE_CITY_NAME, SITE_DISTRICT_NAME } from "@/lib/site-config";
 import { Bath, BedDouble, Car, Check, CheckCircle2, Shield, Users, Wifi, Zap } from "@/lib/lucide-react";
 
@@ -138,7 +139,7 @@ export default function PropertyPage() {
               Guaranteed lowest rate when booking direct. Excellent availability for this month.
             </p>
 
-            <Link href="/book" className="btn btn-primary btn-full" style={{ padding: "1.25rem", fontSize: "1.1rem", display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <Link href={buildBookingHref("mayfair")} className="btn btn-primary btn-full" style={{ padding: "1.25rem", fontSize: "1.1rem", display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
               Check Dates & Secure Booking
             </Link>
 
@@ -177,8 +178,3 @@ export default function PropertyPage() {
     </main>
   );
 }
-
-
-
-
-

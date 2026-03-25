@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PageIntro } from "@/components/common/PageIntro";
 import { formatCurrency } from "@/lib/booking-utils";
 import { fetchCalendarMonthAvailability, type CalendarBlockedSpanResponse } from "@/lib/booking-frontend-api";
+import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { FLATS } from "@/lib/constants";
 import type { FlatId } from "@/types/booking";
 
@@ -404,7 +405,7 @@ export default function Availability() {
 
           <div style={{ display: "grid", gap: "0.65rem", justifyItems: "end" }}>
             <Link
-              href="/book"
+              href={buildBookingHref(selectedFlat)}
               className="btn btn-primary"
               style={{ opacity: selectedDates.length === 0 ? 0.5 : 1, pointerEvents: selectedDates.length === 0 ? "none" : "auto" }}
             >
