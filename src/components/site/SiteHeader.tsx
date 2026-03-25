@@ -30,9 +30,8 @@ const NAV_ITEMS: readonly NavItem[] = [
     ],
   },
   { href: "/about", label: "About" },
-  { href: "/#residences", label: "Location" },
   { href: "/guide", label: "Guest Guide" },
-  { href: "/#contact", label: "Contact" },
+  { href: "/contact", label: "Contact" },
 ];
 
 interface SiteHeaderProps {
@@ -184,3 +183,5 @@ export function SiteHeader({
     </>
   );
 }
+
+
