@@ -440,6 +440,7 @@ export default function BookingPage() {
         setUrlRequestedFlatParam(urlFlatParam);
       }
 
+      // URL flat preselection applies only when no draft context is being restored.
       if (!resumeToken) {
         if (active) {
           const preselection = resolveBookingFlatPreselection({
@@ -502,6 +503,7 @@ export default function BookingPage() {
         setAvailabilityNote(getResumeAvailabilityNotice(snapshot));
         setShowDraftRestoredNotice(true);
         setFlowNotice(null);
+        // A restored draft is the source of truth for selected residence.
         setFlatPreselectionSource(restoredStay.flatId ? "draft" : "none");
       } catch (error) {
         if (!active) {

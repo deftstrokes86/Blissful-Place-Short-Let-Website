@@ -91,6 +91,49 @@
       "createdAt": "2026-03-24T23:02:38.130Z",
       "updatedAt": "2026-03-24T23:04:08.812Z",
       "lastTouchedAt": "2026-03-24T23:04:08.812Z"
+    },
+    {
+      "id": "res_8a1da091-a384-47cb-9b43-98e411410aa5",
+      "token": "f592e0de-828f-4a2e-9389-e2fca9a99d01",
+      "status": "draft",
+      "paymentMethod": null,
+      "stay": {
+        "flatId": "windsor",
+        "checkIn": "2026-03-26",
+        "checkOut": "2026-03-28",
+        "guests": 4,
+        "extraIds": [
+          "pantry"
+        ]
+      },
+      "guest": {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "phone": "",
+        "specialRequests": ""
+      },
+      "pricing": {
+        "currency": "NGN",
+        "nightlyRate": 150000,
+        "nights": 2,
+        "staySubtotal": 300000,
+        "extrasSubtotal": 45000,
+        "estimatedTotal": 345000
+      },
+      "progressContext": {
+        "currentStep": 1,
+        "activeBranch": null
+      },
+      "transferHoldStartedAt": null,
+      "transferHoldExpiresAt": null,
+      "inventoryReopenedAt": null,
+      "lastAvailabilityResult": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "createdAt": "2026-03-25T23:35:33.474Z",
+      "updatedAt": "2026-03-25T23:35:33.474Z",
+      "lastTouchedAt": "2026-03-25T23:35:33.474Z"
     }
   ],
   "availabilityBlocks": [],
@@ -104,6 +147,7 @@
   "inventoryAlerts": [],
   "maintenanceIssues": [],
   "workerTasks": [],
+  "tourAppointments": [],
   "paymentAttempts": [],
   "transferVerifications": [],
   "posCoordinations": [],
