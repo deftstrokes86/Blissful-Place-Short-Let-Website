@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { blogCollectionReadAccess, blogManageAccess } from "@/cms/access-controls";
+import { blogCollectionReadAccess, blogManageAccess } from "../access-controls";
 
 export const BlogCategoriesCollection: CollectionConfig = {
   slug: "blog-categories",

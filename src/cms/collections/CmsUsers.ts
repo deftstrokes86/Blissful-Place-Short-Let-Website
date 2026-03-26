@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { cmsAdminOnlyAccess } from "@/cms/access-controls";
+import { cmsAdminOnlyAccess } from "../access-controls";
 
 export const CmsUsersCollection: CollectionConfig = {
   slug: "cms-users",

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { inventoryReadAccess } from "@/cms/access-controls";
+import { inventoryReadAccess } from "../access-controls";
 
 export const CmsInventoryAlertsCollection: CollectionConfig = {
   slug: "cms-inventory-alerts",

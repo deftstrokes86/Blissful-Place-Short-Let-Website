@@ -22,15 +22,24 @@ function normalizeSearchParams(
   return normalized;
 }
 
+function normalizeCmsSegments(segments: string[] | undefined): string[] | undefined {
+  if (!Array.isArray(segments) || segments.length === 0) {
+    return undefined;
+  }
+
+  return segments;
+}
+
 export default async function CmsPage({ params, searchParams }: CmsPageProps) {
   const resolvedParams = await params;
   const resolvedSearchParams = normalizeSearchParams(await searchParams);
+  const normalizedSegments = normalizeCmsSegments(resolvedParams.segments);
 
   return RootPage({
     config: Promise.resolve(payloadConfig),
     importMap: cmsImportMap,
     params: Promise.resolve({
-      segments: resolvedParams.segments ?? [],
+      segments: normalizedSegments as string[],
     }),
     searchParams: Promise.resolve(resolvedSearchParams),
   });

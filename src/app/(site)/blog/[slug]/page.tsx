@@ -81,8 +81,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <h1 className="serif blog-post-title">{post.title}</h1>
           <p className="blog-post-meta">
             {formatPublishedDate(post.publishedAt)}
-            {post.categories[0] ? ` • ${post.categories[0].title}` : ""}
-            {post.authorName ? ` • By ${post.authorName}` : ""}
+            {post.categories[0] ? ` ï¿½ ${post.categories[0].title}` : ""}
+            {post.authorName ? ` ï¿½ By ${post.authorName}` : ""}
           </p>
           {intro ? <p className="blog-description">{intro}</p> : null}
         </header>

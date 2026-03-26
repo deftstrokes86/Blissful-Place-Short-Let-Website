@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cmsAdminOnlyAccess = exports.inventoryManageAccess = exports.inventoryReadAccess = exports.blogDraftWriteAccess = exports.blogCreateAccess = exports.blogManageAccess = exports.blogCollectionReadAccess = exports.blogReadAccess = void 0;
-const cms_access_1 = require("@/server/cms/cms-access");
+exports.cmsAdminOnlyAccess = exports.inventoryManageAccess = exports.inventoryReadAccess = exports.blogDraftWriteAccess = exports.blogCreateAccess = exports.blogManageAccess = exports.blogMediaPublicReadAccess = exports.blogCollectionReadAccess = exports.blogReadAccess = void 0;
+const cms_access_1 = require("../server/cms/cms-access");
 function getAccessContext(args) {
     var _a;
     const user = (_a = args === null || args === void 0 ? void 0 : args.req) === null || _a === void 0 ? void 0 : _a.user;
@@ -9,6 +9,32 @@ function getAccessContext(args) {
         role: (0, cms_access_1.getCmsRoleFromRequestUser)(user),
         userId: (0, cms_access_1.getCmsUserIdFromRequestUser)(user),
     };
+}
+function toRoutePath(value) {
+    if (typeof value === "string") {
+        return value;
+    }
+    if (value && typeof value === "object") {
+        const record = value;
+        const nestedPath = record.path;
+        if (typeof nestedPath === "string") {
+            return nestedPath;
+        }
+    }
+    return "";
+}
+function isPublicBlogMediaFileRequest(args) {
+    const request = args === null || args === void 0 ? void 0 : args.req;
+    if (!request) {
+        return false;
+    }
+    const candidates = [
+        toRoutePath(request.url),
+        toRoutePath(request.originalUrl),
+        toRoutePath(request.path),
+        toRoutePath(request.route),
+    ];
+    return candidates.some((candidate) => candidate.includes("/blog-media/file/"));
 }
 const blogReadAccess = (args) => {
     const { role, userId } = getAccessContext(args);
@@ -20,6 +46,14 @@ const blogCollectionReadAccess = (args) => {
     return (0, cms_access_1.canReadBlogCollections)(role);
 };
 exports.blogCollectionReadAccess = blogCollectionReadAccess;
+const blogMediaPublicReadAccess = (args) => {
+    if (isPublicBlogMediaFileRequest(args)) {
+        return true;
+    }
+    const { role } = getAccessContext(args);
+    return (0, cms_access_1.canReadBlogCollections)(role);
+};
+exports.blogMediaPublicReadAccess = blogMediaPublicReadAccess;
 const blogManageAccess = (args) => {
     const { role } = getAccessContext(args);
     return (0, cms_access_1.canManageBlog)(role);

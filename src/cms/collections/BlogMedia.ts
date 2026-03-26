@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { blogCollectionReadAccess, blogManageAccess } from "@/cms/access-controls";
+import { blogManageAccess, blogMediaPublicReadAccess } from "../access-controls";
 
 export const BlogMediaCollection: CollectionConfig = {
   slug: "blog-media",
@@ -8,7 +8,7 @@ export const BlogMediaCollection: CollectionConfig = {
     useAsTitle: "alt",
   },
   access: {
-    read: blogCollectionReadAccess,
+    read: blogMediaPublicReadAccess,
     create: blogManageAccess,
     update: blogManageAccess,
     delete: blogManageAccess,

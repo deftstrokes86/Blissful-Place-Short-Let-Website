@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  mapPublicBlogPostDetail,
+  mapPublicBlogPostSummary,
+} from "../blog-public-mappers";
+import {
   buildPublishedBlogDetailQuery,
   buildPublishedBlogListQuery,
   normalizePublicBlogSlugInput,
@@ -81,12 +85,74 @@ async function testSlugNormalizationAndInvalidHandling(): Promise<void> {
   assert.equal(buildPublishedBlogDetailQuery("   "), null);
 }
 
+async function testPublicMapperSupportsNumericCmsIds(): Promise<void> {
+  const summary = mapPublicBlogPostSummary({
+    id: 42,
+    title: "Published Post",
+    slug: "published-post",
+    excerpt: "Short summary",
+    publishedAt: "2026-03-26T19:00:00.000Z",
+    categories: [
+      {
+        id: 10,
+        title: "Guides",
+        slug: "guides",
+      },
+    ],
+    author: {
+      id: 8,
+      name: "Editorial Team",
+    },
+    featuredImage: {
+      id: 7,
+      url: "/media/post.jpg",
+      alt: "Post image",
+    },
+  });
+
+  assert.ok(summary);
+  if (!summary) {
+    throw new Error("Expected mapped summary for numeric CMS ids");
+  }
+
+  assert.equal(summary.id, "42");
+  assert.equal(summary.categories[0]?.id, "10");
+  assert.equal(summary.authorName, "Editorial Team");
+
+  const detail = mapPublicBlogPostDetail({
+    ...summary,
+    content: {
+      root: {
+        children: [],
+      },
+    },
+    metaTitle: "Meta",
+    metaDescription: "Description",
+    ogImage: {
+      id: 11,
+      url: "/media/og.jpg",
+      alt: "OG",
+    },
+  });
+
+  assert.ok(detail);
+}
+
 async function testPublicBlogServiceUsesExplicitPublishedServerQuery(): Promise<void> {
   const source = readSource("src/server/cms/blog-content-service.ts");
 
   assert.ok(source.includes("overrideAccess: true"));
   assert.ok(source.includes("buildPublishedBlogListQuery"));
   assert.ok(source.includes("buildPublishedBlogDetailQuery"));
+}
+
+async function testBlogIndexEditorialLayoutStructure(): Promise<void> {
+  const source = readSource("src/app/(site)/blog/page.tsx");
+
+  assert.ok(source.includes("const [featuredPost, ...remainingPosts] = posts"));
+  assert.ok(source.includes("className=\"blog-featured\""));
+  assert.ok(source.includes("className=\"blog-category-row\""));
+  assert.ok(source.includes("className=\"blog-post-grid\""));
 }
 
 async function testMetadataAndContentHelpers(): Promise<void> {
@@ -153,7 +219,9 @@ async function testMetadataAndContentHelpers(): Promise<void> {
 async function run(): Promise<void> {
   await testPublishedOnlyQueryBehavior();
   await testSlugNormalizationAndInvalidHandling();
+  await testPublicMapperSupportsNumericCmsIds();
   await testPublicBlogServiceUsesExplicitPublishedServerQuery();
+  await testBlogIndexEditorialLayoutStructure();
   await testMetadataAndContentHelpers();
 
   console.log("blog-public-routes: ok");

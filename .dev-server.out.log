@@ -1,0 +1,96 @@
+
+> blissful-place-residences@0.1.0 dev
+> next dev --webpack
+
+▲ Next.js 16.1.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://10.245.195.180:3000
+
+✓ Starting...
+✓ Ready in 3.2s
+○ Compiling /cms/[[...segments]] ...
+[20:25:12] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /cms/collections/blog-posts/1 200 in 249ms (compile: 47ms, render: 202ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 18.3s (compile: 13.1s, render: 5.2s)
+ GET /cms/api/cms-users/me 200 in 7.3s (compile: 7.2s, render: 38ms)
+Generating import map
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1388ms (compile: 311ms, render: 1077ms)
+Generating import map
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 837ms (compile: 62ms, render: 775ms)
+ GET /cms/collections/blog-posts/1 200 in 954ms (compile: 13ms, render: 941ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 515ms (compile: 7ms, render: 508ms)
+ GET /cms/api/payload-preferences/collection-blog-posts-1 200 in 2.5s (compile: 2.5s, render: 68ms)
+ GET /cms/api/cms-users/me 200 in 2.6s (compile: 2.5s, render: 159ms)
+ POST /cms/api/blog-categories 200 in 2.3s (compile: 2.1s, render: 184ms)
+ POST /cms/api/blog-media 200 in 2.7s (compile: 2.5s, render: 185ms)
+Generating import map
+ POST /cms/api/blog-tags 200 in 282ms (compile: 67ms, render: 214ms)
+ POST /cms/api/cms-users 200 in 281ms (compile: 66ms, render: 215ms)
+ POST /cms/api/blog-media 200 in 199ms (compile: 151ms, render: 48ms)
+ POST /cms/api/blog-media 200 in 248ms (compile: 150ms, render: 98ms)
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 200 in 241ms (compile: 6ms, render: 235ms)
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg.png 200 in 157ms (compile: 9ms, render: 148ms)
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png?2026-03-26T18%3A57%3A43.976Z 200 in 179ms (compile: 9ms, render: 170ms)
+ GET /cms/collections/blog-posts/1 200 in 1905ms (compile: 384ms, render: 1521ms)
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg.png?2026-03-26T18%3A44%3A42.635Z 200 in 124ms (compile: 10ms, render: 114ms)
+ GET /cms/api/cms-users/me 200 in 17ms (compile: 4ms, render: 13ms)
+ POST /cms/collections/blog-posts/1 200 in 751ms (compile: 18ms, render: 733ms)
+ POST /cms/collections/blog-posts/1 200 in 65ms (compile: 14ms, render: 51ms)
+ POST /cms/collections/blog-posts/1 200 in 39ms (compile: 10ms, render: 29ms)
+ POST /cms/collections/blog-posts/1 200 in 185ms (compile: 9ms, render: 176ms)
+ POST /cms/collections/blog-posts/1 200 in 24ms (compile: 4ms, render: 21ms)
+ POST /cms/collections/blog-posts/1 200 in 41ms (compile: 10ms, render: 30ms)
+ POST /cms/collections/blog-posts/1 200 in 178ms (compile: 9ms, render: 169ms)
+ POST /cms/collections/blog-posts/1 200 in 31ms (compile: 9ms, render: 23ms)
+ PATCH /cms/api/blog-posts/1?depth=0 200 in 968ms (compile: 11ms, render: 957ms)
+ POST /cms/api/blog-posts/access/1 200 in 15ms (compile: 3ms, render: 13ms)
+ POST /cms/api/blog-posts/access/1 200 in 15ms (compile: 3ms, render: 12ms)
+ POST /cms/collections/blog-posts/1 200 in 37ms (compile: 13ms, render: 24ms)
+ GET / 200 in 3.3s (compile: 2.7s, render: 518ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1615ms (compile: 31ms, render: 1584ms)
+○ Compiling /blog ...
+ GET /cms/api/cms-users/me 200 in 3.0s (compile: 2.8s, render: 197ms)
+ GET /blog 200 in 4.8s (compile: 4.4s, render: 353ms)
+Generating import map
+ GET /blog 200 in 1446ms (compile: 327ms, render: 1119ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1442ms (compile: 715ms, render: 727ms)
+[20:46:35] [32mINFO[39m: [36mYou are not allowed to perform this action.[39m
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 403 in 1699ms (compile: 1660ms, render: 40ms)
+ GET /blog 200 in 324ms (compile: 48ms, render: 276ms)
+ GET /blog 200 in 157ms (compile: 6ms, render: 151ms)
+[20:52:53] [32mINFO[39m: [36mYou are not allowed to perform this action.[39m
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 403 in 33ms (compile: 20ms, render: 14ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1490ms (compile: 39ms, render: 1451ms)
+ GET /cms/api/cms-users/me 200 in 20ms (compile: 10ms, render: 11ms)
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 6.0s (compile: 5.6s, render: 437ms)
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 141ms (compile: 14ms, render: 127ms)
+[20:53:34] [32mINFO[39m: [36mYou are not allowed to perform this action.[39m
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 403 in 68ms (compile: 51ms, render: 17ms)
+[20:55:24] [32mINFO[39m: [36mYou are not allowed to perform this action.[39m
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 403 in 21ms (compile: 12ms, render: 10ms)
+Generating import map
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1775ms (compile: 611ms, render: 1164ms)
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 1928ms (compile: 76ms, render: 1851ms)
+Generating import map
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 2.1s (compile: 1777ms, render: 302ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 2.1s (compile: 400ms, render: 1707ms)
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 318ms (compile: 15ms, render: 303ms)
+Generating import map
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 200 in 3.5s (compile: 2.3s, render: 1263ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1267ms (compile: 82ms, render: 1185ms)
+ GET /cms/collections/blog-posts?depth=1&limit=10 200 in 1062ms (compile: 6ms, render: 1056ms)
+ GET /cms/api/cms-users/me 200 in 28ms (compile: 11ms, render: 17ms)
+○ Compiling /book ...
+ GET /book 200 in 3.4s (compile: 3.3s, render: 78ms)
+ GET /cms/logout-inactivity?redirect=%2Fcms%2Fcollections%2Fblog-posts%2F1 200 in 747ms (compile: 27ms, render: 720ms)
+ GET /cms/logout-inactivity?redirect=%2Fcms%2Fcollections%2Fblog-posts 200 in 424ms (compile: 6ms, render: 418ms)
+ GET /cms/login?redirect=%2Fcms%2Fcollections%2Fblog-posts%2F1 200 in 115ms (compile: 6ms, render: 110ms)
+ GET /cms/login?redirect=%2Fcms%2Fcollections%2Fblog-posts%2F1 200 in 153ms (compile: 4ms, render: 149ms)
+ GET /cms/login?redirect=%2Fcms%2Fcollections%2Fblog-posts 200 in 88ms (compile: 11ms, render: 78ms)
+ GET /cms/login?redirect=%2Fcms%2Fcollections%2Fblog-posts 200 in 85ms (compile: 4ms, render: 81ms)
+ GET / 200 in 127ms (compile: 16ms, render: 111ms)
+ GET /blog 200 in 84ms (compile: 11ms, render: 72ms)
+ GET /cms/api/blog-media/file/short-let-in-lagos-living-room.jpg-1.png 200 in 80ms (compile: 25ms, render: 54ms)
+ GET /blog 200 in 73ms (compile: 4ms, render: 69ms)
+ GET /blog 200 in 72ms (compile: 3ms, render: 69ms)
+ GET /blog/blog-how-to-choose-the-right-short-let-in-lagos 200 in 169ms (compile: 18ms, render: 151ms)

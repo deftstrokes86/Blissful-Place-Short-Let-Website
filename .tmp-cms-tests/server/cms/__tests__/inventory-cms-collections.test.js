@@ -54,8 +54,8 @@ async function testInventoryRoleBoundaries() {
     strict_1.default.equal((0, cms_access_1.canManageInventory)("author"), false);
 }
 async function testCustomOperationalUiCoexists() {
-    strict_1.default.equal((0, node_fs_1.existsSync)((0, node_path_1.join)(process.cwd(), "src/app/admin/inventory/page.tsx")), true);
-    strict_1.default.equal((0, node_fs_1.existsSync)((0, node_path_1.join)(process.cwd(), "src/app/staff/tasks/page.tsx")), true);
+    strict_1.default.equal((0, node_fs_1.existsSync)((0, node_path_1.join)(process.cwd(), "src/app/(site)/admin/inventory/page.tsx")), true);
+    strict_1.default.equal((0, node_fs_1.existsSync)((0, node_path_1.join)(process.cwd(), "src/app/(site)/staff/tasks/page.tsx")), true);
 }
 async function run() {
     await testInventoryCollectionsFilesExist();

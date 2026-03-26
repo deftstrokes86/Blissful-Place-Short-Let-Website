@@ -5,12 +5,18 @@ import { join } from "node:path";
 import {
   coerceBlogPostStatus,
   normalizeBlogSlug,
+  resolveBlogContent,
   shouldAutoSetPublishedAt,
 } from "../blog-content-model";
 import { canManageBlog, buildBlogReadAccessConstraint, canReadBlogCollections } from "../cms-access";
+import { blogMediaPublicReadAccess } from "../../../cms/access-controls";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
+}
+
+function evaluateBlogMediaReadAccess(args: unknown): ReturnType<typeof blogMediaPublicReadAccess> {
+  return blogMediaPublicReadAccess(args as Parameters<typeof blogMediaPublicReadAccess>[0]);
 }
 
 async function testBlogPostCollectionFieldShape(): Promise<void> {
@@ -54,6 +60,43 @@ async function testBlogStatusHelpers(): Promise<void> {
   assert.equal(shouldAutoSetPublishedAt("draft", null), false);
 }
 
+async function testBlogContentNormalization(): Promise<void> {
+  const existingContent = {
+    root: {
+      type: "root",
+      children: [
+        {
+          type: "paragraph",
+          children: [],
+          direction: null,
+          format: "",
+          indent: 0,
+          version: 1,
+        },
+      ],
+      direction: null,
+      format: "",
+      indent: 0,
+      version: 1,
+    },
+  };
+
+  assert.equal(resolveBlogContent(existingContent, "Excerpt", "Title"), existingContent);
+
+  const fromString = resolveBlogContent("Plain body text", "Excerpt", "Title");
+  assert.ok(fromString);
+  assert.equal((fromString as { root: { type: string } }).root.type, "root");
+
+  const fromExcerpt = resolveBlogContent(null, "Excerpt fallback", "Title");
+  assert.ok(fromExcerpt);
+
+  const fromTitle = resolveBlogContent(null, null, "Title fallback");
+  assert.ok(fromTitle);
+
+  const unresolved = resolveBlogContent(null, null, null);
+  assert.equal(unresolved, null);
+}
+
 async function testBlogCmsAccessExpectations(): Promise<void> {
   assert.equal(canManageBlog("admin"), true);
   assert.equal(canManageBlog("blog_manager"), true);
@@ -76,20 +119,54 @@ async function testBlogSupportCollectionsExist(): Promise<void> {
 
   assert.ok(categoriesSource.includes('slug: "blog-categories"'));
   assert.ok(mediaSource.includes('slug: "blog-media"'));
+  assert.ok(mediaSource.includes("blogMediaPublicReadAccess"));
   assert.ok(tagsSource.includes('slug: "blog-tags"'));
+}
+
+async function testBlogMediaFileReadBehavior(): Promise<void> {
+  assert.equal(
+    evaluateBlogMediaReadAccess({
+      req: {
+        path: "/cms/api/blog-media/file/image.jpg",
+      },
+    }),
+    true
+  );
+
+  assert.equal(
+    evaluateBlogMediaReadAccess({
+      req: {
+        path: "/cms/api/blog-media",
+      },
+    }),
+    false
+  );
+
+  assert.equal(
+    evaluateBlogMediaReadAccess({
+      req: {
+        path: "/cms/api/blog-media",
+        user: {
+          id: "manager-1",
+          role: "blog_manager",
+          collection: "cms-users",
+        },
+      },
+    }),
+    true
+  );
 }
 
 async function run(): Promise<void> {
   await testBlogPostCollectionFieldShape();
   await testBlogSlugBehavior();
   await testBlogStatusHelpers();
+  await testBlogContentNormalization();
   await testBlogCmsAccessExpectations();
   await testBlogSupportCollectionsExist();
+  await testBlogMediaFileReadBehavior();
 
   console.log("blog-collections: ok");
 }
 
 void run();
-
-
-

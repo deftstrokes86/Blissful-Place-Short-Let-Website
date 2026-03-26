@@ -260,7 +260,7 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
                       <span className="admin-status-pill">{movement.quantity}</span>
                     </div>
                     <p className="text-secondary" style={{ fontSize: "0.84rem" }}>
-                      {movement.contextLabel} • {movement.reason}
+                      {movement.contextLabel} ï¿½ {movement.reason}
                     </p>
                     <p className="text-secondary" style={{ fontSize: "0.78rem" }}>
                       {formatLagosDateTime(movement.createdAt)}

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CmsInventoryTemplatesCollection = void 0;
-const access_controls_1 = require("@/cms/access-controls");
+const access_controls_1 = require("../access-controls");
 exports.CmsInventoryTemplatesCollection = {
     slug: "cms-inventory-templates",
     admin: {

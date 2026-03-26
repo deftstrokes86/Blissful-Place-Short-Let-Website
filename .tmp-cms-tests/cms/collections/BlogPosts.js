@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogPostsCollection = void 0;
-const access_controls_1 = require("@/cms/access-controls");
-const blog_content_model_1 = require("@/server/cms/blog-content-model");
-const cms_access_1 = require("@/server/cms/cms-access");
+const access_controls_1 = require("../access-controls");
+const blog_content_model_1 = require("../../server/cms/blog-content-model");
+const cms_access_1 = require("../../server/cms/cms-access");
 function toRecord(value) {
     if (!value || typeof value !== "object") {
         return null;
@@ -16,10 +16,15 @@ const applyDerivedBlogPostValues = ({ data }) => {
         return data;
     }
     const resolvedSlug = (0, blog_content_model_1.resolveBlogSlug)(record.slug, record.title);
-    if (!resolvedSlug) {
-        return data;
+    const resolvedContent = (0, blog_content_model_1.resolveBlogContent)(record.content, record.excerpt, record.title);
+    const nextRecord = Object.assign({}, record);
+    if (resolvedSlug) {
+        nextRecord.slug = resolvedSlug;
     }
-    return Object.assign(Object.assign({}, record), { slug: resolvedSlug });
+    if (resolvedContent) {
+        nextRecord.content = resolvedContent;
+    }
+    return nextRecord;
 };
 const enforceBlogStatusAndPublishedDate = ({ data, req }) => {
     const record = toRecord(data);

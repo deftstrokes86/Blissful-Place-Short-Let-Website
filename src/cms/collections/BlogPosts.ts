@@ -1,12 +1,13 @@
 import type { CollectionBeforeChangeHook, CollectionBeforeValidateHook, CollectionConfig } from "payload";
 
-import { blogCreateAccess, blogDraftWriteAccess, blogReadAccess } from "@/cms/access-controls";
+import { blogCreateAccess, blogDraftWriteAccess, blogReadAccess } from "../access-controls";
 import {
   coerceBlogPostStatus,
+  resolveBlogContent,
   resolveBlogSlug,
   shouldAutoSetPublishedAt,
-} from "@/server/cms/blog-content-model";
-import { canSetBlogStatus, getCmsRoleFromRequestUser } from "@/server/cms/cms-access";
+} from "../../server/cms/blog-content-model";
+import { canSetBlogStatus, getCmsRoleFromRequestUser } from "../../server/cms/cms-access";
 
 function toRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object") {
@@ -24,15 +25,21 @@ const applyDerivedBlogPostValues: CollectionBeforeValidateHook = ({ data }) => {
   }
 
   const resolvedSlug = resolveBlogSlug(record.slug, record.title);
+  const resolvedContent = resolveBlogContent(record.content, record.excerpt, record.title);
 
-  if (!resolvedSlug) {
-    return data;
+  const nextRecord: Record<string, unknown> = {
+    ...record,
+  };
+
+  if (resolvedSlug) {
+    nextRecord.slug = resolvedSlug;
   }
 
-  return {
-    ...record,
-    slug: resolvedSlug,
-  };
+  if (resolvedContent) {
+    nextRecord.content = resolvedContent;
+  }
+
+  return nextRecord;
 };
 
 const enforceBlogStatusAndPublishedDate: CollectionBeforeChangeHook = ({ data, req }) => {
@@ -172,4 +179,3 @@ export const BlogPostsCollection: CollectionConfig = {
     },
   ],
 };
-

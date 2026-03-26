@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const strict_1 = __importDefault(require("node:assert/strict"));
 const node_fs_1 = require("node:fs");
 const node_path_1 = require("node:path");
+const blog_public_mappers_1 = require("../blog-public-mappers");
 const blog_public_query_1 = require("../blog-public-query");
 const blog_public_content_1 = require("../blog-public-content");
 function readSource(relativePath) {
@@ -66,11 +67,61 @@ async function testSlugNormalizationAndInvalidHandling() {
     strict_1.default.equal((0, blog_public_query_1.normalizePublicBlogSlugInput)(""), "");
     strict_1.default.equal((0, blog_public_query_1.buildPublishedBlogDetailQuery)("   "), null);
 }
+async function testPublicMapperSupportsNumericCmsIds() {
+    var _a;
+    const summary = (0, blog_public_mappers_1.mapPublicBlogPostSummary)({
+        id: 42,
+        title: "Published Post",
+        slug: "published-post",
+        excerpt: "Short summary",
+        publishedAt: "2026-03-26T19:00:00.000Z",
+        categories: [
+            {
+                id: 10,
+                title: "Guides",
+                slug: "guides",
+            },
+        ],
+        author: {
+            id: 8,
+            name: "Editorial Team",
+        },
+        featuredImage: {
+            id: 7,
+            url: "/media/post.jpg",
+            alt: "Post image",
+        },
+    });
+    strict_1.default.ok(summary);
+    if (!summary) {
+        throw new Error("Expected mapped summary for numeric CMS ids");
+    }
+    strict_1.default.equal(summary.id, "42");
+    strict_1.default.equal((_a = summary.categories[0]) === null || _a === void 0 ? void 0 : _a.id, "10");
+    strict_1.default.equal(summary.authorName, "Editorial Team");
+    const detail = (0, blog_public_mappers_1.mapPublicBlogPostDetail)(Object.assign(Object.assign({}, summary), { content: {
+            root: {
+                children: [],
+            },
+        }, metaTitle: "Meta", metaDescription: "Description", ogImage: {
+            id: 11,
+            url: "/media/og.jpg",
+            alt: "OG",
+        } }));
+    strict_1.default.ok(detail);
+}
 async function testPublicBlogServiceUsesExplicitPublishedServerQuery() {
     const source = readSource("src/server/cms/blog-content-service.ts");
     strict_1.default.ok(source.includes("overrideAccess: true"));
     strict_1.default.ok(source.includes("buildPublishedBlogListQuery"));
     strict_1.default.ok(source.includes("buildPublishedBlogDetailQuery"));
+}
+async function testBlogIndexEditorialLayoutStructure() {
+    const source = readSource("src/app/(site)/blog/page.tsx");
+    strict_1.default.ok(source.includes("const [featuredPost, ...remainingPosts] = posts"));
+    strict_1.default.ok(source.includes("className=\"blog-featured\""));
+    strict_1.default.ok(source.includes("className=\"blog-category-row\""));
+    strict_1.default.ok(source.includes("className=\"blog-post-grid\""));
 }
 async function testMetadataAndContentHelpers() {
     var _a, _b, _c, _d;
@@ -128,7 +179,9 @@ async function testMetadataAndContentHelpers() {
 async function run() {
     await testPublishedOnlyQueryBehavior();
     await testSlugNormalizationAndInvalidHandling();
+    await testPublicMapperSupportsNumericCmsIds();
     await testPublicBlogServiceUsesExplicitPublishedServerQuery();
+    await testBlogIndexEditorialLayoutStructure();
     await testMetadataAndContentHelpers();
     console.log("blog-public-routes: ok");
 }

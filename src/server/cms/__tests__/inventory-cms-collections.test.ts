@@ -60,8 +60,8 @@ async function testInventoryRoleBoundaries(): Promise<void> {
 }
 
 async function testCustomOperationalUiCoexists(): Promise<void> {
-  assert.equal(existsSync(join(process.cwd(), "src/app/admin/inventory/page.tsx")), true);
-  assert.equal(existsSync(join(process.cwd(), "src/app/staff/tasks/page.tsx")), true);
+  assert.equal(existsSync(join(process.cwd(), "src/app/(site)/admin/inventory/page.tsx")), true);
+  assert.equal(existsSync(join(process.cwd(), "src/app/(site)/staff/tasks/page.tsx")), true);
 }
 
 async function run(): Promise<void> {

@@ -1,3 +1,3 @@
-import payloadConfig from "@/cms/payload.config";
+import payloadConfig from "./src/cms/payload.config.ts";
 
 export default payloadConfig;
