@@ -27,7 +27,7 @@ async function testFeaturedResidenceCardsUseFlatSpecificBookingUrls(): Promise<v
 async function testAvailabilityHandoffUsesSelectedFlatContext(): Promise<void> {
   const source = readSource("src/app/availability/page.tsx");
 
-  assert.ok(source.includes("buildBookingHref(selectedFlat)"));
+  assert.ok(source.includes("buildBookingHref(selectedFlat, selectedStayRange)"));
 }
 
 async function testGenericHeroBookingCtaRemainsGeneric(): Promise<void> {

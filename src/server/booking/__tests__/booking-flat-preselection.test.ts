@@ -1,10 +1,15 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 
 import { calculateBookingPricing } from "../../../lib/booking-pricing";
 import {
   applyFlatPreselectionToStay,
+  applyStayDateRangePrefillToStay,
+  buildBookingHref,
+  deriveSelectedDateRangeForBooking,
   resolveBookingFlatPreselection,
+  resolveBookingStayDatePreselection,
   resolveFlatQueryParam,
+  resolveStayRangeQueryPrefill,
 } from "../../../lib/booking-flat-preselection";
 import type { ExtraId, FlatId, StayFormState } from "../../../types/booking";
 
@@ -57,21 +62,66 @@ async function testInvalidFlatQueryFailsGracefully(): Promise<void> {
   );
 }
 
-async function testPricingSummaryUsesPreselectedFlat(): Promise<void> {
-  const resolved = resolveBookingFlatPreselection({
+async function testAvailabilitySelectionBuildsBookingUrlWithFlatAndDates(): Promise<void> {
+  const range = deriveSelectedDateRangeForBooking({
+    year: 2026,
+    month: 4,
+    selectedDays: [12, 13, 14],
+  });
+
+  assert.deepEqual(range, {
+    checkIn: "2026-04-12",
+    checkOut: "2026-04-15",
+  });
+
+  assert.equal(
+    buildBookingHref("mayfair", range),
+    "/book?flat=mayfair&checkIn=2026-04-12&checkOut=2026-04-15"
+  );
+}
+
+async function testBuildBookingHrefSkipsInvalidDateRangeButKeepsFlat(): Promise<void> {
+  assert.equal(
+    buildBookingHref("windsor", {
+      checkIn: "bad-date",
+      checkOut: "2026-04-15",
+    }),
+    "/book?flat=windsor"
+  );
+}
+
+async function testBookingDateRangePrefillFromUrlValues(): Promise<void> {
+  const resolvedRange = resolveStayRangeQueryPrefill("2026-04-12", "2026-04-15");
+  const stay = applyStayDateRangePrefillToStay(createStay(), resolvedRange);
+
+  assert.equal(stay.checkIn, "2026-04-12");
+  assert.equal(stay.checkOut, "2026-04-15");
+}
+
+async function testPricingSummaryUsesUrlPrefilledFlatAndDates(): Promise<void> {
+  const resolvedFlat = resolveBookingFlatPreselection({
     resumedDraftFlatId: null,
     urlFlatParam: "mayfair",
   });
-  const stay = applyFlatPreselectionToStay(
+  const resolvedRange = resolveStayRangeQueryPrefill("2026-04-04", "2026-04-07");
+
+  const stayWithFlat = applyFlatPreselectionToStay(
     createStay({
-      checkIn: "2026-04-04",
-      checkOut: "2026-04-07",
       guests: 2,
     }),
-    resolved.flatId
+    resolvedFlat.flatId
   );
+  const stay = applyStayDateRangePrefillToStay(stayWithFlat, resolvedRange);
 
-  const selectedFlatRate = stay.flatId === "windsor" ? FLAT_RATES.windsor : stay.flatId === "kensington" ? FLAT_RATES.kensington : stay.flatId === "mayfair" ? FLAT_RATES.mayfair : null;
+  const selectedFlatRate =
+    stay.flatId === "windsor"
+      ? FLAT_RATES.windsor
+      : stay.flatId === "kensington"
+      ? FLAT_RATES.kensington
+      : stay.flatId === "mayfair"
+      ? FLAT_RATES.mayfair
+      : null;
+
   const pricing = calculateBookingPricing({
     selectedFlatRate,
     checkIn: stay.checkIn,
@@ -81,8 +131,26 @@ async function testPricingSummaryUsesPreselectedFlat(): Promise<void> {
   });
 
   assert.equal(stay.flatId, "mayfair");
+  assert.equal(stay.checkIn, "2026-04-04");
+  assert.equal(stay.checkOut, "2026-04-07");
   assert.equal(pricing.nights, 3);
   assert.equal(pricing.staySubtotal, (selectedFlatRate ?? 0) * 3);
+}
+
+async function testInvalidFlatWithValidDatesStillPrefillsDates(): Promise<void> {
+  const resolvedFlat = resolveBookingFlatPreselection({
+    resumedDraftFlatId: null,
+    urlFlatParam: "unknown-flat",
+  });
+  const resolvedRange = resolveStayRangeQueryPrefill("2026-04-04", "2026-04-07");
+
+  const stayWithFlat = applyFlatPreselectionToStay(createStay(), resolvedFlat.flatId);
+  const stay = applyStayDateRangePrefillToStay(stayWithFlat, resolvedRange);
+
+  assert.equal(resolvedFlat.flatId, null);
+  assert.equal(stay.flatId, "");
+  assert.equal(stay.checkIn, "2026-04-04");
+  assert.equal(stay.checkOut, "2026-04-07");
 }
 
 async function testUserCanStillChangeFlatAfterPreselection(): Promise<void> {
@@ -103,22 +171,67 @@ async function testUserCanStillChangeFlatAfterPreselection(): Promise<void> {
   assert.equal(afterReapplying.flatId, "mayfair");
 }
 
-async function testResumedDraftFlatTakesPrecedenceOverUrlFlat(): Promise<void> {
-  const resolved = resolveBookingFlatPreselection({
-    resumedDraftFlatId: "windsor",
-    urlFlatParam: "mayfair",
+async function testUserCanStillChangeDatesAfterUrlPrefill(): Promise<void> {
+  const prefilled = applyStayDateRangePrefillToStay(
+    createStay(),
+    resolveStayRangeQueryPrefill("2026-04-12", "2026-04-15")
+  );
+
+  const manuallyChanged: StayFormState = {
+    ...prefilled,
+    checkIn: "2026-04-20",
+    checkOut: "2026-04-23",
+  };
+
+  const afterReapplying = applyStayDateRangePrefillToStay(
+    manuallyChanged,
+    resolveStayRangeQueryPrefill("2026-04-12", "2026-04-15")
+  );
+
+  assert.equal(afterReapplying.checkIn, "2026-04-20");
+  assert.equal(afterReapplying.checkOut, "2026-04-23");
+}
+
+async function testResumedDraftStayDatesTakePrecedenceOverUrlDates(): Promise<void> {
+  const resolved = resolveBookingStayDatePreselection({
+    resumedDraftCheckIn: "2026-06-10",
+    resumedDraftCheckOut: "2026-06-12",
+    urlCheckInParam: "2026-07-01",
+    urlCheckOutParam: "2026-07-04",
   });
 
   assert.equal(resolved.source, "draft");
-  assert.equal(resolved.flatId, "windsor");
+  assert.deepEqual(resolved.range, {
+    checkIn: "2026-06-10",
+    checkOut: "2026-06-12",
+  });
+}
+
+async function testInvalidUrlDatesFailGracefully(): Promise<void> {
+  assert.equal(resolveStayRangeQueryPrefill("bad-date", "2026-04-12"), null);
+  assert.equal(resolveStayRangeQueryPrefill("2026-04-12", "2026-04-10"), null);
+
+  const nonContiguousRange = deriveSelectedDateRangeForBooking({
+    year: 2026,
+    month: 4,
+    selectedDays: [12, 14],
+  });
+
+  assert.equal(nonContiguousRange, null);
 }
 
 async function run(): Promise<void> {
   await testValidFlatQueryPreselectsExpectedFlat();
   await testInvalidFlatQueryFailsGracefully();
-  await testPricingSummaryUsesPreselectedFlat();
+  await testAvailabilitySelectionBuildsBookingUrlWithFlatAndDates();
+  await testBuildBookingHrefSkipsInvalidDateRangeButKeepsFlat();
+  await testBookingDateRangePrefillFromUrlValues();
+  await testPricingSummaryUsesUrlPrefilledFlatAndDates();
+  await testInvalidFlatWithValidDatesStillPrefillsDates();
   await testUserCanStillChangeFlatAfterPreselection();
-  await testResumedDraftFlatTakesPrecedenceOverUrlFlat();
+  await testUserCanStillChangeDatesAfterUrlPrefill();
+  await testResumedDraftStayDatesTakePrecedenceOverUrlDates();
+  await testInvalidUrlDatesFailGracefully();
 
   console.log("booking-flat-preselection: ok");
 }

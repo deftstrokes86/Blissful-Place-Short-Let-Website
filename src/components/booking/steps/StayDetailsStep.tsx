@@ -24,6 +24,7 @@ interface StayDetailsStepProps {
   blockedDateError: string | null;
   isLoadingBlockedDates: boolean;
   flatSelectionContextNote?: string | null;
+  stayDateSelectionContextNote?: string | null;
 }
 
 export function StayDetailsStep({
@@ -45,6 +46,7 @@ export function StayDetailsStep({
   blockedDateError,
   isLoadingBlockedDates,
   flatSelectionContextNote,
+  stayDateSelectionContextNote,
 }: StayDetailsStepProps) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -152,6 +154,12 @@ export function StayDetailsStep({
             {stayTouched.guests && stayValidation.guests && <p className="booking-inline-error">{stayValidation.guests}</p>}
           </div>
         </div>
+
+        {stayDateSelectionContextNote && (
+          <p className="booking-inline-note booking-inline-note-muted" style={{ marginTop: "1rem" }} role="status" aria-live="polite">
+            {stayDateSelectionContextNote}
+          </p>
+        )}
 
         {isLoadingBlockedDates && (
           <p className="booking-inline-note booking-inline-note-muted" style={{ marginTop: "1rem" }}>

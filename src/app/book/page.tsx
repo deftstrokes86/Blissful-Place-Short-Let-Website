@@ -48,9 +48,14 @@ import {
 import { deriveResumeStepIndex } from "@/lib/booking-draft-resume";
 import {
   applyFlatPreselectionToStay,
+  applyStayDateRangePrefillToStay,
   deriveFlatSelectionContextNote,
+  deriveStayDateSelectionContextNote,
+  hasBlockedSpanOverlapForStay,
   resolveBookingFlatPreselection,
+  resolveStayRangeQueryPrefill,
   type BookingFlatPreselectionSource,
+  type BookingStayDatePreselectionSource,
 } from "@/lib/booking-flat-preselection";
 import { deriveBookingResumeUxState } from "@/lib/booking-resume-ux";
 import { formatTransferHoldLabel, wait } from "@/lib/booking-utils";
@@ -216,6 +221,7 @@ export default function BookingPage() {
   const [showDraftRestoredNotice, setShowDraftRestoredNotice] = useState(false);
   const [staleAvailabilityRecoveryNotice, setStaleAvailabilityRecoveryNotice] = useState<string | null>(null);
   const [flatPreselectionSource, setFlatPreselectionSource] = useState<BookingFlatPreselectionSource>("none");
+  const [stayDatePreselectionSource, setStayDatePreselectionSource] = useState<BookingStayDatePreselectionSource>("none");
   const [urlRequestedFlatParam, setUrlRequestedFlatParam] = useState<string | null>(null);
 
   // Prevent duplicate prototype submissions when branch actions are triggered quickly.
@@ -269,13 +275,21 @@ export default function BookingPage() {
     [urlRequestedFlatParam, flatPreselectionSource, stay.flatId],
   );
 
-  const blockedDateSelectionWarning = useMemo(() => {
-    if (!stay.checkIn || !stay.checkOut) {
-      return null;
-    }
+  const stayDateSelectionContextNote = useMemo(
+    () =>
+      deriveStayDateSelectionContextNote({
+        preselectionSource: stayDatePreselectionSource,
+        activeCheckIn: stay.checkIn,
+        activeCheckOut: stay.checkOut,
+      }),
+    [stayDatePreselectionSource, stay.checkIn, stay.checkOut],
+  );
 
-    const overlapsBlockedSpan = blockedDateSpans.some(
-      (span) => stay.checkIn < span.endDate && span.startDate < stay.checkOut
+  const blockedDateSelectionWarning = useMemo(() => {
+    const overlapsBlockedSpan = hasBlockedSpanOverlapForStay(
+      stay.checkIn,
+      stay.checkOut,
+      blockedDateSpans,
     );
 
     if (!overlapsBlockedSpan) {
@@ -425,15 +439,21 @@ export default function BookingPage() {
 
       let resumeToken: string | null = null;
       let urlFlatParam: string | null = null;
+      let urlCheckInParam: string | null = null;
+      let urlCheckOutParam: string | null = null;
       try {
         const searchParams = new URLSearchParams(window.location.search);
         const queryToken = searchParams.get("draft");
         urlFlatParam = searchParams.get("flat");
+        urlCheckInParam = searchParams.get("checkIn");
+        urlCheckOutParam = searchParams.get("checkOut");
         const storedToken = window.localStorage.getItem(DRAFT_TOKEN_STORAGE_KEY);
         resumeToken = queryToken ?? storedToken;
       } catch {
         resumeToken = null;
         urlFlatParam = null;
+        urlCheckInParam = null;
+        urlCheckOutParam = null;
       }
 
       if (active) {
@@ -447,8 +467,13 @@ export default function BookingPage() {
             resumedDraftFlatId: null,
             urlFlatParam,
           });
-          setStay((current) => applyFlatPreselectionToStay(current, preselection.flatId));
+          const stayRangePrefill = resolveStayRangeQueryPrefill(urlCheckInParam, urlCheckOutParam);
+          setStay((current) => {
+            const withFlat = applyFlatPreselectionToStay(current, preselection.flatId);
+            return applyStayDateRangePrefillToStay(withFlat, stayRangePrefill);
+          });
           setFlatPreselectionSource(preselection.source);
+          setStayDatePreselectionSource(stayRangePrefill ? "url" : "none");
           setIsResumingDraft(false);
           setIsHydratingDraft(false);
         }
@@ -503,8 +528,9 @@ export default function BookingPage() {
         setAvailabilityNote(getResumeAvailabilityNotice(snapshot));
         setShowDraftRestoredNotice(true);
         setFlowNotice(null);
-        // A restored draft is the source of truth for selected residence.
+        // A restored draft is the source of truth for selected residence and dates.
         setFlatPreselectionSource(restoredStay.flatId ? "draft" : "none");
+        setStayDatePreselectionSource(restoredStay.checkIn && restoredStay.checkOut ? "draft" : "none");
       } catch (error) {
         if (!active) {
           return;
@@ -520,8 +546,13 @@ export default function BookingPage() {
           resumedDraftFlatId: null,
           urlFlatParam,
         });
-        setStay((current) => applyFlatPreselectionToStay(current, preselection.flatId));
+        const stayRangePrefill = resolveStayRangeQueryPrefill(urlCheckInParam, urlCheckOutParam);
+        setStay((current) => {
+          const withFlat = applyFlatPreselectionToStay(current, preselection.flatId);
+          return applyStayDateRangePrefillToStay(withFlat, stayRangePrefill);
+        });
         setFlatPreselectionSource(preselection.source);
+        setStayDatePreselectionSource(stayRangePrefill ? "url" : "none");
         setDraftToken(null);
         setFlowNotice(
           `Saved draft could not be restored: ${getRequestErrorMessage(error)}`
@@ -560,8 +591,13 @@ export default function BookingPage() {
 
   function handleStayChange<K extends keyof StayFormState>(field: K, value: StayFormState[K]) {
     setStay((current) => ({ ...current, [field]: value }));
+
     if (field === "flatId" || field === "checkIn" || field === "checkOut") {
       setStaleAvailabilityRecoveryNotice(null);
+    }
+
+    if (field === "checkIn" || field === "checkOut") {
+      setStayDatePreselectionSource("none");
     }
   }
 
@@ -1368,6 +1404,7 @@ export default function BookingPage() {
                 blockedDateError={blockedDatesError}
                 isLoadingBlockedDates={isLoadingBlockedDates}
                 flatSelectionContextNote={flatSelectionContextNote}
+                stayDateSelectionContextNote={stayDateSelectionContextNote}
               />
             )}
 

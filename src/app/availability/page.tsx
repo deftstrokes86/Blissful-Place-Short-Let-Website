@@ -18,7 +18,11 @@ import {
 } from "@/lib/availability-calendar";
 import { formatCurrency } from "@/lib/booking-utils";
 import { fetchCalendarMonthAvailability, type CalendarBlockedSpanResponse } from "@/lib/booking-frontend-api";
-import { buildBookingHref } from "@/lib/booking-flat-preselection";
+import {
+  buildBookingHref,
+  deriveSelectedDateRangeForBooking,
+  type BookingStayDateRange,
+} from "@/lib/booking-flat-preselection";
 import { FLATS } from "@/lib/constants";
 import type { FlatId } from "@/types/booking";
 
@@ -46,7 +50,20 @@ function formatSelectedDateList(year: number, month: number, selectedDates: read
   return [...selectedDates]
     .sort((left, right) => left - right)
     .map((day) => dayFormatter.format(new Date(Date.UTC(year, month - 1, day))))
-    .join(" • ");
+    .join(" | ");
+}
+
+function formatStayRangeForSummary(range: BookingStayDateRange): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "Africa/Lagos",
+  });
+
+  const checkIn = formatter.format(new Date(`${range.checkIn}T00:00:00Z`));
+  const checkOut = formatter.format(new Date(`${range.checkOut}T00:00:00Z`));
+
+  return `${checkIn} to ${checkOut}`;
 }
 
 export default function Availability() {
@@ -165,6 +182,15 @@ export default function Availability() {
     () => formatSelectedDateList(selectedYear, selectedMonth, selectedDates),
     [selectedYear, selectedMonth, selectedDates]
   );
+  const selectedStayRange = useMemo(
+    () =>
+      deriveSelectedDateRangeForBooking({
+        year: selectedYear,
+        month: selectedMonth,
+        selectedDays: selectedDates,
+      }),
+    [selectedYear, selectedMonth, selectedDates]
+  );
 
   const previousMonthAllowed = useMemo(
     () =>
@@ -182,7 +208,7 @@ export default function Availability() {
     .sort((left, right) => left - right)
     .join("-")}`;
 
-  const continueToBookingEnabled = selectedDates.length > 0;
+  const continueToBookingEnabled = selectedStayRange !== null;
 
   const triggerCalendarTransition = (mode: TransitionMode) => {
     setTransitionMode(mode);
@@ -376,13 +402,35 @@ export default function Availability() {
               </p>
             </div>
 
+            <div className={`availability-trip-lock${continueToBookingEnabled ? " is-ready" : ""}`}>
+              <p className="availability-trip-lock-label">Ready for booking</p>
+              {selectedStayRange ? (
+                <>
+                  <p className="availability-trip-lock-value">{selectedFlatDetails.name}</p>
+                  <p className="availability-trip-lock-subvalue">
+                    {formatStayRangeForSummary(selectedStayRange)} | {selectedDates.length} night{selectedDates.length === 1 ? "" : "s"}
+                  </p>
+                </>
+              ) : (
+                <p className="availability-trip-lock-subvalue is-pending">
+                  Select consecutive dates to unlock booking.
+                </p>
+              )}
+            </div>
+
             <p className="availability-summary-note">
               {isLoading ? "Refreshing blocked dates..." : blockedSummary}
             </p>
 
+            {!isLoading && selectedDates.length > 0 && !selectedStayRange ? (
+              <p className="availability-summary-note">
+                Select consecutive dates to continue to booking.
+              </p>
+            ) : null}
+
             <div className="availability-summary-actions">
               <Link
-                href={buildBookingHref(selectedFlat)}
+                href={buildBookingHref(selectedFlat, selectedStayRange)}
                 className={`btn btn-primary availability-continue-btn${continueToBookingEnabled ? " is-ready" : " is-disabled"}`}
                 aria-disabled={!continueToBookingEnabled}
                 tabIndex={continueToBookingEnabled ? 0 : -1}
@@ -405,4 +453,3 @@ export default function Availability() {
     </main>
   );
 }
-

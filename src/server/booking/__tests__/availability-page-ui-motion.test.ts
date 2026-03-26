@@ -15,6 +15,15 @@ async function testAvailabilityPageWiresMotionStatesAndDisabledPrevious(): Promi
   assert.ok(source.includes("disabled={!previousMonthAllowed}"));
 }
 
+async function testAvailabilityContinueCtaDependsOnBookingReadySelection(): Promise<void> {
+  const source = readSource("src/app/availability/page.tsx");
+
+  assert.ok(source.includes("continueToBookingEnabled = selectedStayRange !== null"));
+  assert.ok(source.includes("aria-disabled={!continueToBookingEnabled}"));
+  assert.ok(source.includes("availability-trip-lock"));
+  assert.ok(source.includes("Ready for booking"));
+}
+
 async function testAvailabilityPageUsesDistinctDayStateClasses(): Promise<void> {
   const source = readSource("src/app/availability/page.tsx");
 
@@ -26,6 +35,7 @@ async function testAvailabilityPageUsesDistinctDayStateClasses(): Promise<void> 
 
 async function run(): Promise<void> {
   await testAvailabilityPageWiresMotionStatesAndDisabledPrevious();
+  await testAvailabilityContinueCtaDependsOnBookingReadySelection();
   await testAvailabilityPageUsesDistinctDayStateClasses();
 
   console.log("availability-page-ui-motion: ok");

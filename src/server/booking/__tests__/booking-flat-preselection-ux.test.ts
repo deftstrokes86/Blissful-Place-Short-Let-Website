@@ -1,9 +1,10 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
   deriveFlatSelectionContextNote,
+  deriveStayDateSelectionContextNote,
   resolveBookingFlatPreselection,
 } from "../../../lib/booking-flat-preselection";
 
@@ -79,11 +80,49 @@ async function testDraftOverrideKeepsMessagingAndSelectionCoherent(): Promise<vo
   assert.equal(note, null);
 }
 
+async function testBookingHandoffDateContextNoteRendering(): Promise<void> {
+  const note = deriveStayDateSelectionContextNote({
+    preselectionSource: "url",
+    activeCheckIn: "2026-04-10",
+    activeCheckOut: "2026-04-12",
+  });
+
+  assert.match(note ?? "", /availability/i);
+
+  const stayStepSource = readSource("src/components/booking/steps/StayDetailsStep.tsx");
+  const bookPageSource = readSource("src/app/book/page.tsx");
+
+  assert.ok(stayStepSource.includes("stayDateSelectionContextNote"));
+  assert.ok(bookPageSource.includes("stayDateSelectionContextNote={stayDateSelectionContextNote}"));
+}
+
+async function testDraftDateSelectionDoesNotShowAvailabilityOriginMessage(): Promise<void> {
+  const note = deriveStayDateSelectionContextNote({
+    preselectionSource: "draft",
+    activeCheckIn: "2026-04-10",
+    activeCheckOut: "2026-04-12",
+  });
+
+  assert.equal(note, null);
+}
+
+async function testBookingSummaryReflectsPrefilledValuesAndStillAllowsEdits(): Promise<void> {
+  const summarySource = readSource("src/components/booking/BookingSummaryCard.tsx");
+  const bookingPageSource = readSource("src/app/book/page.tsx");
+
+  assert.ok(summarySource.includes('checkIn || "--"'));
+  assert.ok(summarySource.includes('checkOut || "--"'));
+  assert.ok(bookingPageSource.includes('setStayDatePreselectionSource("none")'));
+}
+
 async function run(): Promise<void> {
   await testSelectedFlatIndicatorRendering();
   await testInvalidFlatGracefulFallbackNotice();
   await testManualFlatSwitchClearsPreselectionHint();
   await testDraftOverrideKeepsMessagingAndSelectionCoherent();
+  await testBookingHandoffDateContextNoteRendering();
+  await testDraftDateSelectionDoesNotShowAvailabilityOriginMessage();
+  await testBookingSummaryReflectsPrefilledValuesAndStillAllowsEdits();
 
   console.log("booking-flat-preselection-ux: ok");
 }

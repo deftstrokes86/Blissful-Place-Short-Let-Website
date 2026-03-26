@@ -4646,6 +4646,48 @@ details[open] summary ~ * {
   font-weight: 600;
 }
 
+.availability-trip-lock {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.availability-trip-lock.is-ready {
+  border-color: rgba(238, 29, 82, 0.45);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(238, 29, 82, 0.16), rgba(238, 29, 82, 0) 52%),
+    rgba(238, 29, 82, 0.06);
+}
+
+.availability-trip-lock-label {
+  margin: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.availability-trip-lock-value {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.availability-trip-lock-subvalue {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.45;
+}
+
+.availability-trip-lock-subvalue.is-pending {
+  color: var(--text-secondary);
+}
+
 .availability-summary-note {
   margin: 0;
   font-size: 0.78rem;
@@ -4838,4 +4880,3 @@ details[open] summary ~ * {
     transform: none !important;
   }
 }
-
