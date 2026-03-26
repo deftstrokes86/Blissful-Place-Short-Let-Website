@@ -64,6 +64,7 @@ async function testInvalidEmailConfigurationRejected(): Promise<void> {
   assert.throws(
     () =>
       getNotificationConfig({
+        NODE_ENV: "test",
         NOTIFICATION_STAFF_RECIPIENT_EMAILS: "ops1@example.test, not-an-email",
       }),
     /valid email/

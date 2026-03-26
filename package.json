@@ -35,12 +35,17 @@
     "test:flat-inventory-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js",
     "test:stock-movement-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js",
     "test:readiness-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
-    "test:inventory-services": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/inventory-template-service.test.js && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js"
+    "test:inventory-services": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/inventory-template-service.test.js && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
+    "test:cms": "node -e \"require('fs').rmSync('.tmp-cms-tests',{recursive:true,force:true})\" && npx tsc -p tsconfig.cms-tests.json && node .tmp-cms-tests/server/cms/__tests__/cms-access.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/inventory-cms-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-route-wiring.test.js"
   },
   "dependencies": {
+    "@payloadcms/db-sqlite": "^3.80.0",
+    "@payloadcms/next": "^3.80.0",
+    "@payloadcms/richtext-lexical": "^3.80.0",
     "@prisma/client": "^6.7.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
+    "payload": "^3.80.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

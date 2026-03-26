@@ -104,6 +104,11 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/blog" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Blog
+                  </Link>
+                </li>
+                <li>
                   <Link href="/contact" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Contact
                   </Link>
