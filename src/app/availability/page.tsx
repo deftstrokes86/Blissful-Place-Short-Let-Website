@@ -21,6 +21,7 @@ import { fetchCalendarMonthAvailability, type CalendarBlockedSpanResponse } from
 import {
   buildBookingHref,
   deriveSelectedDateRangeForBooking,
+  resolveFlatQueryParam,
   type BookingStayDateRange,
 } from "@/lib/booking-flat-preselection";
 import { FLATS } from "@/lib/constants";
@@ -79,7 +80,22 @@ export default function Availability() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [transitionMode, setTransitionMode] = useState<TransitionMode>("idle");
   const [calendarTransitionKey, setCalendarTransitionKey] = useState(0);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const preselectedFlatId = resolveFlatQueryParam(searchParams.get("flat"));
+
+      if (preselectedFlatId) {
+        setSelectedFlat(preselectedFlatId);
+      }
+    } catch {
+      // Ignore malformed query params and keep default selection.
+    }
+  }, []);
   useEffect(() => {
     let isCancelled = false;
 
@@ -453,3 +469,4 @@ export default function Availability() {
     </main>
   );
 }
+

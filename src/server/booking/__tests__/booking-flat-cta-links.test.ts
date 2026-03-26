@@ -36,10 +36,15 @@ async function testGenericHeroBookingCtaRemainsGeneric(): Promise<void> {
   assert.ok(source.includes("buildBookingHref()"));
 }
 
-async function testPropertyPageCtaUsesMayfairBookingContext(): Promise<void> {
-  const source = readSource("src/app/property/page.tsx");
+async function testPropertyPageCtasUseCurrentlySelectedFlatContext(): Promise<void> {
+  const pageSource = readSource("src/app/property/page.tsx");
+  const componentSource = readSource("src/components/property/PropertyFlatExperience.tsx");
 
-  assert.ok(source.includes('buildBookingHref("mayfair")'));
+  assert.ok(componentSource.includes("buildBookingHref(selectedFlat.id)"));
+  assert.ok(componentSource.includes("availabilityHref"));
+  assert.ok(componentSource.includes("tourHref"));
+  assert.ok(componentSource.includes("`/property?flat=${flatId}`"));
+  assert.ok(pageSource.includes("PropertyFlatExperience"));
 }
 
 async function testAboutAndContactBookingLinksRemainGeneric(): Promise<void> {
@@ -58,7 +63,7 @@ async function run(): Promise<void> {
   await testFeaturedResidenceCardsUseFlatSpecificBookingUrls();
   await testAvailabilityHandoffUsesSelectedFlatContext();
   await testGenericHeroBookingCtaRemainsGeneric();
-  await testPropertyPageCtaUsesMayfairBookingContext();
+  await testPropertyPageCtasUseCurrentlySelectedFlatContext();
   await testAboutAndContactBookingLinksRemainGeneric();
 
   console.log("booking-flat-cta-links: ok");
