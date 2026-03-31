@@ -53,6 +53,9 @@ export interface TransitionReservationInput {
 
 export class ReservationTransitionError extends Error {
   readonly code = "reservation_transition_denied";
+  // Carry an explicit HTTP status so route-helpers can map this without
+  // brittle string matching against the error message.
+  readonly httpStatus = 409 as const;
 }
 
 function toIso(date: Date): string {
@@ -349,13 +352,21 @@ export class ReservationService {
     const persisted = await this.repository.update(reservation);
 
     if (this.notificationGateway) {
-      await this.notificationGateway.onReservationTransition({
-        previous,
-        current: persisted,
-        event: input.event,
-        actor: input.actor,
-        metadata: input.metadata,
-      });
+      // Notifications are best-effort side-effects. The reservation has already
+      // been persisted — a notification failure must not roll back or mask that
+      // success, since the caller would otherwise retry the transition.
+      try {
+        await this.notificationGateway.onReservationTransition({
+          previous,
+          current: persisted,
+          event: input.event,
+          actor: input.actor,
+          metadata: input.metadata,
+        });
+      } catch {
+        // Intentionally swallowed: notification errors are logged by the
+        // notification service itself. The transition result is still valid.
+      }
     }
 
     return persisted;
@@ -367,13 +378,20 @@ export class ReservationService {
 
     const updated: ReservationRepositoryReservation[] = [];
     for (const candidate of candidates) {
-      const transitioned = await this.transitionReservation({
-        token: candidate.token,
-        event: "transfer_hold_expired",
-        actor: "system",
-        availabilityPassed: true,
-      });
-      updated.push(transitioned);
+      // Process each candidate independently: one failure must not prevent the
+      // remaining expired holds from being transitioned.
+      try {
+        const transitioned = await this.transitionReservation({
+          token: candidate.token,
+          event: "transfer_hold_expired",
+          actor: "system",
+          availabilityPassed: true,
+        });
+        updated.push(transitioned);
+      } catch {
+        // Intentionally swallowed per-candidate: the job caller receives the
+        // subset of reservations that were successfully expired.
+      }
     }
 
     return updated;

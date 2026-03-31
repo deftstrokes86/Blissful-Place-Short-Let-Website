@@ -176,6 +176,7 @@ export class StockMovementService {
 
     const destinationQuantity = await this.getLocationQuantity(input.toFlatId, item.id);
 
+    // Deduct from source first.
     await this.setLocationQuantity({
       location: input.fromFlatId,
       item,
@@ -183,12 +184,38 @@ export class StockMovementService {
       movementType: "transfer",
     });
 
-    await this.setLocationQuantity({
-      location: input.toFlatId,
-      item,
-      quantity: destinationQuantity + quantity,
-      movementType: "transfer",
-    });
+    // Add to destination. If this write fails after the source has already been
+    // decremented, execute a compensation step to restore the source quantity so
+    // stock is not silently lost (saga compensation pattern).
+    try {
+      await this.setLocationQuantity({
+        location: input.toFlatId,
+        item,
+        quantity: destinationQuantity + quantity,
+        movementType: "transfer",
+      });
+    } catch (destinationError) {
+      try {
+        await this.setLocationQuantity({
+          location: input.fromFlatId,
+          item,
+          quantity: sourceQuantity, // restore original
+          movementType: "transfer",
+        });
+      } catch {
+        // Compensation also failed — this is a data-integrity problem that
+        // requires manual reconciliation. Re-throw with full context.
+        throw new Error(
+          `Transfer failed at destination and source compensation also failed. ` +
+          `Item '${item.id}' at '${input.fromFlatId ?? "central"}' may have an incorrect quantity. ` +
+          `Manual reconciliation required. Original error: ${destinationError instanceof Error ? destinationError.message : String(destinationError)}`
+        );
+      }
+      throw new Error(
+        `Transfer failed: destination could not be updated and source quantity has been restored. ` +
+        `${destinationError instanceof Error ? destinationError.message : String(destinationError)}`
+      );
+    }
 
     return this.createMovementRecord({
       movementType: "transfer",

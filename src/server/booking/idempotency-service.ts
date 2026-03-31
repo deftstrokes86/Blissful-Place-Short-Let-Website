@@ -1,6 +1,7 @@
 ﻿import { createHash } from "node:crypto";
 
 import { withBookingDatabase } from "../db/file-database";
+import { nowIso } from "../db/db-utils";
 import type { IdempotencyKeyRecord } from "../../types/booking-backend";
 
 interface RunIdempotentInput<TPayload, TResult> {
@@ -34,12 +35,15 @@ function hashPayload(payload: unknown): string {
   return createHash("sha256").update(stableStringify(payload)).digest("hex");
 }
 
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function parseSnapshot<TResult>(snapshot: string): TResult {
-  return JSON.parse(snapshot) as TResult;
+function parseSnapshot<TResult>(snapshot: string, key: string, action: string): TResult {
+  try {
+    return JSON.parse(snapshot) as TResult;
+  } catch (error) {
+    // The stored snapshot is corrupt — surface enough context for operators to reconcile.
+    throw new Error(
+      `Idempotency snapshot for key '${key}' action '${action}' could not be parsed: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }
 
 async function runWithPerKeyLock<T>(lockKey: string, task: () => Promise<T>): Promise<T> {
@@ -73,7 +77,7 @@ export class FileWebsitePaymentIdempotencyGateway implements WebsitePaymentIdemp
           throw new Error(`Idempotency conflict for key '${input.key}' and action '${input.action}'.`);
         }
 
-        return parseSnapshot<TResult>(existing.responseSnapshot);
+        return parseSnapshot<TResult>(existing.responseSnapshot, input.key, input.action);
       }
 
       const result = await input.execute();

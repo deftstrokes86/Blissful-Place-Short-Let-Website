@@ -130,12 +130,32 @@ export function httpStatusFromError(message: string): number {
   return 500;
 }
 
+/**
+ * Resolve an HTTP status code from an unknown thrown value.
+ *
+ * Domain errors may carry an explicit `httpStatus` property (e.g.
+ * `ReservationTransitionError.httpStatus = 409`). When present that value is
+ * used directly, avoiding the need for brittle message-string matching across
+ * every new error type.
+ */
+function resolveHttpStatus(error: unknown): number {
+  if (
+    error instanceof Error &&
+    "httpStatus" in error &&
+    typeof (error as { httpStatus: unknown }).httpStatus === "number"
+  ) {
+    return (error as { httpStatus: number }).httpStatus;
+  }
+
+  return httpStatusFromError(errorToMessage(error));
+}
+
 export function jsonErrorFromUnknown(
   error: unknown,
   fallbackCode: string = "request_failed"
 ): NextResponse<ApiErrorShape> {
   const message = errorToMessage(error);
-  const status = httpStatusFromError(message);
+  const status = resolveHttpStatus(error);
   const code = status === 500 ? fallbackCode : "invalid_request";
 
   return jsonError(message, status, code);

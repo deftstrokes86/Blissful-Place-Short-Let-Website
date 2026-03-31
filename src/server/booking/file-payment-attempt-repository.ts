@@ -1,12 +1,9 @@
 ﻿import { randomUUID } from "node:crypto";
 
 import { readBookingDatabase, withBookingDatabase } from "../db/file-database";
+import { nowIso } from "../db/db-utils";
 import type { PaymentAttemptRecord } from "../../types/booking-backend";
 import type { WebsitePaymentAttemptRepository } from "./website-payment-service";
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
 
 function cloneAttempt(value: PaymentAttemptRecord): PaymentAttemptRecord {
   return {

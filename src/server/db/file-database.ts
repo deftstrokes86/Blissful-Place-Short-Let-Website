@@ -3,6 +3,8 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { nowIso } from "./db-utils";
+
 import type {
   BookingDatabaseState,
   DraftProgressContext,
@@ -21,10 +23,6 @@ import type { PaymentMethod } from "@/types/booking";
 const DATA_FILE_PATH = join(process.cwd(), ".data", "booking-mvp-db.json");
 const MIN_DRAFT_STEP: DraftProgressStep = 0;
 const MAX_DRAFT_STEP: DraftProgressStep = 5;
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
 
 function isPaymentMethod(value: unknown): value is PaymentMethod {
   return value === "website" || value === "transfer" || value === "pos";
@@ -185,7 +183,15 @@ async function ensureDataFile(): Promise<void> {
 async function readDatabaseState(): Promise<BookingDatabaseState> {
   await ensureDataFile();
   const raw = await readFile(DATA_FILE_PATH, "utf8");
-  const parsed = JSON.parse(raw) as BookingDatabaseState;
+
+  let parsed: BookingDatabaseState;
+  try {
+    parsed = JSON.parse(raw) as BookingDatabaseState;
+  } catch (error) {
+    throw new Error(
+      `Booking database file is corrupt or unreadable at ${DATA_FILE_PATH}: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 
   return {
     flats: parsed.flats ?? [],

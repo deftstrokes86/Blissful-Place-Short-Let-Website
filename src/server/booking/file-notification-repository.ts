@@ -1,10 +1,7 @@
 import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
+import { nowIso } from "../db/db-utils";
 import type { ReservationNotificationRecord } from "../../types/booking-backend";
 import type { NotificationRepository } from "./notification-service";
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
 
 function cloneNotification(notification: ReservationNotificationRecord): ReservationNotificationRecord {
   return {

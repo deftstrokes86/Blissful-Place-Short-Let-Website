@@ -50,8 +50,11 @@ export function pickFlutterwaveWebhookSignature(headers: HeaderValueSource): str
 export function parseFlutterwaveWebhookPayload(rawBody: string): unknown {
   try {
     return JSON.parse(rawBody) as unknown;
-  } catch {
-    throw new Error("Webhook body must be valid JSON.");
+  } catch (error) {
+    // Include the original parse error so operators can diagnose malformed payloads.
+    throw new Error(
+      `Webhook body must be valid JSON: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
 

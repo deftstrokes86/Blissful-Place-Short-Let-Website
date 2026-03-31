@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 
 import type { AuthRepository } from "./auth-repository";
 import type { AuthSessionRecord, AuthUserRecord } from "../../types/auth";
+import { nowIso } from "../db/db-utils";
 
 interface AuthDatabaseState {
   users: AuthUserRecord[];
@@ -14,10 +15,6 @@ interface AuthDatabaseState {
 const AUTH_DATA_FILE_PATH = join(process.cwd(), ".data", "auth-db.json");
 
 let authDatabaseQueue: Promise<unknown> = Promise.resolve();
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
 
 function createEmptyAuthDatabaseState(): AuthDatabaseState {
   return {
@@ -46,7 +43,15 @@ async function ensureAuthDataFile(): Promise<void> {
 async function readAuthDatabaseState(): Promise<AuthDatabaseState> {
   await ensureAuthDataFile();
   const raw = await readFile(AUTH_DATA_FILE_PATH, "utf8");
-  const parsed = JSON.parse(raw) as Partial<AuthDatabaseState>;
+
+  let parsed: Partial<AuthDatabaseState>;
+  try {
+    parsed = JSON.parse(raw) as Partial<AuthDatabaseState>;
+  } catch (error) {
+    throw new Error(
+      `Auth database file is corrupt or unreadable at ${AUTH_DATA_FILE_PATH}: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 
   return {
     users: (parsed.users ?? []).map(cloneUser),

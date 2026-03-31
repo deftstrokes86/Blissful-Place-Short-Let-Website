@@ -1,13 +1,10 @@
 ﻿import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
+import { nowIso } from "../db/db-utils";
 import type {
   PosCoordinationMetadataRecord,
   TransferVerificationMetadataRecord,
 } from "../../types/booking-backend";
 import type { OfflinePaymentMetadataRepository } from "./offline-payment-service";
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
 
 function cloneTransferMetadata(
   record: TransferVerificationMetadataRecord
