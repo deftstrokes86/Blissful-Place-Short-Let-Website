@@ -37,6 +37,13 @@ async function testBlogPostCollectionFieldShape() {
         strict_1.default.ok(source.includes(fieldToken), `Expected blog posts field token: ${fieldToken}`);
     }
 }
+async function testBlogRichTextToolbarConfig() {
+    const source = readSource("src/cms/collections/BlogPosts.ts");
+    strict_1.default.ok(source.includes("FixedToolbarFeature"));
+    strict_1.default.ok(source.includes("lexicalEditor({"));
+    strict_1.default.ok(source.includes("features: ({ defaultFeatures }) => ["));
+    strict_1.default.ok(source.includes("...defaultFeatures"));
+}
 async function testBlogSlugBehavior() {
     strict_1.default.equal((0, blog_content_model_1.normalizeBlogSlug)("  Hello, Lagos! Private Tour  "), "hello-lagos-private-tour");
     strict_1.default.equal((0, blog_content_model_1.normalizeBlogSlug)("Already-clean-slug"), "already-clean-slug");
@@ -126,6 +133,7 @@ async function testBlogMediaFileReadBehavior() {
 }
 async function run() {
     await testBlogPostCollectionFieldShape();
+    await testBlogRichTextToolbarConfig();
     await testBlogSlugBehavior();
     await testBlogStatusHelpers();
     await testBlogContentNormalization();

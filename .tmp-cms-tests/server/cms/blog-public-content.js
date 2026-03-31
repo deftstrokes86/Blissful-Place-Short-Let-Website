@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolvePublicLexicalContentState = resolvePublicLexicalContentState;
 exports.extractLexicalParagraphs = extractLexicalParagraphs;
 exports.resolvePublicBlogIntro = resolvePublicBlogIntro;
 exports.buildPublicBlogPostMetadata = buildPublicBlogPostMetadata;
@@ -9,6 +10,9 @@ function asNonEmptyString(value) {
     }
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
+}
+function isRecord(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 function collectTextContent(value) {
     if (!value || typeof value !== "object") {
@@ -23,12 +27,30 @@ function collectTextContent(value) {
     }
     return nestedText;
 }
+function resolvePublicLexicalContentState(content) {
+    if (!isRecord(content)) {
+        return null;
+    }
+    const root = content.root;
+    if (!isRecord(root)) {
+        return null;
+    }
+    const children = root.children;
+    if (!Array.isArray(children)) {
+        return null;
+    }
+    if (typeof root.type === "string" && root.type !== "root") {
+        return null;
+    }
+    return content;
+}
 function extractLexicalParagraphs(content) {
-    if (!content || typeof content !== "object") {
+    const lexicalContent = resolvePublicLexicalContentState(content);
+    if (!lexicalContent) {
         return [];
     }
-    const rootRecord = content.root;
-    const nestedChildren = Array.isArray(rootRecord === null || rootRecord === void 0 ? void 0 : rootRecord.children) ? rootRecord.children : [];
+    const rootRecord = lexicalContent.root;
+    const nestedChildren = Array.isArray(rootRecord.children) ? rootRecord.children : [];
     const rawParagraphs = nestedChildren
         .flatMap((entry) => collectTextContent(entry))
         .map((entry) => entry.trim())

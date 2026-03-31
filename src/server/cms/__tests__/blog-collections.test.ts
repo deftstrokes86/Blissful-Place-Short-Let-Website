@@ -44,6 +44,15 @@ async function testBlogPostCollectionFieldShape(): Promise<void> {
   }
 }
 
+async function testBlogRichTextToolbarConfig(): Promise<void> {
+  const source = readSource("src/cms/collections/BlogPosts.ts");
+
+  assert.ok(source.includes("FixedToolbarFeature"));
+  assert.ok(source.includes("lexicalEditor({"));
+  assert.ok(source.includes("features: ({ defaultFeatures }) => ["));
+  assert.ok(source.includes("...defaultFeatures"));
+}
+
 async function testBlogSlugBehavior(): Promise<void> {
   assert.equal(normalizeBlogSlug("  Hello, Lagos! Private Tour  "), "hello-lagos-private-tour");
   assert.equal(normalizeBlogSlug("Already-clean-slug"), "already-clean-slug");
@@ -159,6 +168,7 @@ async function testBlogMediaFileReadBehavior(): Promise<void> {
 
 async function run(): Promise<void> {
   await testBlogPostCollectionFieldShape();
+  await testBlogRichTextToolbarConfig();
   await testBlogSlugBehavior();
   await testBlogStatusHelpers();
   await testBlogContentNormalization();

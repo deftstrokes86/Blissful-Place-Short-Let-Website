@@ -118,10 +118,22 @@ async function testPublicBlogServiceUsesExplicitPublishedServerQuery() {
 }
 async function testBlogIndexEditorialLayoutStructure() {
     const source = readSource("src/app/(site)/blog/page.tsx");
-    strict_1.default.ok(source.includes("const [featuredPost, ...remainingPosts] = posts"));
+    strict_1.default.ok(source.includes("const [featuredPost, ...remainingPosts] = visiblePosts"));
+    strict_1.default.ok(source.includes("const topicNavigation = posts.length > 0 ? ("));
     strict_1.default.ok(source.includes("className=\"blog-featured\""));
     strict_1.default.ok(source.includes("className=\"blog-category-row\""));
     strict_1.default.ok(source.includes("className=\"blog-post-grid\""));
+    strict_1.default.ok(source.includes("className=\"blog-card-meta-row\""));
+    strict_1.default.ok(source.includes("className=\"blog-card-category-chip\""));
+    strict_1.default.ok(source.includes("className=\"blog-card-date\""));
+    strict_1.default.ok(source.includes("className=\"blog-post-card-excerpt\""));
+    strict_1.default.ok(source.includes("blog-grid-heading"));
+    strict_1.default.ok(source.includes("All Posts"));
+    strict_1.default.ok(source.includes("Short-Let Guides"));
+    strict_1.default.ok(source.includes("Lagos Area Guides"));
+    strict_1.default.ok(source.includes("Corporate Stays"));
+    strict_1.default.ok(source.includes("Stay Experience"));
+    strict_1.default.ok(source.includes("resolvedSearchParams?.topic ?? resolvedSearchParams?.category"));
 }
 async function testMetadataAndContentHelpers() {
     var _a, _b, _c, _d;
@@ -175,6 +187,21 @@ async function testMetadataAndContentHelpers() {
     strict_1.default.deepEqual(paragraphs, ["First paragraph", "Second paragraph"]);
     strict_1.default.equal((0, blog_public_content_1.resolvePublicBlogIntro)("Explicit intro", paragraphs), "Explicit intro");
     strict_1.default.equal((0, blog_public_content_1.resolvePublicBlogIntro)("", paragraphs), "First paragraph");
+    const lexicalContent = (0, blog_public_content_1.resolvePublicLexicalContentState)({
+        root: {
+            type: "root",
+            children: [{ type: "paragraph", children: [{ type: "text", text: "Hello" }] }],
+        },
+    });
+    strict_1.default.ok(lexicalContent);
+    strict_1.default.equal((0, blog_public_content_1.resolvePublicLexicalContentState)("## Markdown heading"), null);
+}
+async function testBlogPostPageUsesRichTextRenderer() {
+    const source = readSource("src/app/(site)/blog/[slug]/page.tsx");
+    strict_1.default.ok(source.includes('from "@payloadcms/richtext-lexical/react"'));
+    strict_1.default.ok(source.includes("resolvePublicLexicalContentState"));
+    strict_1.default.ok(source.includes("<RichText"));
+    strict_1.default.ok(!source.includes("paragraphs.map((paragraph"));
 }
 async function run() {
     await testPublishedOnlyQueryBehavior();
@@ -183,6 +210,7 @@ async function run() {
     await testPublicBlogServiceUsesExplicitPublishedServerQuery();
     await testBlogIndexEditorialLayoutStructure();
     await testMetadataAndContentHelpers();
+    await testBlogPostPageUsesRichTextRenderer();
     console.log("blog-public-routes: ok");
 }
 void run();

@@ -36,7 +36,9 @@
     "test:stock-movement-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js",
     "test:readiness-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
     "test:inventory-services": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/inventory-template-service.test.js && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
-    "test:cms": "node -e \"require('fs').rmSync('.tmp-cms-tests',{recursive:true,force:true})\" && npx tsc -p tsconfig.cms-tests.json && node .tmp-cms-tests/server/cms/__tests__/cms-access.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/inventory-cms-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-route-wiring.test.js"
+    "test:cms": "node -e \"require('fs').rmSync('.tmp-cms-tests',{recursive:true,force:true})\" && npx tsc -p tsconfig.cms-tests.json && node .tmp-cms-tests/server/cms/__tests__/cms-access.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-page-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/page-builder-collection.test.js && node .tmp-cms-tests/server/cms/__tests__/inventory-cms-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-route-wiring.test.js",
+    "cms:e2e:seed-user": "node scripts/cms-seed-e2e-user.mjs",
+    "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.80.0",
@@ -51,6 +53,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

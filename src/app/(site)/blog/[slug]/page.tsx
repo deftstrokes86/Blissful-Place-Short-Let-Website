@@ -1,3 +1,4 @@
+import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import {
   buildPublicBlogPostMetadata,
   extractLexicalParagraphs,
+  resolvePublicLexicalContentState,
   resolvePublicBlogIntro,
 } from "@/server/cms/blog-public-content";
 import { findPublishedBlogPostBySlug } from "@/server/cms/blog-content-service";
@@ -64,7 +66,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  const paragraphs = extractLexicalParagraphs(post.content);
+  const lexicalContent = resolvePublicLexicalContentState(post.content);
+  const paragraphs = extractLexicalParagraphs(lexicalContent);
   const intro = resolvePublicBlogIntro(post.excerpt, paragraphs);
 
   return (
@@ -81,8 +84,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <h1 className="serif blog-post-title">{post.title}</h1>
           <p className="blog-post-meta">
             {formatPublishedDate(post.publishedAt)}
-            {post.categories[0] ? ` � ${post.categories[0].title}` : ""}
-            {post.authorName ? ` � By ${post.authorName}` : ""}
+            {post.categories[0] ? ` | ${post.categories[0].title}` : ""}
+            {post.authorName ? ` | By ${post.authorName}` : ""}
           </p>
           {intro ? <p className="blog-description">{intro}</p> : null}
         </header>
@@ -100,14 +103,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         ) : null}
 
         <section className="blog-post-content" aria-label="Article content">
-          {paragraphs.length > 0 ? (
-            paragraphs.map((paragraph, index) => (
-              <p key={`${post.id}-${index.toString()}`}>{paragraph}</p>
-            ))
+          {lexicalContent ? (
+            <RichText className="blog-post-richtext" data={lexicalContent} />
           ) : (
             <p>
-              This article is published in our CMS. Rich content rendering can be enhanced further while this baseline
-              route keeps the public blog live and readable.
+              This article was published without supported rich content. Please use the editor formatting tools in CMS
+              and republish to display headings, lists, and emphasis properly.
             </p>
           )}
         </section>

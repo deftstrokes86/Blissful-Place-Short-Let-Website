@@ -1,3 +1,4 @@
+import { FixedToolbarFeature, lexicalEditor } from "@payloadcms/richtext-lexical";
 import type { CollectionBeforeChangeHook, CollectionBeforeValidateHook, CollectionConfig } from "payload";
 
 import { blogCreateAccess, blogDraftWriteAccess, blogReadAccess } from "../access-controls";
@@ -16,6 +17,10 @@ function toRecord(value: unknown): Record<string, unknown> | null {
 
   return value as Record<string, unknown>;
 }
+
+const richTextFieldEditor = lexicalEditor({
+  features: ({ defaultFeatures }) => [...defaultFeatures, FixedToolbarFeature()],
+});
 
 const applyDerivedBlogPostValues: CollectionBeforeValidateHook = ({ data }) => {
   const record = toRecord(data);
@@ -107,6 +112,7 @@ export const BlogPostsCollection: CollectionConfig = {
       name: "content",
       type: "richText",
       required: true,
+      editor: richTextFieldEditor,
     },
     {
       name: "featuredImage",

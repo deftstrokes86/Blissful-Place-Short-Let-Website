@@ -134,6 +134,49 @@
       "createdAt": "2026-03-25T23:35:33.474Z",
       "updatedAt": "2026-03-25T23:35:33.474Z",
       "lastTouchedAt": "2026-03-25T23:35:33.474Z"
+    },
+    {
+      "id": "res_73ced4d3-e0da-4085-8b57-a8d1ed181cb5",
+      "token": "8479189c-605e-4cb4-bf1c-73238e506d83",
+      "status": "draft",
+      "paymentMethod": null,
+      "stay": {
+        "flatId": "kensington",
+        "checkIn": "2026-03-28",
+        "checkOut": "2026-03-30",
+        "guests": 4,
+        "extraIds": [
+          "pantry"
+        ]
+      },
+      "guest": {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "phone": "",
+        "specialRequests": ""
+      },
+      "pricing": {
+        "currency": "NGN",
+        "nightlyRate": 180000,
+        "nights": 2,
+        "staySubtotal": 360000,
+        "extrasSubtotal": 45000,
+        "estimatedTotal": 405000
+      },
+      "progressContext": {
+        "currentStep": 1,
+        "activeBranch": null
+      },
+      "transferHoldStartedAt": null,
+      "transferHoldExpiresAt": null,
+      "inventoryReopenedAt": null,
+      "lastAvailabilityResult": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "createdAt": "2026-03-27T18:10:12.535Z",
+      "updatedAt": "2026-03-27T18:10:12.535Z",
+      "lastTouchedAt": "2026-03-27T18:10:12.535Z"
     }
   ],
   "availabilityBlocks": [],

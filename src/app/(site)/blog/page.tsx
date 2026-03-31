@@ -12,6 +12,47 @@ export const metadata: Metadata = {
     "Practical hospitality insights from Blissful Place Residences covering stays, booking preparation, and local living in Ijaiye/Agbado/Kollington.",
 };
 
+interface BlogPageProps {
+  searchParams?: Promise<{
+    topic?: string;
+    category?: string;
+  }>;
+}
+
+interface BlogTopicOption {
+  value: string;
+  label: string;
+  matchSlugs: readonly string[];
+}
+
+const BLOG_TOPIC_OPTIONS: readonly BlogTopicOption[] = [
+  {
+    value: "all-posts",
+    label: "All Posts",
+    matchSlugs: [],
+  },
+  {
+    value: "short-let-guides",
+    label: "Short-Let Guides",
+    matchSlugs: ["short-let-guides", "short-let-guide", "short-let", "shortlet-guides"],
+  },
+  {
+    value: "lagos-area-guides",
+    label: "Lagos Area Guides",
+    matchSlugs: ["lagos-area-guides", "lagos-guides", "lagos-area-guide", "lagos"],
+  },
+  {
+    value: "corporate-stays",
+    label: "Corporate Stays",
+    matchSlugs: ["corporate-stays", "corporate-stay", "business-stays", "business-travel"],
+  },
+  {
+    value: "stay-experience",
+    label: "Stay Experience",
+    matchSlugs: ["stay-experience", "guest-experience", "stay-tips", "experience"],
+  },
+];
+
 function formatPublishedDate(value: string | null): string {
   if (!value) {
     return "Unscheduled";
@@ -24,8 +65,68 @@ function formatPublishedDate(value: string | null): string {
   });
 }
 
-export default async function BlogPage() {
+function normalizeTopicParam(value: string | undefined): string {
+  if (!value) {
+    return "";
+  }
+
+  return value.trim().toLowerCase();
+}
+
+function resolveSelectedTopic(value: string): BlogTopicOption {
+  return BLOG_TOPIC_OPTIONS.find((topic) => topic.value === value) ?? BLOG_TOPIC_OPTIONS[0];
+}
+
+function topicLink(value: string): string {
+  if (value === "all-posts") {
+    return "/blog";
+  }
+
+  return `/blog?topic=${encodeURIComponent(value)}`;
+}
+
+function postMatchesTopic(categorySlugs: readonly string[], topic: BlogTopicOption): boolean {
+  if (topic.value === "all-posts") {
+    return true;
+  }
+
+  return categorySlugs.some((slug) => topic.matchSlugs.includes(slug));
+}
+
+function resolvePrimaryCategoryLabel(value: { categories: Array<{ title: string }> }): string {
+  return value.categories[0]?.title ?? "General";
+}
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const posts = await listPublishedBlogPosts();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const selectedTopicValue = normalizeTopicParam(resolvedSearchParams?.topic ?? resolvedSearchParams?.category);
+  const selectedTopic = resolveSelectedTopic(selectedTopicValue);
+
+  const visiblePosts = posts.filter((post) => {
+    const postCategorySlugs = post.categories.map((category) => normalizeTopicParam(category.slug));
+    return postMatchesTopic(postCategorySlugs, selectedTopic);
+  });
+
+  const [featuredPost, ...remainingPosts] = visiblePosts;
+  const featuredCategoryLabel = featuredPost ? resolvePrimaryCategoryLabel(featuredPost) : "General";
+
+  const topicNavigation = posts.length > 0 ? (
+    <nav className="blog-category-row" aria-label="Blog categories">
+      <p className="blog-category-label">Browse topics</p>
+      <div className="blog-category-chips">
+        {BLOG_TOPIC_OPTIONS.map((topic) => (
+          <Link
+            key={topic.value}
+            href={topicLink(topic.value)}
+            className={`blog-category-chip ${selectedTopic.value === topic.value ? "is-active" : ""}`.trim()}
+          >
+            {topic.label}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  ) : null;
 
   return (
     <main className="blog-page">
@@ -41,14 +142,24 @@ export default async function BlogPage() {
       </section>
 
       <section className="container blog-listing" aria-label="Published blog posts">
-        {posts.length === 0 ? (
+        {topicNavigation}
+
+        {visiblePosts.length === 0 ? (
           <article className="blog-empty-state">
-            <h2 className="serif">New posts are on the way</h2>
+            <h2 className="serif">
+              {posts.length === 0 ? "New posts are on the way" : `No posts under ${selectedTopic.label} yet`}
+            </h2>
             <p>
-              We are preparing practical guides and updates. You can still reach us directly for booking and stay
-              questions.
+              {posts.length === 0
+                ? "We are preparing practical guides and updates. You can still reach us directly for booking and stay questions."
+                : "Switch topics or view all posts to keep exploring practical guidance for your stay."}
             </p>
             <div className="blog-empty-actions">
+              {posts.length > 0 && selectedTopic.value !== "all-posts" ? (
+                <Link href="/blog" className="btn btn-outline-white">
+                  View all articles
+                </Link>
+              ) : null}
               <Link href="/contact" className="btn btn-outline-white">
                 Make an Inquiry
               </Link>
@@ -58,39 +169,103 @@ export default async function BlogPage() {
             </div>
           </article>
         ) : (
-          <div className="blog-grid">
-            {posts.map((post) => (
-              <article key={post.id} className="blog-card">
-                {post.featuredImageUrl ? (
-                  <Link href={`/blog/${post.slug}`} className="blog-card-image" aria-label={`Read ${post.title}`}>
+          <div className="blog-editorial-stack">
+            {featuredPost ? (
+              <article className="blog-featured">
+                <Link
+                  href={`/blog/${featuredPost.slug}`}
+                  className="blog-featured-image"
+                  aria-label={`Read ${featuredPost.title}`}
+                >
+                  {featuredPost.featuredImageUrl ? (
                     <Image
-                      src={post.featuredImageUrl}
-                      alt={post.featuredImageAlt || post.title}
+                      src={featuredPost.featuredImageUrl}
+                      alt={featuredPost.featuredImageAlt || featuredPost.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="(max-width: 960px) 100vw, 48vw"
+                      priority
                     />
-                  </Link>
-                ) : null}
+                  ) : (
+                    <span className="blog-image-fallback" aria-hidden="true" />
+                  )}
+                </Link>
 
-                <div className="blog-card-body">
-                  <div className="blog-card-meta">
-                    <span>{formatPublishedDate(post.publishedAt)}</span>
-                    {post.categories[0] ? <span>{post.categories[0].title}</span> : null}
-                    {post.authorName ? <span>By {post.authorName}</span> : null}
+                <div className="blog-featured-body">
+                  <div className="blog-card-meta-row">
+                    <span className="blog-card-category-chip">{featuredCategoryLabel}</span>
+                    <span className="blog-card-date">{formatPublishedDate(featuredPost.publishedAt)}</span>
                   </div>
 
-                  <h2 className="serif">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  {featuredPost.authorName ? <p className="blog-card-byline">By {featuredPost.authorName}</p> : null}
+
+                  <h2 className="serif blog-featured-title">
+                    <Link href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</Link>
                   </h2>
 
-                  {post.excerpt ? <p>{post.excerpt}</p> : null}
+                  {featuredPost.excerpt ? <p className="blog-featured-excerpt">{featuredPost.excerpt}</p> : null}
 
-                  <Link href={`/blog/${post.slug}`} className="blog-read-link">
-                    Read article
+                  <Link href={`/blog/${featuredPost.slug}`} className="blog-card-read-link">
+                    Read featured article
                   </Link>
                 </div>
               </article>
-            ))}
+            ) : null}
+
+            <div className="blog-grid-header">
+              <h2 className="serif blog-grid-heading">Latest articles</h2>
+              <p className="blog-grid-subtle">
+                {remainingPosts.length > 0
+                  ? `${remainingPosts.length.toString()} more stories to explore.`
+                  : "New stories are publishing soon."}
+              </p>
+            </div>
+
+            <div className="blog-post-grid" aria-label="More published articles">
+              {remainingPosts.length > 0 ? (
+                remainingPosts.map((post) => {
+                  const primaryCategoryLabel = resolvePrimaryCategoryLabel(post);
+
+                  return (
+                    <article key={post.id} className="blog-post-card">
+                      <Link href={`/blog/${post.slug}`} className="blog-post-card-image" aria-label={`Read ${post.title}`}>
+                        {post.featuredImageUrl ? (
+                          <Image
+                            src={post.featuredImageUrl}
+                            alt={post.featuredImageAlt || post.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1180px) 50vw, 33vw"
+                          />
+                        ) : (
+                          <span className="blog-image-fallback" aria-hidden="true" />
+                        )}
+                      </Link>
+
+                      <div className="blog-post-card-body">
+                        <div className="blog-card-meta-row">
+                          <span className="blog-card-category-chip">{primaryCategoryLabel}</span>
+                          <span className="blog-card-date">{formatPublishedDate(post.publishedAt)}</span>
+                        </div>
+
+                        <h3 className="serif blog-post-card-title">
+                          <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                        </h3>
+
+                        {post.excerpt ? <p className="blog-post-card-excerpt">{post.excerpt}</p> : null}
+
+                        <Link href={`/blog/${post.slug}`} className="blog-card-read-link">
+                          Read article
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })
+              ) : (
+                <article className="blog-grid-note">
+                  <h3 className="serif">More articles coming soon</h3>
+                  <p>We are publishing new practical guides regularly. Check back soon for more insights.</p>
+                </article>
+              )}
+            </div>
           </div>
         )}
       </section>

@@ -1,3 +1,4 @@
+import type { SerializedEditorState } from "lexical";
 import type { Metadata } from "next";
 
 export interface PublicBlogPostMetadataInput {
@@ -20,6 +21,10 @@ function asNonEmptyString(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function collectTextContent(value: unknown): string[] {
   if (!value || typeof value !== "object") {
     return [];
@@ -38,13 +43,39 @@ function collectTextContent(value: unknown): string[] {
   return nestedText;
 }
 
+export function resolvePublicLexicalContentState(content: unknown): SerializedEditorState | null {
+  if (!isRecord(content)) {
+    return null;
+  }
+
+  const root = content.root;
+
+  if (!isRecord(root)) {
+    return null;
+  }
+
+  const children = root.children;
+
+  if (!Array.isArray(children)) {
+    return null;
+  }
+
+  if (typeof root.type === "string" && root.type !== "root") {
+    return null;
+  }
+
+  return content as unknown as SerializedEditorState;
+}
+
 export function extractLexicalParagraphs(content: unknown): string[] {
-  if (!content || typeof content !== "object") {
+  const lexicalContent = resolvePublicLexicalContentState(content);
+
+  if (!lexicalContent) {
     return [];
   }
 
-  const rootRecord = (content as Record<string, unknown>).root as Record<string, unknown> | undefined;
-  const nestedChildren = Array.isArray(rootRecord?.children) ? rootRecord.children : [];
+  const rootRecord = lexicalContent.root as unknown as Record<string, unknown>;
+  const nestedChildren = Array.isArray(rootRecord.children) ? rootRecord.children : [];
 
   const rawParagraphs = nestedChildren
     .flatMap((entry) => collectTextContent(entry))
@@ -87,3 +118,4 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
     },
   };
 }
+

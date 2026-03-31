@@ -14,6 +14,7 @@ import {
 import {
   buildPublicBlogPostMetadata,
   extractLexicalParagraphs,
+  resolvePublicLexicalContentState,
   resolvePublicBlogIntro,
 } from "../blog-public-content";
 
@@ -149,10 +150,22 @@ async function testPublicBlogServiceUsesExplicitPublishedServerQuery(): Promise<
 async function testBlogIndexEditorialLayoutStructure(): Promise<void> {
   const source = readSource("src/app/(site)/blog/page.tsx");
 
-  assert.ok(source.includes("const [featuredPost, ...remainingPosts] = posts"));
+  assert.ok(source.includes("const [featuredPost, ...remainingPosts] = visiblePosts"));
+  assert.ok(source.includes("const topicNavigation = posts.length > 0 ? ("));
   assert.ok(source.includes("className=\"blog-featured\""));
   assert.ok(source.includes("className=\"blog-category-row\""));
   assert.ok(source.includes("className=\"blog-post-grid\""));
+  assert.ok(source.includes("className=\"blog-card-meta-row\""));
+  assert.ok(source.includes("className=\"blog-card-category-chip\""));
+  assert.ok(source.includes("className=\"blog-card-date\""));
+  assert.ok(source.includes("className=\"blog-post-card-excerpt\""));
+  assert.ok(source.includes("blog-grid-heading"));
+  assert.ok(source.includes("All Posts"));
+  assert.ok(source.includes("Short-Let Guides"));
+  assert.ok(source.includes("Lagos Area Guides"));
+  assert.ok(source.includes("Corporate Stays"));
+  assert.ok(source.includes("Stay Experience"));
+  assert.ok(source.includes("resolvedSearchParams?.topic ?? resolvedSearchParams?.category"));
 }
 
 async function testMetadataAndContentHelpers(): Promise<void> {
@@ -214,6 +227,24 @@ async function testMetadataAndContentHelpers(): Promise<void> {
 
   assert.equal(resolvePublicBlogIntro("Explicit intro", paragraphs), "Explicit intro");
   assert.equal(resolvePublicBlogIntro("", paragraphs), "First paragraph");
+
+  const lexicalContent = resolvePublicLexicalContentState({
+    root: {
+      type: "root",
+      children: [{ type: "paragraph", children: [{ type: "text", text: "Hello" }] }],
+    },
+  });
+  assert.ok(lexicalContent);
+  assert.equal(resolvePublicLexicalContentState("## Markdown heading"), null);
+}
+
+async function testBlogPostPageUsesRichTextRenderer(): Promise<void> {
+  const source = readSource("src/app/(site)/blog/[slug]/page.tsx");
+
+  assert.ok(source.includes('from "@payloadcms/richtext-lexical/react"'));
+  assert.ok(source.includes("resolvePublicLexicalContentState"));
+  assert.ok(source.includes("<RichText"));
+  assert.ok(!source.includes("paragraphs.map((paragraph"));
 }
 
 async function run(): Promise<void> {
@@ -223,6 +254,7 @@ async function run(): Promise<void> {
   await testPublicBlogServiceUsesExplicitPublishedServerQuery();
   await testBlogIndexEditorialLayoutStructure();
   await testMetadataAndContentHelpers();
+  await testBlogPostPageUsesRichTextRenderer();
 
   console.log("blog-public-routes: ok");
 }

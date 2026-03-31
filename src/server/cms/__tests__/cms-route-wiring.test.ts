@@ -40,6 +40,15 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
   assert.ok(!payloadConfigSource.includes('user: "users"'));
 }
 
+async function testPayloadSchemaPushSafetyInDevelopment(): Promise<void> {
+  const source = readSource("src/cms/payload.config.ts");
+
+  assert.ok(source.includes("process.env.NODE_ENV"));
+  assert.ok(source.includes("payloadIsDevelopment"));
+  assert.ok(source.includes("payloadAutoPushOverride"));
+  assert.ok(source.includes("payloadAutoPushOverride ?? payloadIsDevelopment"));
+}
+
 async function testRootPayloadConfigDelegatesToCmsConfig(): Promise<void> {
   const source = readSource("payload.config.ts");
 
@@ -53,6 +62,8 @@ async function testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml(): Promise<
   assert.ok(cmsRootLayoutSource.includes('"@payloadcms/next/css"'));
   assert.ok(cmsRootLayoutSource.includes("RootLayout"));
   assert.ok(cmsRootLayoutSource.includes("serverFunction"));
+  assert.ok(cmsRootLayoutSource.includes("cloneElement"));
+  assert.ok(cmsRootLayoutSource.includes("suppressHydrationWarning: true"));
   assert.ok(pageSource.includes("RootPage"));
   assert.ok(!pageSource.includes("segments ?? []"));
 }
@@ -79,6 +90,7 @@ async function run(): Promise<void> {
   await testCmsMountFilesExist();
   await testPayloadConfigUsesCmsRoutes();
   await testCmsUsesDedicatedUsersAndDatabaseBoundary();
+  await testPayloadSchemaPushSafetyInDevelopment();
   await testRootPayloadConfigDelegatesToCmsConfig();
   await testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml();
   await testCmsImportMapContainsRequiredBuiltInComponents();

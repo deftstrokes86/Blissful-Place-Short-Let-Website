@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogPostsCollection = void 0;
+const richtext_lexical_1 = require("@payloadcms/richtext-lexical");
 const access_controls_1 = require("../access-controls");
 const blog_content_model_1 = require("../../server/cms/blog-content-model");
 const cms_access_1 = require("../../server/cms/cms-access");
@@ -10,6 +11,9 @@ function toRecord(value) {
     }
     return value;
 }
+const richTextFieldEditor = (0, richtext_lexical_1.lexicalEditor)({
+    features: ({ defaultFeatures }) => [...defaultFeatures, (0, richtext_lexical_1.FixedToolbarFeature)()],
+});
 const applyDerivedBlogPostValues = ({ data }) => {
     const record = toRecord(data);
     if (!record) {
@@ -82,6 +86,7 @@ exports.BlogPostsCollection = {
             name: "content",
             type: "richText",
             required: true,
+            editor: richTextFieldEditor,
         },
         {
             name: "featuredImage",

@@ -38,6 +38,13 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary() {
     strict_1.default.ok(payloadConfigSource.includes("resolveSqliteFilePath"));
     strict_1.default.ok(!payloadConfigSource.includes('user: "users"'));
 }
+async function testPayloadSchemaPushSafetyInDevelopment() {
+    const source = readSource("src/cms/payload.config.ts");
+    strict_1.default.ok(source.includes("process.env.NODE_ENV"));
+    strict_1.default.ok(source.includes("payloadIsDevelopment"));
+    strict_1.default.ok(source.includes("payloadAutoPushOverride"));
+    strict_1.default.ok(source.includes("payloadAutoPushOverride ?? payloadIsDevelopment"));
+}
 async function testRootPayloadConfigDelegatesToCmsConfig() {
     const source = readSource("payload.config.ts");
     strict_1.default.ok(source.includes("./src/cms/payload.config.ts"));
@@ -48,6 +55,8 @@ async function testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml() {
     strict_1.default.ok(cmsRootLayoutSource.includes('"@payloadcms/next/css"'));
     strict_1.default.ok(cmsRootLayoutSource.includes("RootLayout"));
     strict_1.default.ok(cmsRootLayoutSource.includes("serverFunction"));
+    strict_1.default.ok(cmsRootLayoutSource.includes("cloneElement"));
+    strict_1.default.ok(cmsRootLayoutSource.includes("suppressHydrationWarning: true"));
     strict_1.default.ok(pageSource.includes("RootPage"));
     strict_1.default.ok(!pageSource.includes("segments ?? []"));
 }
@@ -69,6 +78,7 @@ async function run() {
     await testCmsMountFilesExist();
     await testPayloadConfigUsesCmsRoutes();
     await testCmsUsesDedicatedUsersAndDatabaseBoundary();
+    await testPayloadSchemaPushSafetyInDevelopment();
     await testRootPayloadConfigDelegatesToCmsConfig();
     await testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml();
     await testCmsImportMapContainsRequiredBuiltInComponents();

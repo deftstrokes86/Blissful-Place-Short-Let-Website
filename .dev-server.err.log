@@ -5,3 +5,518 @@
 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⨯ ./src/app/globals.css:5331:1
+Syntax error: E:\Blissful_Place - Copy\src\app\globals.css Unclosed block
+
+ [90m 5329 | [39m[33m}[39m
+ [90m 5330 | [39m
+[1m[31m>[39m[22m[90m 5331 | [39m[36m@media[39m[36m [39m[36m(max-width: 720px)[39m [33m{[39m
+ [90m      | [39m[1m[31m^[39m[22m
+ [90m 5332 | [39m  [33m.blog-hero,[39m
+ [90m 5333 | [39m  [33m.blog-post-shell[39m [33m{[39m
+⨯ ./src/app/globals.css:5331:1
+Syntax error: E:\Blissful_Place - Copy\src\app\globals.css Unclosed block
+
+ [90m 5329 | [39m[33m}[39m
+ [90m 5330 | [39m
+[1m[31m>[39m[22m[90m 5331 | [39m[36m@media[39m[36m [39m[36m(max-width: 720px)[39m [33m{[39m
+ [90m      | [39m[1m[31m^[39m[22m
+ [90m 5332 | [39m  [33m.blog-hero,[39m
+ [90m 5333 | [39m  [33m.blog-post-shell[39m [33m{[39m
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|E:\Blissful_Place - Copy\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[15].oneOf[10].use[2]!E:\Blissful_Place - Copy\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[15].oneOf[10].use[3]!E:\Blissful_Place - Copy\src\app\globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ./src/cms/payload.config.ts
+Error:   x Expected ';', '}' or <eof>
+    ,-[E:\Blissful_Place - Copy\src\cms\payload.config.ts:17:1]
+ 14 |     import { CmsInventoryTemplateItemsCollection } from "./collections/CmsInventoryTemplateItems";
+ 15 |     import { CmsInventoryTemplatesCollection } from "./collections/CmsInventoryTemplates";
+ 16 |     import { CmsMaintenanceIssuesCollection } from "./collections/CmsMaintenanceIssues";
+ 17 | ,-> import { CmsUsersCollection } from "./collections/CmsUsers";`nimport { CmsPagesCollection } from "./collections/CmsPages";
+ 18 | |   
+ 19 | |   const CMS_ADMIN_ROUTE = "/cms";
+ 20 | |   const CMS_API_ROUTE = "/cms/api";
+ 21 | |   const payloadSecret = process.env.PAYLOAD_SECRET?.trim() || "blissful-place-cms-dev-secret";
+ 22 | |   const payloadDatabaseUrl = process.env.PAYLOAD_DATABASE_URL?.trim() || "file:./.data/payload.db";
+ 23 | |   const payloadAutoPushSchema = process.env.PAYLOAD_AUTO_PUSH_SCHEMA?.trim().toLowerCase() === "true";
+ 24 | |   
+ 25 | |   function resolveSqliteFilePath(databaseUrl: string): string | null {
+ 26 | |     if (!databaseUrl.startsWith("file:")) {
+ 27 | |       return null;
+ 28 | |     }
+ 29 | |   
+ 30 | |     const relativePath = databaseUrl.slice("file:".length);
+ 31 | |     return path.resolve(process.cwd(), relativePath);
+ 32 | |   }
+ 33 | |   
+ 34 | |   const payloadSqliteFilePath = resolveSqliteFilePath(payloadDatabaseUrl);
+ 35 | |   const payloadBootstrapPush = payloadSqliteFilePath ? !fs.existsSync(payloadSqliteFilePath) : false;
+ 36 | |   const payloadShouldPushSchema = payloadAutoPushSchema || payloadBootstrapPush;
+ 37 | |   
+ 38 | |   const payloadConfig = buildConfig({
+ 39 | |     secret: payloadSecret,
+ 40 | |     editor: lexicalEditor(),
+ 41 | |     db: sqliteAdapter({
+ 42 | |       client: {
+ 43 | |         url: payloadDatabaseUrl,
+ 44 | |       },
+ 45 | |       // Keep runtime non-interactive by default.
+ 46 | |       // Automatically bootstrap schema only when the sqlite file does not exist.
+ 47 | |       push: payloadShouldPushSchema,
+ 48 | |     }),
+ 49 | |     admin: {
+ 50 | |       user: CmsUsersCollection.slug,
+ 51 | |       suppressHydrationWarning: true,
+ 52 | |     },
+ 53 | |     routes: {
+ 54 | |       admin: CMS_ADMIN_ROUTE,
+ 55 | |       api: CMS_API_ROUTE,
+ 56 | |     },
+ 57 | |     collections: [
+ 58 | |->     CmsUsersCollection,`n    CmsPagesCollection,`n    BlogCategoriesCollection,
+    : `---                        ^
+    : `---- This is the expression part of an expression statement
+ 59 |         BlogTagsCollection,
+ 60 |         BlogMediaCollection,
+ 60 |         BlogPostsCollection,
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/cms/payload.config.ts
+./src/app/(cms)/layout.tsx
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "9c636103_b9e4_4a55_ad73_9512162c614c" on ("payload_locked_documents"."id" = "9c636103_b9e4_4a55_ad73_9512162c614c"."parent_id" and "9c636103_b9e4_4a55_ad73_9512162c614c"."path" like ?) where (("9c636103_b9e4_4a55_ad73_9512162c614c"."cms_users_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_pages_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_categories_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_tags_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_media_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_posts_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_items_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_templates_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_template_items_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_alerts_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_maintenance_issues_id" = ?) and "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_users_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,1,1,1,1,1,1,1,1,1,1,1,2026-03-26T21:38:00.155Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "9c636103_b9e4_4a55_ad73_9512162c614c" on ("payload_locked_documents"."id" = "9c636103_b9e4_4a55_ad73_9512162c614c"."parent_id" and "9c636103_b9e4_4a55_ad73_9512162c614c"."path" like ?) where (("9c636103_b9e4_4a55_ad73_9512162c614c"."cms_users_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_pages_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_categories_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_tags_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_media_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."blog_posts_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_items_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_templates_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_template_items_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_inventory_alerts_id" = ? or "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_maintenance_issues_id" = ?) and "9c636103_b9e4_4a55_ad73_9512162c614c"."cms_users_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '3251550458',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 9c636103_b9e4_4a55_ad73_9512162c614c.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 9c636103_b9e4_4a55_ad73_9512162c614c.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "6a921916_11fe_46fe_a5a5_c446a285daf8" on ("payload_locked_documents"."id" = "6a921916_11fe_46fe_a5a5_c446a285daf8"."parent_id" and "6a921916_11fe_46fe_a5a5_c446a285daf8"."path" like ?) where (("6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_users_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_pages_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_categories_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_tags_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_media_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_posts_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_items_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_templates_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_template_items_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_alerts_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_maintenance_issues_id" = ?) and "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_users_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,1,1,1,1,1,1,1,1,1,1,1,2026-03-26T22:24:23.209Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "6a921916_11fe_46fe_a5a5_c446a285daf8" on ("payload_locked_documents"."id" = "6a921916_11fe_46fe_a5a5_c446a285daf8"."parent_id" and "6a921916_11fe_46fe_a5a5_c446a285daf8"."path" like ?) where (("6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_users_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_pages_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_categories_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_tags_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_media_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."blog_posts_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_items_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_templates_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_template_items_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_inventory_alerts_id" = ? or "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_maintenance_issues_id" = ?) and "6a921916_11fe_46fe_a5a5_c446a285daf8"."cms_users_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '932463290',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 6a921916_11fe_46fe_a5a5_c446a285daf8.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 6a921916_11fe_46fe_a5a5_c446a285daf8.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "8014a931_03c8_456e_8178_80dfd6ad4559" on ("payload_locked_documents"."id" = "8014a931_03c8_456e_8178_80dfd6ad4559"."parent_id" and "8014a931_03c8_456e_8178_80dfd6ad4559"."path" like ?) where (("8014a931_03c8_456e_8178_80dfd6ad4559"."cms_users_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_pages_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_categories_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_tags_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_media_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_posts_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_items_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_templates_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_template_items_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_alerts_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_maintenance_issues_id" = ?) and "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,2,2,2,2,2,2,2,2,2,2,2,2026-03-27T01:29:32.592Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "8014a931_03c8_456e_8178_80dfd6ad4559" on ("payload_locked_documents"."id" = "8014a931_03c8_456e_8178_80dfd6ad4559"."parent_id" and "8014a931_03c8_456e_8178_80dfd6ad4559"."path" like ?) where (("8014a931_03c8_456e_8178_80dfd6ad4559"."cms_users_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_pages_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_categories_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_tags_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_media_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_posts_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_items_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_templates_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_template_items_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_inventory_alerts_id" = ? or "8014a931_03c8_456e_8178_80dfd6ad4559"."cms_maintenance_issues_id" = ?) and "8014a931_03c8_456e_8178_80dfd6ad4559"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '4222042411',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 8014a931_03c8_456e_8178_80dfd6ad4559.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 8014a931_03c8_456e_8178_80dfd6ad4559.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "d2d7349e_f837_447a_807a_903065b8a381" on ("payload_locked_documents"."id" = "d2d7349e_f837_447a_807a_903065b8a381"."parent_id" and "d2d7349e_f837_447a_807a_903065b8a381"."path" like ?) where (("d2d7349e_f837_447a_807a_903065b8a381"."cms_users_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_pages_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_categories_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_tags_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_media_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_posts_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_items_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_templates_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_template_items_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_alerts_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_maintenance_issues_id" = ?) and "d2d7349e_f837_447a_807a_903065b8a381"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,3,3,3,3,3,3,3,3,3,3,3,2026-03-27T01:30:21.709Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "d2d7349e_f837_447a_807a_903065b8a381" on ("payload_locked_documents"."id" = "d2d7349e_f837_447a_807a_903065b8a381"."parent_id" and "d2d7349e_f837_447a_807a_903065b8a381"."path" like ?) where (("d2d7349e_f837_447a_807a_903065b8a381"."cms_users_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_pages_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_categories_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_tags_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_media_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."blog_posts_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_items_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_templates_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_template_items_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_inventory_alerts_id" = ? or "d2d7349e_f837_447a_807a_903065b8a381"."cms_maintenance_issues_id" = ?) and "d2d7349e_f837_447a_807a_903065b8a381"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '868781483',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: d2d7349e_f837_447a_807a_903065b8a381.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: d2d7349e_f837_447a_807a_903065b8a381.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3" on ("payload_locked_documents"."id" = "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."parent_id" and "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."path" like ?) where (("1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_users_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_pages_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_categories_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_tags_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_media_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_posts_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_items_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_templates_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_template_items_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_alerts_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_maintenance_issues_id" = ?) and "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,4,4,4,4,4,4,4,4,4,4,4,2026-03-27T01:31:34.961Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3" on ("payload_locked_documents"."id" = "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."parent_id" and "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."path" like ?) where (("1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_users_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_pages_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_categories_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_tags_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_media_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_posts_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_items_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_templates_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_template_items_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_inventory_alerts_id" = ? or "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."cms_maintenance_issues_id" = ?) and "1f566c79_5b9b_4e0e_b489_2cf68dcc70d3"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '4196570859',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 1f566c79_5b9b_4e0e_b489_2cf68dcc70d3.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 1f566c79_5b9b_4e0e_b489_2cf68dcc70d3.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "4f097c38_d4d4_4c41_b0cd_b399558125cd" on ("payload_locked_documents"."id" = "4f097c38_d4d4_4c41_b0cd_b399558125cd"."parent_id" and "4f097c38_d4d4_4c41_b0cd_b399558125cd"."path" like ?) where (("4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_users_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_pages_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_categories_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_tags_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_media_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_posts_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_items_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_templates_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_template_items_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_alerts_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_maintenance_issues_id" = ?) and "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,5,5,5,5,5,5,5,5,5,5,5,2026-03-27T01:33:03.487Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "4f097c38_d4d4_4c41_b0cd_b399558125cd" on ("payload_locked_documents"."id" = "4f097c38_d4d4_4c41_b0cd_b399558125cd"."parent_id" and "4f097c38_d4d4_4c41_b0cd_b399558125cd"."path" like ?) where (("4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_users_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_pages_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_categories_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_tags_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_media_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_posts_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_items_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_templates_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_template_items_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_inventory_alerts_id" = ? or "4f097c38_d4d4_4c41_b0cd_b399558125cd"."cms_maintenance_issues_id" = ?) and "4f097c38_d4d4_4c41_b0cd_b399558125cd"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '748680171',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 4f097c38_d4d4_4c41_b0cd_b399558125cd.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 4f097c38_d4d4_4c41_b0cd_b399558125cd.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "4cf7d612_151f_4e99_a01c_adcaf45aaeb5" on ("payload_locked_documents"."id" = "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."parent_id" and "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."path" like ?) where (("4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_users_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_pages_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_categories_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_tags_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_media_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_posts_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_items_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_templates_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_template_items_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_alerts_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_maintenance_issues_id" = ?) and "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,6,6,6,6,6,6,6,6,6,6,6,2026-03-27T01:34:00.000Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "4cf7d612_151f_4e99_a01c_adcaf45aaeb5" on ("payload_locked_documents"."id" = "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."parent_id" and "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."path" like ?) where (("4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_users_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_pages_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_categories_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_tags_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_media_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_posts_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_items_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_templates_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_template_items_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_inventory_alerts_id" = ? or "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."cms_maintenance_issues_id" = ?) and "4cf7d612_151f_4e99_a01c_adcaf45aaeb5"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '3766819243',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 4cf7d612_151f_4e99_a01c_adcaf45aaeb5.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 4cf7d612_151f_4e99_a01c_adcaf45aaeb5.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "677bb5f9_014e_416a_93d1_ef88fd5dbd90" on ("payload_locked_documents"."id" = "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."parent_id" and "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."path" like ?) where (("677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_users_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_pages_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_categories_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_tags_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_media_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_posts_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_items_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_templates_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_template_items_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_alerts_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_maintenance_issues_id" = ?) and "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,7,7,7,7,7,7,7,7,7,7,7,2026-03-27T01:34:51.356Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "677bb5f9_014e_416a_93d1_ef88fd5dbd90" on ("payload_locked_documents"."id" = "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."parent_id" and "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."path" like ?) where (("677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_users_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_pages_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_categories_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_tags_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_media_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_posts_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_items_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_templates_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_template_items_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_inventory_alerts_id" = ? or "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."cms_maintenance_issues_id" = ?) and "677bb5f9_014e_416a_93d1_ef88fd5dbd90"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '1052830955',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 677bb5f9_014e_416a_93d1_ef88fd5dbd90.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 677bb5f9_014e_416a_93d1_ef88fd5dbd90.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f" on ("payload_locked_documents"."id" = "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."parent_id" and "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."path" like ?) where (("dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_users_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_pages_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_categories_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_tags_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_media_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_posts_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_items_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_templates_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_template_items_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_alerts_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_maintenance_issues_id" = ?) and "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,8,8,8,8,8,8,8,8,8,8,8,2026-03-27T01:40:40.968Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f" on ("payload_locked_documents"."id" = "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."parent_id" and "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."path" like ?) where (("dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_users_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_pages_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_categories_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_tags_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_media_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_posts_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_items_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_templates_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_template_items_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_inventory_alerts_id" = ? or "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."cms_maintenance_issues_id" = ?) and "dc31dda8_930c_4e6e_b6cf_5b5356b48b6f"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '2288987947',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: dc31dda8_930c_4e6e_b6cf_5b5356b48b6f.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: dc31dda8_930c_4e6e_b6cf_5b5356b48b6f.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "0b1b1428_4533_45b5_9215_94d9986206c1" on ("payload_locked_documents"."id" = "0b1b1428_4533_45b5_9215_94d9986206c1"."parent_id" and "0b1b1428_4533_45b5_9215_94d9986206c1"."path" like ?) where (("0b1b1428_4533_45b5_9215_94d9986206c1"."cms_users_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_pages_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_categories_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_tags_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_media_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_posts_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_items_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_templates_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_template_items_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_alerts_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_maintenance_issues_id" = ?) and "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,9,9,9,9,9,9,9,9,9,9,9,2026-03-27T01:41:27.242Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "0b1b1428_4533_45b5_9215_94d9986206c1" on ("payload_locked_documents"."id" = "0b1b1428_4533_45b5_9215_94d9986206c1"."parent_id" and "0b1b1428_4533_45b5_9215_94d9986206c1"."path" like ?) where (("0b1b1428_4533_45b5_9215_94d9986206c1"."cms_users_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_pages_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_categories_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_tags_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_media_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_posts_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_items_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_templates_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_template_items_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_inventory_alerts_id" = ? or "0b1b1428_4533_45b5_9215_94d9986206c1"."cms_maintenance_issues_id" = ?) and "0b1b1428_4533_45b5_9215_94d9986206c1"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '2623803947',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 0b1b1428_4533_45b5_9215_94d9986206c1.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 0b1b1428_4533_45b5_9215_94d9986206c1.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "82f19574_8548_444f_b053_6f13e5095aea" on ("payload_locked_documents"."id" = "82f19574_8548_444f_b053_6f13e5095aea"."parent_id" and "82f19574_8548_444f_b053_6f13e5095aea"."path" like ?) where (("82f19574_8548_444f_b053_6f13e5095aea"."cms_users_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_pages_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_categories_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_tags_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_media_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_posts_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_items_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_templates_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_template_items_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_alerts_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_maintenance_issues_id" = ?) and "82f19574_8548_444f_b053_6f13e5095aea"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,10,10,10,10,10,10,10,10,10,10,10,2026-03-27T01:42:05.637Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "82f19574_8548_444f_b053_6f13e5095aea" on ("payload_locked_documents"."id" = "82f19574_8548_444f_b053_6f13e5095aea"."parent_id" and "82f19574_8548_444f_b053_6f13e5095aea"."path" like ?) where (("82f19574_8548_444f_b053_6f13e5095aea"."cms_users_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_pages_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_categories_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_tags_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_media_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."blog_posts_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_items_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_templates_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_template_items_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_inventory_alerts_id" = ? or "82f19574_8548_444f_b053_6f13e5095aea"."cms_maintenance_issues_id" = ?) and "82f19574_8548_444f_b053_6f13e5095aea"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '2734016523',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 82f19574_8548_444f_b053_6f13e5095aea.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 82f19574_8548_444f_b053_6f13e5095aea.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "de21446f_eab1_4b84_9d96_428353e835f6" on ("payload_locked_documents"."id" = "de21446f_eab1_4b84_9d96_428353e835f6"."parent_id" and "de21446f_eab1_4b84_9d96_428353e835f6"."path" like ?) where (("de21446f_eab1_4b84_9d96_428353e835f6"."cms_users_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_pages_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_categories_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_tags_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_media_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_posts_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_items_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_templates_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_template_items_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_alerts_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_maintenance_issues_id" = ?) and "de21446f_eab1_4b84_9d96_428353e835f6"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,11,11,11,11,11,11,11,11,11,11,11,2026-03-27T01:43:02.695Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "de21446f_eab1_4b84_9d96_428353e835f6" on ("payload_locked_documents"."id" = "de21446f_eab1_4b84_9d96_428353e835f6"."parent_id" and "de21446f_eab1_4b84_9d96_428353e835f6"."path" like ?) where (("de21446f_eab1_4b84_9d96_428353e835f6"."cms_users_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_pages_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_categories_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_tags_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_media_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."blog_posts_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_items_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_templates_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_template_items_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_inventory_alerts_id" = ? or "de21446f_eab1_4b84_9d96_428353e835f6"."cms_maintenance_issues_id" = ?) and "de21446f_eab1_4b84_9d96_428353e835f6"."blog_tags_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '3021369355',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: de21446f_eab1_4b84_9d96_428353e835f6.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: de21446f_eab1_4b84_9d96_428353e835f6.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "88c2669b_ccd6_489c_a0f6_049baa0a6c2d" on ("payload_locked_documents"."id" = "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."parent_id" and "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."path" like ?) where (("88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_users_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_pages_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_categories_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_tags_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_media_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_posts_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_items_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_templates_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_template_items_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_alerts_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_maintenance_issues_id" = ?) and "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_media_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,3,3,3,3,3,3,3,3,3,3,3,2026-03-27T01:51:25.055Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "88c2669b_ccd6_489c_a0f6_049baa0a6c2d" on ("payload_locked_documents"."id" = "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."parent_id" and "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."path" like ?) where (("88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_users_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_pages_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_categories_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_tags_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_media_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_posts_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_items_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_templates_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_template_items_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_inventory_alerts_id" = ? or "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."cms_maintenance_issues_id" = ?) and "88c2669b_ccd6_489c_a0f6_049baa0a6c2d"."blog_media_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '3211538475',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: 88c2669b_ccd6_489c_a0f6_049baa0a6c2d.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: 88c2669b_ccd6_489c_a0f6_049baa0a6c2d.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⨯ Error: Failed query: select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "baa62d10_0bf9_4f92_9b47_16ab6298e4eb" on ("payload_locked_documents"."id" = "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."parent_id" and "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."path" like ?) where (("baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_users_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_pages_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_categories_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_tags_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_media_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_posts_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_items_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_templates_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_template_items_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_alerts_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_maintenance_issues_id" = ?) and "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_categories_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?
+params: document,2,2,2,2,2,2,2,2,2,2,2,2026-03-27T01:52:29.862Z,10
+    at ignore-listed frames {
+  query: 'select distinct "payload_locked_documents"."id", "payload_locked_documents"."created_at", "payload_locked_documents"."created_at" from "payload_locked_documents" left join "payload_locked_documents_rels" "baa62d10_0bf9_4f92_9b47_16ab6298e4eb" on ("payload_locked_documents"."id" = "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."parent_id" and "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."path" like ?) where (("baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_users_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_pages_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_categories_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_tags_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_media_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_posts_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_items_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_templates_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_template_items_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_inventory_alerts_id" = ? or "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."cms_maintenance_issues_id" = ?) and "baa62d10_0bf9_4f92_9b47_16ab6298e4eb"."blog_categories_id" is not null and "payload_locked_documents"."updated_at" > ?) order by "payload_locked_documents"."created_at" desc limit ?',
+  params: [Array],
+  digest: '3805323563',
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such column: baa62d10_0bf9_4f92_9b47_16ab6298e4eb.cms_pages_id
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such column: baa62d10_0bf9_4f92_9b47_16ab6298e4eb.cms_pages_id
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⨯ ./src/app/(site)/blog/[slug]/page.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from E:\Blissful_Place - Copy\src\app\(site)\blog\[slug]\page.tsx
+    1: stream did not contain valid UTF-8
+
+Import trace for requested module:
+./src/app/(site)/blog/[slug]/page.tsx
+⨯ ./src/app/(site)/blog/[slug]/page.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from E:\Blissful_Place - Copy\src\app\(site)\blog\[slug]\page.tsx
+    1: stream did not contain valid UTF-8
+
+Import trace for requested module:
+./src/app/(site)/blog/[slug]/page.tsx
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+Error: Failed query: select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?
+params: 1
+    at ignore-listed frames {
+  query: 'select count(*) from "_cms_pages_v" where "_cms_pages_v"."latest" = ?',
+  params: [Array],
+  [cause]: Error [LibsqlError]: SQLITE_ERROR: no such table: _cms_pages_v
+      at ignore-listed frames {
+    code: 'SQLITE_ERROR',
+    rawCode: 1,
+    [cause]: SqliteError: no such table: _cms_pages_v
+        at ignore-listed frames {
+      code: 'SQLITE_ERROR',
+      rawCode: 1
+    }
+  }
+}
