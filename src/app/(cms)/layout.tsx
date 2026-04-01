@@ -14,12 +14,17 @@ interface CmsRootLayoutProps {
 
 export { metadata } from "@payloadcms/next/layouts";
 
+interface HydrationSafeElementProps {
+  children?: ReactNode;
+  suppressHydrationWarning?: boolean;
+}
+
 function withHydrationSafeBody(layoutTree: ReactNode): ReactNode {
   if (!isValidElement(layoutTree)) {
     return layoutTree;
   }
 
-  const htmlElement = layoutTree as ReactElement<Record<string, unknown>>;
+  const htmlElement = layoutTree as ReactElement<HydrationSafeElementProps>;
   const htmlChildren = Children.toArray(htmlElement.props.children);
 
   const patchedChildren = htmlChildren.map((child) => {
@@ -27,7 +32,7 @@ function withHydrationSafeBody(layoutTree: ReactNode): ReactNode {
       return child;
     }
 
-    const bodyElement = child as ReactElement<Record<string, unknown>>;
+    const bodyElement = child as ReactElement<HydrationSafeElementProps>;
 
     return cloneElement(bodyElement, {
       ...bodyElement.props,

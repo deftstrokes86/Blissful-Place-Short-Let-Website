@@ -11,13 +11,11 @@ import {
 import { DEFAULT_AUTH_SESSION_COOKIE_NAME } from "@/server/auth/require-auth";
 
 interface AdminSecureAreaPageProps {
-  searchParams?:
-    | Record<string, string | string[] | undefined>
-    | Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function AdminSecureAreaPage({ searchParams }: AdminSecureAreaPageProps) {
-  const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : {};
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const requestedPath = pickNextAdminPathParam(resolvedSearchParams.next);
 
   const cookieStore = await cookies();

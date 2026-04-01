@@ -2,13 +2,11 @@ import { PropertyFlatExperience } from "@/components/property/PropertyFlatExperi
 import { resolvePropertyFlatId } from "@/lib/property-flat-content";
 
 interface PropertyPageProps {
-  searchParams?:
-    | Record<string, string | string[] | undefined>
-    | Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function PropertyPage({ searchParams }: PropertyPageProps) {
-  const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : {};
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const selectedFlatId = resolvePropertyFlatId(resolvedSearchParams.flat);
 
   return <PropertyFlatExperience key={selectedFlatId} initialFlatId={selectedFlatId} />;

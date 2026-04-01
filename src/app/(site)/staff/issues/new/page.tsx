@@ -6,9 +6,7 @@ import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard
 import type { FlatId } from "@/types/booking";
 
 interface StaffNewIssuePageProps {
-  searchParams?:
-    | Record<string, string | string[] | undefined>
-    | Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function normalizeFlatId(value: string | null): FlatId | undefined {
@@ -30,7 +28,7 @@ function pickFirstValue(value: string | string[] | undefined): string | null {
 export default async function StaffNewIssuePage({ searchParams }: StaffNewIssuePageProps) {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/staff/issues/new" });
 
-  const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : {};
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const initialFlatId = normalizeFlatId(pickFirstValue(resolvedSearchParams.flatId));
 
   return (
