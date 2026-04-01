@@ -1,5 +1,5 @@
 import { CalendarAvailabilityService } from "./calendar-availability-service";
-import { fileAvailabilityBlockRepository } from "./file-availability-block-repository";
+import { prismaAvailabilityBlockRepository } from "./prisma-availability-block-repository";
 
 let sharedCalendarAvailabilityService: CalendarAvailabilityService | null = null;
 
@@ -10,7 +10,7 @@ export function getSharedCalendarAvailabilityService(): CalendarAvailabilityServ
 
   sharedCalendarAvailabilityService = new CalendarAvailabilityService({
     repository: {
-      listByFlat: (flatId) => fileAvailabilityBlockRepository.listByFlat(flatId),
+      listByFlat: (flatId) => prismaAvailabilityBlockRepository.listByFlat(flatId),
     },
   });
 

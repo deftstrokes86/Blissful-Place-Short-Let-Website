@@ -1,5 +1,5 @@
 ﻿import { AvailabilityService } from "./availability-service";
-import { fileAvailabilityRepository } from "./file-availability-repository";
+import { prismaAvailabilityRepository } from "./prisma-availability-repository";
 
 let sharedAvailabilityService: AvailabilityService | null = null;
 
@@ -9,7 +9,7 @@ export function getSharedAvailabilityService(): AvailabilityService {
   }
 
   sharedAvailabilityService = new AvailabilityService({
-    repository: fileAvailabilityRepository,
+    repository: prismaAvailabilityRepository,
   });
 
   return sharedAvailabilityService;

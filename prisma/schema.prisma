@@ -139,6 +139,57 @@ enum MaintenanceIssueStatus {
   closed
 }
 
+enum WorkerTaskType {
+  restock
+  maintenance
+  readiness
+  inspection
+}
+
+enum WorkerTaskPriority {
+  critical
+  important
+  minor
+}
+
+enum WorkerTaskStatus {
+  pending
+  in_progress
+  completed
+  blocked
+  escalated
+  open
+  cancelled
+}
+
+enum WorkerTaskSourceType {
+  alert
+  maintenance_issue
+  readiness
+  manual
+}
+
+enum NotificationChannel {
+  email
+  internal
+}
+
+enum NotificationAudience {
+  guest
+  staff
+}
+
+enum NotificationStatus {
+  pending
+  sent
+  failed
+}
+
+enum TourAppointmentStatus {
+  booked
+  cancelled
+}
+
 model Flat {
   id                   String              @id
   name                 String
@@ -151,6 +202,7 @@ model Flat {
   readiness            FlatReadiness?
   inventoryAlerts      InventoryAlert[]
   maintenanceIssues    MaintenanceIssue[]
+  workerTasks          WorkerTask[]
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
 }
@@ -201,6 +253,7 @@ model Reservation {
   transferVerifications      TransferVerificationMetadata[]
   posCoordinations           PosCoordinationMetadata[]
   idempotencyKeys            IdempotencyKey[]
+  notifications              ReservationNotification[]
   createdAt                  DateTime                       @default(now())
   updatedAt                  DateTime                       @updatedAt
   lastTouchedAt              DateTime                       @default(now())
@@ -249,6 +302,7 @@ model InventoryItem {
   stockMovements    StockMovement[]
   inventoryAlerts   InventoryAlert[]
   maintenanceIssues MaintenanceIssue[]
+  centralStock      CentralStock?
   createdAt         DateTime                  @default(now())
   updatedAt         DateTime                  @updatedAt
 
@@ -481,4 +535,69 @@ model AuthSession {
   @@map("sessions")
 }
 
+model WorkerTask {
+  id          String               @id @default(cuid())
+  flatId      String
+  flat        Flat                 @relation(fields: [flatId], references: [id], onDelete: Restrict)
+  title       String
+  description String?
+  taskType    WorkerTaskType
+  priority    WorkerTaskPriority
+  status      WorkerTaskStatus     @default(pending)
+  sourceType  WorkerTaskSourceType
+  sourceId    String
+  assignedTo  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  completedAt DateTime?
 
+  @@index([flatId, status, createdAt])
+  @@index([sourceType, sourceId])
+}
+
+model ReservationNotification {
+  id               String               @id @default(cuid())
+  eventType        String
+  templateKey      String
+  audience         NotificationAudience
+  channel          NotificationChannel
+  recipient        String
+  title            String
+  body             String?
+  templateRef      String?
+  status           NotificationStatus   @default(pending)
+  dedupeKey        String               @unique
+  payload          Json
+  reservationId    String?
+  reservation      Reservation?         @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  reservationToken String?
+  paymentAttemptId String?
+  errorMessage     String?
+  sentAt           DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([reservationId, createdAt])
+  @@index([status])
+}
+
+model TourAppointment {
+  id         String                @id @default(cuid())
+  date       DateTime              @db.Date
+  time       String
+  guestName  String
+  guestEmail String
+  guestPhone String?
+  status     TourAppointmentStatus @default(booked)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  @@index([date, time, status])
+}
+
+model CentralStock {
+  inventoryItemId String        @id
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  quantity        Int           @default(0)
+  updatedAt       DateTime      @updatedAt
+}

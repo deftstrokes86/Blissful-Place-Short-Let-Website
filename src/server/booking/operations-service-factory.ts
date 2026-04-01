@@ -1,7 +1,7 @@
 import { createDatabaseId } from "../db/file-database";
-import { fileAvailabilityBlockRepository } from "./file-availability-block-repository";
-import { fileOperationsQueryRepository } from "./file-operations-query-repository";
-import { fileWebsitePaymentIdempotencyGateway } from "./idempotency-service";
+import { prismaAvailabilityBlockRepository } from "./prisma-availability-block-repository";
+import { prismaOperationsQueryRepository } from "./prisma-operations-query-repository";
+import { prismaWebsitePaymentIdempotencyGateway } from "./prisma-idempotency-service";
 import { getSharedOfflinePaymentService } from "./offline-payment-service-factory";
 import { OperationsService } from "./operations-service";
 import { getSharedReservationService } from "./reservation-service-factory";
@@ -14,9 +14,9 @@ export function getSharedOperationsService(): OperationsService {
   }
 
   sharedOperationsService = new OperationsService({
-    queryRepository: fileOperationsQueryRepository,
-    availabilityBlockRepository: fileAvailabilityBlockRepository,
-    idempotencyGateway: fileWebsitePaymentIdempotencyGateway,
+    queryRepository: prismaOperationsQueryRepository,
+    availabilityBlockRepository: prismaAvailabilityBlockRepository,
+    idempotencyGateway: prismaWebsitePaymentIdempotencyGateway,
     offlinePaymentService: getSharedOfflinePaymentService(),
     reservationService: getSharedReservationService(),
     createId: () => createDatabaseId("manual"),

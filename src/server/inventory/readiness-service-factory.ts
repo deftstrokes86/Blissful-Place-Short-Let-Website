@@ -1,4 +1,4 @@
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { ReadinessService } from "./readiness-service";
 
 let sharedReadinessService: ReadinessService | null = null;
@@ -9,7 +9,7 @@ export function getSharedReadinessService(): ReadinessService {
   }
 
   sharedReadinessService = new ReadinessService({
-    repository: fileInventoryOperationsRepository,
+    repository: prismaInventoryOperationsRepository,
   });
 
   return sharedReadinessService;

@@ -3,7 +3,7 @@ import { InventoryAlertService } from "./inventory-alert-service";
 import { ReadinessService } from "./readiness-service";
 import { MaintenanceIssueService } from "./maintenance-issue-service";
 import { AdminInventoryService } from "./admin-inventory-service";
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 
 let sharedAdminInventoryService: AdminInventoryService | null = null;
 
@@ -12,7 +12,7 @@ export function getSharedAdminInventoryService(): AdminInventoryService {
     return sharedAdminInventoryService;
   }
 
-  const repository = fileInventoryOperationsRepository;
+  const repository = prismaInventoryOperationsRepository;
 
   const readinessService = new ReadinessService({
     repository,

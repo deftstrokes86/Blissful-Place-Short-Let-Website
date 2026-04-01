@@ -1,10 +1,10 @@
 import { getFlutterwaveConfig } from "../../lib/payments/flutterwave-config";
 import type { AvailabilityCheckResult } from "./availability-service";
 import { getSharedAvailabilityService } from "./availability-service-factory";
-import { fileWebsitePaymentAttemptRepository } from "./file-payment-attempt-repository";
-import { fileWebsitePaymentReservationQuery } from "./file-reservation-query";
+import { prismaWebsitePaymentAttemptRepository } from "./prisma-payment-attempt-repository";
+import { prismaWebsitePaymentReservationQuery } from "./prisma-reservation-query";
 import { HttpFlutterwaveCheckoutClient } from "./flutterwave-client";
-import { fileWebsitePaymentIdempotencyGateway } from "./idempotency-service";
+import { prismaWebsitePaymentIdempotencyGateway } from "./prisma-idempotency-service";
 import type { ReservationRepositoryReservation } from "./reservation-repository";
 import { getSharedReservationService } from "./reservation-service-factory";
 import {
@@ -38,10 +38,10 @@ export function getSharedWebsitePaymentService(): WebsitePaymentService {
 
   sharedWebsitePaymentService = new WebsitePaymentService({
     reservationService: getSharedReservationService(),
-    reservationQuery: fileWebsitePaymentReservationQuery,
+    reservationQuery: prismaWebsitePaymentReservationQuery,
     availabilityGateway: new SharedWebsitePaymentAvailabilityGateway(),
-    paymentAttemptRepository: fileWebsitePaymentAttemptRepository,
-    idempotencyGateway: fileWebsitePaymentIdempotencyGateway,
+    paymentAttemptRepository: prismaWebsitePaymentAttemptRepository,
+    idempotencyGateway: prismaWebsitePaymentIdempotencyGateway,
     flutterwaveClient,
     redirectUrl: flutterwaveConfig.redirectUrl,
   });

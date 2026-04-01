@@ -1,5 +1,5 @@
 import { createDatabaseId } from "../db/file-database";
-import { fileTourSlotRepository } from "./file-tour-slot-repository";
+import { prismaTourSlotRepository } from "./prisma-tour-slot-repository";
 import { TourSlotService } from "./tour-slot-service";
 
 let sharedTourSlotService: TourSlotService | null = null;
@@ -10,7 +10,7 @@ export function getSharedTourSlotService(): TourSlotService {
   }
 
   sharedTourSlotService = new TourSlotService({
-    repository: fileTourSlotRepository,
+    repository: prismaTourSlotRepository,
     createId: () => createDatabaseId("tour_appt"),
   });
 

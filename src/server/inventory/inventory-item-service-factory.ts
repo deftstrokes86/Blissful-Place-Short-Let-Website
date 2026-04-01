@@ -1,5 +1,5 @@
 import { createDatabaseId } from "../db/file-database";
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { InventoryItemService } from "./inventory-item-service";
 
 let sharedInventoryItemService: InventoryItemService | null = null;
@@ -10,7 +10,7 @@ export function getSharedInventoryItemService(): InventoryItemService {
   }
 
   sharedInventoryItemService = new InventoryItemService({
-    repository: fileInventoryOperationsRepository,
+    repository: prismaInventoryOperationsRepository,
     createId: () => createDatabaseId("inventory_item"),
   });
 

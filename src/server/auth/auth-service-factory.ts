@@ -1,10 +1,10 @@
 import { AuthService } from "./auth-service";
-import { fileAuthRepository } from "./file-auth-repository";
+import { prismaAuthRepository } from "./prisma-auth-repository";
 
 let sharedAuthService: AuthService | null = null;
 
 export function createAuthService(): AuthService {
-  return new AuthService({ repository: fileAuthRepository });
+  return new AuthService({ repository: prismaAuthRepository });
 }
 
 export function getSharedAuthService(): AuthService {

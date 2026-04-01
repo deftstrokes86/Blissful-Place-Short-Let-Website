@@ -1,5 +1,5 @@
 import { createDatabaseId } from "../db/file-database";
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { FlatInventoryReconciliationService } from "./flat-inventory-reconciliation-service";
 import type { FlatInventoryReconciliationOperationsService } from "./flat-inventory-reconciliation-http";
 import { InventoryAlertService } from "./inventory-alert-service";
@@ -12,7 +12,7 @@ export function getSharedFlatInventoryReconciliationOperationsService(): FlatInv
     return sharedFlatInventoryReconciliationOperationsService;
   }
 
-  const repository = fileInventoryOperationsRepository;
+  const repository = prismaInventoryOperationsRepository;
 
   const readinessService = new ReadinessService({
     repository,

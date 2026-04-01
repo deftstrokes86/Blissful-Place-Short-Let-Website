@@ -1,5 +1,5 @@
 import { ReservationAvailabilityGateway } from "./inventory-gateway";
-import { fileReservationRepository } from "./file-reservation-repository";
+import { prismaReservationRepository } from "./prisma-reservation-repository";
 import { getSharedNotificationService } from "./notification-service-factory";
 import { ReservationService } from "./reservation-service";
 
@@ -11,7 +11,7 @@ export function getSharedReservationService(): ReservationService {
   }
 
   sharedReservationService = new ReservationService({
-    repository: fileReservationRepository,
+    repository: prismaReservationRepository,
     inventoryGateway: new ReservationAvailabilityGateway(),
     notificationGateway: getSharedNotificationService(),
   });

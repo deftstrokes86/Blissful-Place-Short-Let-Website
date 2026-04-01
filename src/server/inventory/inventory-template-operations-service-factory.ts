@@ -1,6 +1,6 @@
 ﻿import { createDatabaseId } from "../db/file-database";
 import { FlatInventoryService } from "./flat-inventory-service";
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { InventoryTemplateService } from "./inventory-template-service";
 import type { InventoryTemplateOperationsService } from "./inventory-template-http";
 
@@ -11,7 +11,7 @@ export function getSharedInventoryTemplateOperationsService(): InventoryTemplate
     return sharedTemplateOperationsService;
   }
 
-  const repository = fileInventoryOperationsRepository;
+  const repository = prismaInventoryOperationsRepository;
 
   const templateService = new InventoryTemplateService({
     repository,

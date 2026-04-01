@@ -1,7 +1,7 @@
 import { getNotificationConfig } from "../../lib/notifications/notification-config";
 import { DevEmailProvider } from "../notifications/delivery-providers/email-provider";
 import { InternalLogProvider } from "../notifications/delivery-providers/internal-provider";
-import { fileNotificationRepository } from "../notifications/notification-repository";
+import { prismaNotificationRepository } from "./prisma-notification-repository";
 import { NotificationService } from "../notifications/notification-service";
 import type { ReservationNotificationGateway } from "./notification-service";
 import { ReservationTransitionNotificationGateway } from "./reservation-transition-notification-gateway";
@@ -16,7 +16,7 @@ export function getSharedNotificationService(): ReservationNotificationGateway {
   const config = getNotificationConfig();
 
   const notificationService = new NotificationService({
-    repository: fileNotificationRepository,
+    repository: prismaNotificationRepository,
     emailProvider: new DevEmailProvider(),
     internalProvider: new InternalLogProvider(),
     defaultSender: config.sender,

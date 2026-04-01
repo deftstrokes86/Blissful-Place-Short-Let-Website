@@ -1,5 +1,5 @@
 import type { ReservationNotificationRecord } from "../../types/booking-backend";
-import { fileNotificationRepository as bookingFileNotificationRepository } from "../booking/file-notification-repository";
+import { prismaNotificationRepository as bookingNotificationRepository } from "../booking/prisma-notification-repository";
 
 export type NotificationRecord = ReservationNotificationRecord;
 
@@ -13,23 +13,23 @@ export interface NotificationRepository {
 
 export class FileNotificationRepositoryAdapter implements NotificationRepository {
   async create(input: Omit<NotificationRecord, "id" | "createdAt" | "updatedAt">): Promise<NotificationRecord> {
-    return bookingFileNotificationRepository.create(input);
+    return bookingNotificationRepository.create(input);
   }
 
   async update(id: string, patch: Partial<NotificationRecord>): Promise<NotificationRecord> {
-    return bookingFileNotificationRepository.update(id, patch);
+    return bookingNotificationRepository.update(id, patch);
   }
 
   async findById(id: string): Promise<NotificationRecord | null> {
-    return bookingFileNotificationRepository.findById(id);
+    return bookingNotificationRepository.findById(id);
   }
 
   async findByDedupeKey(dedupeKey: string): Promise<NotificationRecord | null> {
-    return bookingFileNotificationRepository.findByDedupeKey(dedupeKey);
+    return bookingNotificationRepository.findByDedupeKey(dedupeKey);
   }
 
   async listByReservationId(reservationId: string): Promise<NotificationRecord[]> {
-    return bookingFileNotificationRepository.listByReservationId(reservationId);
+    return bookingNotificationRepository.listByReservationId(reservationId);
   }
 }
 

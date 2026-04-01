@@ -1,5 +1,5 @@
-import { fileOperationsQueryRepository } from "./file-operations-query-repository";
-import { fileWebsitePaymentIdempotencyGateway } from "./idempotency-service";
+import { prismaOperationsQueryRepository } from "./prisma-operations-query-repository";
+import { prismaWebsitePaymentIdempotencyGateway } from "./prisma-idempotency-service";
 import { getSharedOfflinePaymentService } from "./offline-payment-service-factory";
 import { getSharedReservationService } from "./reservation-service-factory";
 import { StaffOperationsService } from "./staff-operations-service";
@@ -12,8 +12,8 @@ export function getSharedStaffOperationsService(): StaffOperationsService {
   }
 
   sharedStaffOperationsService = new StaffOperationsService({
-    queryRepository: fileOperationsQueryRepository,
-    idempotencyGateway: fileWebsitePaymentIdempotencyGateway,
+    queryRepository: prismaOperationsQueryRepository,
+    idempotencyGateway: prismaWebsitePaymentIdempotencyGateway,
     offlinePaymentService: getSharedOfflinePaymentService(),
     reservationService: getSharedReservationService(),
   });

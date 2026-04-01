@@ -1,5 +1,5 @@
 ﻿import { createDatabaseId } from "../db/file-database";
-import { fileInventoryOperationsRepository } from "./file-inventory-operations-repository";
+import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { WorkerTaskService } from "./worker-task-service";
 
 let sharedWorkerTaskService: WorkerTaskService | null = null;
@@ -10,7 +10,7 @@ export function getSharedWorkerTaskService(): WorkerTaskService {
   }
 
   sharedWorkerTaskService = new WorkerTaskService({
-    repository: fileInventoryOperationsRepository,
+    repository: prismaInventoryOperationsRepository,
     createId: () => createDatabaseId("worker_task"),
   });
 

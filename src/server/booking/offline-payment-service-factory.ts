@@ -1,7 +1,7 @@
 ﻿import type { PaymentMethod } from "../../types/booking";
 import type { AvailabilityCheckResult } from "./availability-service";
 import { getSharedAvailabilityService } from "./availability-service-factory";
-import { fileOfflinePaymentMetadataRepository } from "./file-offline-payment-metadata-repository";
+import { prismaOfflinePaymentMetadataRepository } from "./prisma-offline-payment-metadata-repository";
 import {
   OfflinePaymentService,
   type OfflinePaymentAvailabilityGateway,
@@ -38,7 +38,7 @@ export function getSharedOfflinePaymentService(): OfflinePaymentService {
 
   sharedOfflinePaymentService = new OfflinePaymentService({
     reservationService: getSharedReservationService(),
-    metadataRepository: fileOfflinePaymentMetadataRepository,
+    metadataRepository: prismaOfflinePaymentMetadataRepository,
     availabilityGateway: new SharedOfflineAvailabilityGateway(),
   });
 

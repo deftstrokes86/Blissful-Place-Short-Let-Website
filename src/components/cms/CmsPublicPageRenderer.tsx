@@ -17,7 +17,7 @@ interface CmsPublicPageRendererProps {
   page: CmsPageDetail;
 }
 
-function renderHeroBlock(block: CmsPageHeroBlock): JSX.Element {
+function renderHeroBlock(block: CmsPageHeroBlock) {
   return (
     <section className="cms-page-hero cms-page-section" aria-label="Page introduction">
       {block.backgroundImage ? (
@@ -56,7 +56,7 @@ function renderHeroBlock(block: CmsPageHeroBlock): JSX.Element {
   );
 }
 
-function renderFeatureGridBlock(block: CmsPageFeatureGridBlock): JSX.Element {
+function renderFeatureGridBlock(block: CmsPageFeatureGridBlock) {
   return (
     <section className="cms-page-section cms-page-feature-grid" aria-label={block.heading || "Key points"}>
       {block.heading ? <h2 className="serif cms-page-section-heading">{block.heading}</h2> : null}
@@ -74,7 +74,7 @@ function renderFeatureGridBlock(block: CmsPageFeatureGridBlock): JSX.Element {
   );
 }
 
-function renderRichTextBlock(block: CmsPageRichTextBlock): JSX.Element | null {
+function renderRichTextBlock(block: CmsPageRichTextBlock) {
   if (!block.body) {
     if (!block.heading) {
       return null;
@@ -99,7 +99,7 @@ function renderRichTextBlock(block: CmsPageRichTextBlock): JSX.Element | null {
   );
 }
 
-function renderMediaSplitBlock(block: CmsPageMediaSplitBlock): JSX.Element {
+function renderMediaSplitBlock(block: CmsPageMediaSplitBlock) {
   const textColumn = block.body ? (
     <CmsRichTextBlock
       block={{
@@ -145,7 +145,7 @@ function renderMediaSplitBlock(block: CmsPageMediaSplitBlock): JSX.Element {
   );
 }
 
-function renderCtaStripBlock(block: CmsPageCtaStripBlock): JSX.Element {
+function renderCtaStripBlock(block: CmsPageCtaStripBlock) {
   return (
     <section className="cms-page-section cms-page-cta-strip" aria-label={block.heading}>
       {block.eyebrow ? <p className="cms-page-eyebrow">{block.eyebrow}</p> : null}
@@ -166,7 +166,7 @@ function renderCtaStripBlock(block: CmsPageCtaStripBlock): JSX.Element {
   );
 }
 
-function renderBlock(block: CmsPageBlock): JSX.Element | null {
+function renderBlock(block: CmsPageBlock) {
   switch (block.blockType) {
     case "hero":
       return renderHeroBlock(block);
