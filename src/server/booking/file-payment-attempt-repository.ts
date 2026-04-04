@@ -1,4 +1,7 @@
-﻿import { randomUUID } from "node:crypto";
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
+import { randomUUID } from "node:crypto";
 
 import { readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import { nowIso } from "../db/db-utils";
@@ -83,4 +86,5 @@ export class FileWebsitePaymentAttemptRepository implements WebsitePaymentAttemp
 }
 
 export const fileWebsitePaymentAttemptRepository = new FileWebsitePaymentAttemptRepository();
+
 

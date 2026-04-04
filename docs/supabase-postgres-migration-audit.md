@@ -1,6 +1,8 @@
-# Supabase Postgres Migration Audit
+﻿# Supabase Postgres Migration Audit
 
 This document reflects the current end-state direction after the Supabase Postgres migration work, not the earlier mixed-runtime snapshot.
+
+For the explicit migrated-vs-pending legacy boundary, see [Database Migration Status](./database-migration-status.md).
 
 ## Final posture
 
@@ -74,3 +76,4 @@ These are optional cleanup tasks, not blockers to calling Supabase Postgres the 
 ## Audit conclusion
 
 Supabase Postgres is now the main database direction for the project, Prisma is aligned correctly around `DATABASE_URL`, production deployment guidance is clearer, and the confusing runtime split that previously caused deployment risk has been materially reduced.
+

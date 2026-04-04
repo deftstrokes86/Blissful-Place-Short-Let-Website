@@ -1,3 +1,6 @@
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
 import { readBookingDatabase } from "../db/file-database";
 import type {
   PosCoordinationMetadataRecord,
@@ -78,3 +81,4 @@ export class FileOperationsQueryRepository implements OperationsQueryRepository,
 }
 
 export const fileOperationsQueryRepository = new FileOperationsQueryRepository();
+

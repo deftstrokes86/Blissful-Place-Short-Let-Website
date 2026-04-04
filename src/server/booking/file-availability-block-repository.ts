@@ -1,3 +1,6 @@
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
 import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import type { FlatId } from "../../types/booking";
 import type {
@@ -58,3 +61,4 @@ export class FileAvailabilityBlockRepository implements AvailabilityBlockReposit
 }
 
 export const fileAvailabilityBlockRepository = new FileAvailabilityBlockRepository();
+

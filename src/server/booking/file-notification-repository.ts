@@ -1,3 +1,6 @@
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
 import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import { nowIso } from "../db/db-utils";
 import type { ReservationNotificationRecord } from "../../types/booking-backend";
@@ -82,3 +85,4 @@ export class FileNotificationRepository implements NotificationRepository {
 }
 
 export const fileNotificationRepository = new FileNotificationRepository();
+

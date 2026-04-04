@@ -1,3 +1,5 @@
+﻿// Legacy API compatibility layer only: despite the name, this service is Prisma-backed.
+// It preserves older reservation route contracts while keeping runtime persistence on Supabase Postgres.
 import type { BookingActor, BookingToken, PaymentMethod } from "../../types/booking";
 import type { DraftCreateInput, DraftUpdateInput } from "../../types/booking-backend";
 import type { AvailabilityCheckResult } from "./availability-service";
@@ -156,3 +158,4 @@ export class LegacyGuestReservationService {
     return reservation;
   }
 }
+

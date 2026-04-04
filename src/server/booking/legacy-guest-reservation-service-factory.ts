@@ -1,3 +1,5 @@
+﻿// Factory for the Prisma-backed legacy route-compatibility service.
+// This is not a file-db fallback; it exists to preserve older API contracts during the migration.
 import { getSharedAvailabilityService } from "./availability-service-factory";
 import { getSharedDraftService } from "./draft-service-factory";
 import { prismaWebsitePaymentIdempotencyGateway } from "./prisma-idempotency-service";
@@ -20,3 +22,4 @@ export function getSharedLegacyGuestReservationService(): LegacyGuestReservation
 
   return sharedLegacyGuestReservationService;
 }
+

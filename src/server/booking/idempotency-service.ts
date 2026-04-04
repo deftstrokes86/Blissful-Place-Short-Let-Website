@@ -1,4 +1,8 @@
-﻿import { createHash } from "node:crypto";
+﻿// Shared booking idempotency contracts live here for the Prisma runtime.
+// LEGACY FILE-DB BOUNDARY:
+// The FileWebsitePaymentIdempotencyGateway implementation below still uses the JSON file database.
+// Active runtime factories should use prismaWebsitePaymentIdempotencyGateway instead.
+import { createHash } from "node:crypto";
 
 import { withBookingDatabase } from "../db/file-database";
 import { nowIso } from "../db/db-utils";
@@ -102,3 +106,4 @@ export class FileWebsitePaymentIdempotencyGateway implements WebsitePaymentIdemp
 }
 
 export const fileWebsitePaymentIdempotencyGateway = new FileWebsitePaymentIdempotencyGateway();
+

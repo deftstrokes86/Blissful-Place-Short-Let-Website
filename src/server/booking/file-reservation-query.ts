@@ -1,4 +1,7 @@
-﻿import { readBookingDatabase } from "../db/file-database";
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
+import { readBookingDatabase } from "../db/file-database";
 import type { ReservationRepositoryReservation } from "./reservation-repository";
 
 function cloneReservation(value: ReservationRepositoryReservation): ReservationRepositoryReservation {
@@ -31,3 +34,4 @@ export class FileWebsitePaymentReservationQuery implements WebsitePaymentReserva
 }
 
 export const fileWebsitePaymentReservationQuery = new FileWebsitePaymentReservationQuery();
+

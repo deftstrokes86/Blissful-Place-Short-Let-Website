@@ -1,5 +1,7 @@
-// Legacy JSON file database for older non-Prisma flows.
-// New server-side data access should use Prisma + Supabase Postgres via DATABASE_URL.
+﻿// LEGACY FILE-DB BOUNDARY:
+// This JSON database under .data/booking-mvp-db.json is retained only for legacy reservation,
+// inventory, and tour modules that have not been migrated yet.
+// Active runtime flows must use Prisma + Supabase Postgres via DATABASE_URL instead.
 
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -252,6 +254,7 @@ export async function withBookingDatabase<T>(
 export function getDatabaseFilePath(): string {
   return DATA_FILE_PATH;
 }
+
 
 
 

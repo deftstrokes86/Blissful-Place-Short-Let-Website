@@ -1,5 +1,6 @@
-// Legacy file-backed implementation retained for migration/reference only.
-// Active runtime routes use the Prisma-backed services under src/server/booking/*.
+﻿// LEGACY FILE-DB BOUNDARY:
+// This service still persists to the JSON file database and is kept only for migration/reference.
+// Active runtime routes should use the Prisma-backed services under src/server/booking/*.
 
 import { randomUUID } from "node:crypto";
 
@@ -496,6 +497,7 @@ export class ReservationDomainService {
 }
 
 export const reservationDomainService = new ReservationDomainService();
+
 
 
 

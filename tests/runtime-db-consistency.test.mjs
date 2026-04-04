@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -21,6 +21,10 @@ function run() {
   assert.match(legacyFactory, /prismaWebsitePaymentIdempotencyGateway/);
   assert.match(legacyFactory, /getSharedReservationService/);
   assert.match(legacyFactory, /getSharedAvailabilityService/);
+  assert.match(legacyFactory, /not a file-db fallback/i);
+
+  const legacyCompatibilityService = read("src/server/booking/legacy-guest-reservation-service.ts");
+  assert.match(legacyCompatibilityService, /despite the name, this service is Prisma-backed/i);
 
   const adminInventoryService = read("src/server/inventory/admin-inventory-service.ts");
   assert.match(adminInventoryService, /import \{ prisma \} from "\.\.\/db\/prisma"/);
@@ -51,15 +55,46 @@ function run() {
     assert.doesNotMatch(source, /db\/file-database/);
   }
 
+  const legacyBoundarySources = [
+    "src/server/db/file-database.ts",
+    "src/server/services/reservation-domain-service.ts",
+    "src/server/services/availability-service.ts",
+    "src/server/services/offline-payment-service.ts",
+    "src/server/services/website-payment-service.ts",
+    "src/server/services/idempotency-service.ts",
+    "src/server/booking/file-reservation-repository.ts",
+    "src/server/inventory/file-inventory-operations-repository.ts",
+    "src/server/tour/file-tour-slot-repository.ts",
+  ];
+
+  for (const relativePath of legacyBoundarySources) {
+    const source = read(relativePath);
+    assert.match(source, /LEGACY FILE-DB BOUNDARY/);
+  }
+
+  const bookingIdempotencyContracts = read("src/server/booking/idempotency-service.ts");
+  assert.match(bookingIdempotencyContracts, /FileWebsitePaymentIdempotencyGateway implementation below still uses the JSON file database/i);
+  assert.match(bookingIdempotencyContracts, /prismaWebsitePaymentIdempotencyGateway/);
+
   const runtimeBoundaryDoc = read("docs/runtime-data-backend-boundaries.md");
   assert.match(runtimeBoundaryDoc, /Supabase Postgres/);
   assert.match(runtimeBoundaryDoc, /legacy file-backed modules/i);
   assert.match(runtimeBoundaryDoc, /PAYLOAD_DATABASE_URL/);
   assert.match(runtimeBoundaryDoc, /bootstrap CLI/i);
   assert.match(runtimeBoundaryDoc, /Transfer-hold expiry/i);
+  assert.match(runtimeBoundaryDoc, /database-migration-status\.md/);
+  assert.match(runtimeBoundaryDoc, /despite the name, that compatibility service is Prisma-backed/i);
+
+  const databaseMigrationStatusDoc = read("docs/database-migration-status.md");
+  assert.match(databaseMigrationStatusDoc, /Migrated to Supabase Postgres/i);
+  assert.match(databaseMigrationStatusDoc, /Still on legacy file-db services/i);
+  assert.match(databaseMigrationStatusDoc, /src\/server\/services\/\*/i);
+  assert.match(databaseMigrationStatusDoc, /legacy-guest-reservation-service\.ts/);
+  assert.match(databaseMigrationStatusDoc, /Prisma-backed compatibility adapter/i);
 
   const migrationAuditDoc = read("docs/supabase-postgres-migration-audit.md");
   assert.match(migrationAuditDoc, /project is now coherently oriented around Supabase Postgres/i);
+  assert.match(migrationAuditDoc, /database-migration-status\.md/);
   assert.doesNotMatch(migrationAuditDoc, /Draft creation and updates still go through the file DB routes/i);
 
   console.log("runtime-db-consistency: ok");

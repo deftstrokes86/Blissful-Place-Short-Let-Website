@@ -1,3 +1,6 @@
+﻿// LEGACY FILE-DB BOUNDARY:
+// This idempotency helper is tied to the JSON file database used by older reservation/payment flows.
+// Active runtime services should use the Prisma-backed idempotency gateway under src/server/booking/*.
 import { createHash } from "node:crypto";
 
 import { withBookingDatabase } from "@/server/db/file-database";
@@ -93,4 +96,5 @@ export async function executeWithIdempotency<TPayload, TResult>(
     return result;
   });
 }
+
 

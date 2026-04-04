@@ -1,4 +1,7 @@
-﻿import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists booking data to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
+import { createDatabaseId, readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import { nowIso } from "../db/db-utils";
 import type {
   PosCoordinationMetadataRecord,
@@ -129,3 +132,4 @@ export class FileOfflinePaymentMetadataRepository implements OfflinePaymentMetad
 }
 
 export const fileOfflinePaymentMetadataRepository = new FileOfflinePaymentMetadataRepository();
+

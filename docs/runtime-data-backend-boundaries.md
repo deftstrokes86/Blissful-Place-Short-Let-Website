@@ -1,11 +1,13 @@
-# Runtime Data Backend Boundaries
+﻿# Runtime Data Backend Boundaries
 
 This repo now treats Supabase Postgres, reached through Prisma and `DATABASE_URL`, as the primary runtime database for the application.
+
+For the explicit migrated-vs-pending database boundary, see [Database Migration Status](./database-migration-status.md).
 
 ## Active runtime paths on Prisma + Supabase Postgres
 
 - Booking drafts, reservation transitions, availability checks, website payments, offline payments, and staff operations run through the Prisma-backed factories under `src/server/booking/*`.
-- Guest reservation compatibility routes at `src/app/(site)/api/reservations/draft/**`, `branch-request`, and `cancel` now delegate into `src/server/booking/legacy-guest-reservation-service.ts`, which uses Prisma-backed draft, reservation, availability, and idempotency services.
+- Guest reservation compatibility routes at `src/app/(site)/api/reservations/draft/**`, `branch-request`, and `cancel` now delegate into `src/server/booking/legacy-guest-reservation-service.ts`. Despite the name, that compatibility service is Prisma-backed and is part of the active Supabase runtime path.
 - Inventory and readiness runtime flows now read and write through Prisma-backed services. The admin inventory overview in `src/server/inventory/admin-inventory-service.ts` reads directly from Prisma so the operations dashboard no longer depends on `.data/booking-mvp-db.json`.
 - Auth and internal user/session management use Prisma-backed auth repositories under `src/server/auth/*`, including the one-time bootstrap CLI in `src/server/auth/bootstrap-cli.ts`.
 - Notification persistence uses Prisma-backed repositories under `src/server/booking/*` and `src/server/notifications/*`.
@@ -18,8 +20,8 @@ This repo now treats Supabase Postgres, reached through Prisma and `DATABASE_URL
 The following legacy file-backed modules still exist for migration reference, backwards comparison, or local-only tooling, but they should not be imported by active app routes, jobs, CLIs, or shared runtime factories:
 
 - `src/server/services/*`
-- `src/server/auth/file-auth-repository.ts`
 - `src/server/booking/file-*.ts`
+- `src/server/booking/idempotency-service.ts` only for the `FileWebsitePaymentIdempotencyGateway` implementation; its shared interfaces are still used by Prisma-backed services.
 - `src/server/inventory/file-*.ts`
 - `src/server/tour/file-tour-slot-repository.ts`
 - `src/server/db/file-database.ts`

@@ -1,3 +1,6 @@
+﻿// LEGACY FILE-DB BOUNDARY:
+// This repository persists tour appointments to the JSON file database and is not part of the
+// Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
 import { readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import type { TourAppointmentRecord } from "../../types/booking-backend";
 import type { TourSlotRepository } from "./tour-slot-service";
@@ -33,4 +36,5 @@ export class FileTourSlotRepository implements TourSlotRepository {
 }
 
 export const fileTourSlotRepository = new FileTourSlotRepository();
+
 
