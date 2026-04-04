@@ -47,7 +47,7 @@ export function HomeExperienceSections() {
               </div>
               <div>
                 <h4 className="serif">Enterprise Connectivity</h4>
-                <p>Dedicated Starlink and dual-fiber networks ensuring blazing-fast internet for remote work and streaming.</p>
+                <p>Dedicated dual-fiber networks delivering lightning-fast internet for remote work and streaming.</p>
               </div>
             </div>
 
@@ -292,7 +292,7 @@ export function HomeExperienceSections() {
               </div>
               <p className="testimonial-text">
                 &ldquo;As a returning diaspora Nigerian, power and security are non-negotiable. Blissful Place delivered
-                flawlessly. Zero generator noise, perfectly stable Starlink, and the aesthetics are stunning. I book direct
+                flawlessly. Zero generator noise, perfectly stable lightning-fast internet, and the aesthetics are stunning. I book direct
                 every time I fly in now.&rdquo;
               </p>
               <div className="testimonial-author">Dr. Chuka O.</div>
@@ -335,3 +335,4 @@ export function HomeExperienceSections() {
     </>
   );
 }
+

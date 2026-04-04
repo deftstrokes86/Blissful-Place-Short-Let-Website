@@ -38,7 +38,7 @@ export default function GuestGuide() {
           </p>
           <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
             <li>
-              <strong style={{ color: "var(--text-primary)" }}>Primary Network:</strong> Enterprise Starlink (Avg 150
+              <strong style={{ color: "var(--text-primary)" }}>Primary Network:</strong> Lightning-fast internet (Avg 150
               Mbps down)
             </li>
             <li>
@@ -95,3 +95,4 @@ export default function GuestGuide() {
     </main>
   );
 }
+

@@ -1,0 +1,21 @@
+⨯ ./src/app/globals.css:5850:17
+Syntax error: E:\Blissful_Place - Copy\src\app\globals.css Unknown word
+
+ [90m 5848 | [39m
+ [90m 5849 | [39m[90m/* Responsive polish sweep */[39m
+[1m[31m>[39m[22m[90m 5850 | [39m[33m:[39mroot`r`n[33m{[39m`r`n  --page-gutter[33m:[39m [36mclamp[39m[36m(1.25rem, 5.5vw, 2rem)[39m[33m;[39m`r`n[33m}[39m
+ [90m      | [39m                [1m[31m^[39m[22m
+ [90m 5851 | [39m
+ [90m 5852 | [39mbody.mobile-menu-open [33m{[39m
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|E:\Blissful_Place - Copy\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[15].oneOf[10].use[2]!E:\Blissful_Place - Copy\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[15].oneOf[10].use[3]!E:\Blissful_Place - Copy\src\app\globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+⨯ ./src/app/globals.css:5850:17
+Syntax error: E:\Blissful_Place - Copy\src\app\globals.css Unknown word
+
+ [90m 5848 | [39m
+ [90m 5849 | [39m[90m/* Responsive polish sweep */[39m
+[1m[31m>[39m[22m[90m 5850 | [39m[33m:[39mroot`r`n[33m{[39m`r`n  --page-gutter[33m:[39m [36mclamp[39m[36m(1.25rem, 5.5vw, 2rem)[39m[33m;[39m`r`n[33m}[39m
+ [90m      | [39m                [1m[31m^[39m[22m
+ [90m 5851 | [39m
+ [90m 5852 | [39mbody.mobile-menu-open [33m{[39m
+⚠ Fast Refresh had to perform a full reload due to a runtime error.

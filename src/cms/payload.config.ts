@@ -34,12 +34,21 @@ const payloadAutoPushOverride =
   payloadAutoPushRaw === undefined ? undefined : payloadAutoPushRaw === "true";
 const payloadAllowProductionSqlite =
   process.env.PAYLOAD_ALLOW_PRODUCTION_SQLITE?.trim()?.toLowerCase() === "true";
-const payloadMediaBucket = process.env.PAYLOAD_MEDIA_S3_BUCKET?.trim();
-const payloadMediaRegion = process.env.PAYLOAD_MEDIA_S3_REGION?.trim();
-const payloadMediaEndpointOverride = process.env.PAYLOAD_MEDIA_S3_ENDPOINT?.trim();
-const payloadMediaAccessKeyId = process.env.PAYLOAD_MEDIA_S3_ACCESS_KEY_ID?.trim();
-const payloadMediaSecretAccessKey = process.env.PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY?.trim();
-const payloadMediaForcePathStyleRaw = process.env.PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE?.trim()?.toLowerCase();
+const payloadMediaBucket =
+  process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET?.trim() ?? process.env.PAYLOAD_MEDIA_S3_BUCKET?.trim();
+const payloadMediaRegion =
+  process.env.PAYLOAD_MEDIA_SUPABASE_REGION?.trim() ?? process.env.PAYLOAD_MEDIA_S3_REGION?.trim();
+const payloadMediaProjectRef = process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF?.trim();
+const payloadMediaEndpointOverride =
+  process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT?.trim() ?? process.env.PAYLOAD_MEDIA_S3_ENDPOINT?.trim();
+const payloadMediaAccessKeyId =
+  process.env.PAYLOAD_MEDIA_SUPABASE_ACCESS_KEY_ID?.trim() ?? process.env.PAYLOAD_MEDIA_S3_ACCESS_KEY_ID?.trim();
+const payloadMediaSecretAccessKey =
+  process.env.PAYLOAD_MEDIA_SUPABASE_SECRET_ACCESS_KEY?.trim() ??
+  process.env.PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY?.trim();
+const payloadMediaForcePathStyleRaw =
+  process.env.PAYLOAD_MEDIA_SUPABASE_FORCE_PATH_STYLE?.trim()?.toLowerCase() ??
+  process.env.PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE?.trim()?.toLowerCase();
 const payloadMediaForcePathStyle =
   payloadMediaForcePathStyleRaw === undefined ? true : payloadMediaForcePathStyleRaw === "true";
 const payloadAllowProductionLocalMedia =
@@ -116,7 +125,11 @@ function resolvePayloadMediaStorageEndpoint(): string | null {
     return payloadMediaEndpointOverride;
   }
 
-  if (hasConfiguredValue(payloadMediaRegion)) {
+  if (hasConfiguredValue(payloadMediaProjectRef)) {
+    return `https://${payloadMediaProjectRef}.storage.supabase.co/storage/v1/s3`;
+  }
+
+  if (hasConfiguredValue(payloadMediaRegion) && hasConfiguredValue(process.env.PAYLOAD_MEDIA_S3_BUCKET?.trim())) {
     return `https://s3.${payloadMediaRegion}.amazonaws.com`;
   }
 
@@ -172,7 +185,7 @@ const payloadMediaStorageHasPartialConfig =
 
 if (payloadMediaStorageHasPartialConfig) {
   throw new Error(
-    "Payload CMS S3 media storage is partially configured. Set PAYLOAD_MEDIA_S3_BUCKET, PAYLOAD_MEDIA_S3_REGION, PAYLOAD_MEDIA_S3_ACCESS_KEY_ID, PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY, and optionally PAYLOAD_MEDIA_S3_ENDPOINT for non-AWS providers."
+    "Payload CMS Supabase media storage is partially configured. Set PAYLOAD_MEDIA_SUPABASE_BUCKET, PAYLOAD_MEDIA_SUPABASE_REGION, PAYLOAD_MEDIA_SUPABASE_ACCESS_KEY_ID, PAYLOAD_MEDIA_SUPABASE_SECRET_ACCESS_KEY, and either PAYLOAD_MEDIA_SUPABASE_ENDPOINT or PAYLOAD_MEDIA_SUPABASE_PROJECT_REF."
   );
 }
 
@@ -194,7 +207,7 @@ if (
   !payloadAllowProductionLocalMedia
 ) {
   throw new Error(
-    "Payload CMS blog media is configured to use local filesystem storage in production. Set PAYLOAD_MEDIA_S3_BUCKET, PAYLOAD_MEDIA_S3_REGION, PAYLOAD_MEDIA_S3_ACCESS_KEY_ID, PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY, and PAYLOAD_MEDIA_S3_ENDPOINT for persistent object storage, or set PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA=true only when production has persistent disk."
+    "Payload CMS blog media is configured to use local filesystem storage in production. Set PAYLOAD_MEDIA_SUPABASE_BUCKET, PAYLOAD_MEDIA_SUPABASE_REGION, PAYLOAD_MEDIA_SUPABASE_ACCESS_KEY_ID, PAYLOAD_MEDIA_SUPABASE_SECRET_ACCESS_KEY, and either PAYLOAD_MEDIA_SUPABASE_ENDPOINT or PAYLOAD_MEDIA_SUPABASE_PROJECT_REF for persistent Supabase Storage, or set PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA=true only when production has persistent disk."
   );
 }
 
@@ -240,7 +253,6 @@ const payloadDatabaseAdapter =
 const payloadPlugins = payloadMediaStorageEnabled
   ? [
       s3Storage({
-        acl: "public-read",
         bucket: payloadMediaBucket!,
         collections: {
           [BlogMediaCollection.slug]: true,
@@ -290,3 +302,6 @@ const payloadConfig = buildConfig({
 });
 
 export default payloadConfig;
+
+
+

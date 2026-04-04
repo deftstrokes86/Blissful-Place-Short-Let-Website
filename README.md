@@ -28,12 +28,13 @@ Set these production environment variables before deploying Payload-backed blog 
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME?schema=public"
 PAYLOAD_DATABASE_URL=""
 PAYLOAD_ALLOW_PRODUCTION_SQLITE="false"
-PAYLOAD_MEDIA_S3_BUCKET="your-media-bucket"
-PAYLOAD_MEDIA_S3_REGION="eu-west-1"
-PAYLOAD_MEDIA_S3_ENDPOINT=""
-PAYLOAD_MEDIA_S3_ACCESS_KEY_ID="replace-with-access-key"
-PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY="replace-with-secret-key"
-PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE="true"
+PAYLOAD_MEDIA_SUPABASE_BUCKET="blog-media"
+PAYLOAD_MEDIA_SUPABASE_REGION="project-region"
+PAYLOAD_MEDIA_SUPABASE_PROJECT_REF="your-project-ref"
+PAYLOAD_MEDIA_SUPABASE_ENDPOINT=""
+PAYLOAD_MEDIA_SUPABASE_ACCESS_KEY_ID="replace-with-access-key"
+PAYLOAD_MEDIA_SUPABASE_SECRET_ACCESS_KEY="replace-with-secret-key"
+PAYLOAD_MEDIA_SUPABASE_FORCE_PATH_STYLE="true"
 PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA="false"
 ```
 
@@ -41,8 +42,10 @@ Notes:
 - `DATABASE_URL` must point to a persistent Postgres database.
 - Leave `PAYLOAD_DATABASE_URL` blank to let Payload reuse `DATABASE_URL`, or set it to the same Postgres connection string explicitly.
 - Do not set `PAYLOAD_DATABASE_URL` to `file:./.data/payload.db` in production.
-- `PAYLOAD_MEDIA_S3_ENDPOINT` can stay blank on AWS and will default to `https://s3.<region>.amazonaws.com`.
-- For S3-compatible providers like Cloudflare R2, DigitalOcean Spaces, or MinIO, set `PAYLOAD_MEDIA_S3_ENDPOINT` explicitly.
+- The app uses Supabase Storage through Supabase's S3-compatible endpoint, so keep `PAYLOAD_MEDIA_SUPABASE_FORCE_PATH_STYLE="true"`.
+- If `PAYLOAD_MEDIA_SUPABASE_ENDPOINT` is blank, the app derives `https://<project-ref>.storage.supabase.co/storage/v1/s3` from `PAYLOAD_MEDIA_SUPABASE_PROJECT_REF`.
+- Generate the media access key and secret in Supabase Storage settings and keep them server-side only.
+- Payload keeps the existing app-served media URLs, while the underlying files persist in Supabase Storage.
 - See `.env.production.example` for the full production-oriented template.
 
 ## CMS Migration
@@ -56,7 +59,7 @@ npx payload migrate
 Notes:
 - The first migration bootstraps the Payload Postgres schema.
 - The second migration imports the current legacy blog snapshot from `src/migrations/data/legacy-blog-content.json`.
-- When S3 storage is configured, imported blog images are uploaded into object storage during the migration.
+- When Supabase Storage is configured, imported blog images are uploaded into Supabase during the migration.
 - The import intentionally creates a non-login legacy author account instead of copying old password hashes from SQLite.
 
 ## Learn More
@@ -73,3 +76,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+

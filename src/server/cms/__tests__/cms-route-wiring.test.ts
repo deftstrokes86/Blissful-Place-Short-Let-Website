@@ -48,21 +48,24 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
   assert.ok(!payloadConfigSource.includes('user: "users"'));
 }
 
-async function testPayloadMediaStorageUsesS3AdapterWhenConfigured(): Promise<void> {
+async function testPayloadMediaStorageUsesSupabaseStorageWhenConfigured(): Promise<void> {
   const source = readSource("src/cms/payload.config.ts");
 
   assert.ok(source.includes("@payloadcms/storage-s3"));
   assert.ok(source.includes("s3Storage"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_BUCKET"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_REGION"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_ENDPOINT"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_ACCESS_KEY_ID"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY"));
-  assert.ok(source.includes("PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_BUCKET"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_REGION"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_PROJECT_REF"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_ENDPOINT"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_ACCESS_KEY_ID"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_SECRET_ACCESS_KEY"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_SUPABASE_FORCE_PATH_STYLE"));
+  assert.ok(source.includes("storage.supabase.co/storage/v1/s3"));
   assert.ok(source.includes("payloadMediaStorageEnabled"));
   assert.ok(source.includes("collections: {"));
   assert.ok(source.includes("[BlogMediaCollection.slug]: true"));
   assert.ok(source.includes("plugins: payloadPlugins"));
+  assert.ok(!source.includes('acl: "public-read"'));
 }
 
 async function testPayloadSchemaPushSafetyInDevelopment(): Promise<void> {
@@ -91,7 +94,7 @@ async function testPayloadProductionMediaSafety(): Promise<void> {
   assert.ok(source.includes("payloadMediaStorageHasPartialConfig"));
   assert.ok(source.includes("PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA"));
   assert.ok(source.includes("Payload CMS blog media is configured to use local filesystem storage in production"));
-  assert.ok(source.includes("Payload CMS S3 media storage is partially configured"));
+  assert.ok(source.includes("Payload CMS Supabase media storage is partially configured"));
 }
 
 async function testRootPayloadConfigDelegatesToCmsConfig(): Promise<void> {
@@ -135,7 +138,7 @@ async function run(): Promise<void> {
   await testCmsMountFilesExist();
   await testPayloadConfigUsesCmsRoutes();
   await testCmsUsesDedicatedUsersAndDatabaseBoundary();
-  await testPayloadMediaStorageUsesS3AdapterWhenConfigured();
+  await testPayloadMediaStorageUsesSupabaseStorageWhenConfigured();
   await testPayloadSchemaPushSafetyInDevelopment();
   await testPayloadProductionDatabaseSafety();
   await testPayloadProductionMediaSafety();
@@ -148,3 +151,4 @@ async function run(): Promise<void> {
 }
 
 void run();
+

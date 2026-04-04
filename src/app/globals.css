@@ -5848,7 +5848,7 @@ details[open] summary ~ * {
 
 /* Responsive polish sweep */
 :root {
-  --page-gutter: clamp(1rem, 3.5vw, 1.5rem);
+  --page-gutter: clamp(1.25rem, 5.5vw, 2rem);
 }
 
 body.mobile-menu-open {
@@ -5876,7 +5876,8 @@ textarea {
 
 .container {
   width: 100%;
-  padding-inline: var(--page-gutter);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
 .section {
@@ -5917,11 +5918,13 @@ textarea {
 }
 
 .navbar {
-  padding-inline: clamp(1rem, 3.5vw, 2rem);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
 .navbar.sticky {
-  padding-inline: clamp(1rem, 3.5vw, 2rem);
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
 .nav-links,
@@ -5934,7 +5937,10 @@ textarea {
 }
 
 .mobile-nav {
-  padding: 6.75rem var(--page-gutter) 2rem;
+  padding-top: 6.75rem;
+  padding-bottom: 2rem;
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
   justify-content: flex-start;
 }
 
@@ -6501,16 +6507,37 @@ textarea {
     width: 100%;
   }
 
+  .comparison-table,
+  .vip-section-panel,
+  .tour-flow-shell,
+  .availability-shell,
+  .admin-bookings-section,
+  .booking-section,
+  .about-hero,
+  .about-section,
+  .about-final-cta,
+  .contact-hero,
+  .contact-form-card,
+  .contact-next-step,
+  .contact-channel-card,
+  .contact-location-card,
+  .cms-page-section,
+  .blog-empty-state,
+  .blog-post-cta {
+    padding-left: clamp(1.15rem, 4.8vw, 1.4rem);
+    padding-right: clamp(1.15rem, 4.8vw, 1.4rem);
+  }
+
   .testimonial-card,
   .advantage-card {
-    padding: 1.5rem 1.25rem;
+    padding: 1.5rem 1.35rem;
   }
 
   .addon-card,
   .property-feature-card,
   .payment-plan-card,
   .addon-select-card {
-    padding: 1rem;
+    padding: 1.1rem;
     gap: 0.9rem;
   }
 
@@ -6666,3 +6693,4 @@ textarea {
     flex-direction: column;
   }
 }
+

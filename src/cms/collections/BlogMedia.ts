@@ -15,7 +15,7 @@ export const BlogMediaCollection: CollectionConfig = {
   },
   upload: {
     // Local filesystem remains the dev fallback.
-    // Production object storage is configured centrally in payload.config.ts.
+    // Production Supabase-backed object storage is configured centrally in payload.config.ts.
     staticDir: "media",
     mimeTypes: ["image/*"],
   },
@@ -31,3 +31,4 @@ export const BlogMediaCollection: CollectionConfig = {
     },
   ],
 };
+

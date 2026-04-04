@@ -48,7 +48,7 @@ export function HomeClosingSections() {
             </summary>
             <p>
               We guarantee 24/7 uninterrupted power through a dual-grid system with industrial backup generators. Our
-              internet is powered by dedicated Starlink and fiber optics setups, making it perfectly suited for remote
+              internet setup delivers lightning-fast internet through dedicated fiber optics, making it perfectly suited for remote
               work and heavy streaming.
             </p>
           </details>
@@ -140,3 +140,4 @@ export function HomeClosingSections() {
     </>
   );
 }
+
