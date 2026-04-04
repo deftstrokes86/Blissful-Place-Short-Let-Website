@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 
+import { SafeBlogImage } from "@/components/blog/SafeBlogImage";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import {
+  BLOG_TOPIC_OPTIONS,
+  buildBlogTopicLink,
+  formatBlogPublishedDate,
+  normalizeBlogTopicParam,
+  postMatchesBlogTopic,
+  resolvePrimaryBlogCategoryLabel,
+  resolveSelectedBlogTopic,
+  sanitizeBlogPagePosts,
+} from "@/lib/blog-page";
 import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
+import type { PublicBlogPostSummary } from "@/server/cms/blog-public-mappers";
 
 export const metadata: Metadata = {
   title: "Blog | Blissful Place Residences",
@@ -12,104 +23,67 @@ export const metadata: Metadata = {
     "Practical hospitality insights from Blissful Place Residences covering stays, booking preparation, and local living in Ijaiye/Agbado/Kollington.",
 };
 
+interface BlogSearchParams {
+  topic?: string | string[];
+  category?: string | string[];
+}
+
 interface BlogPageProps {
-  searchParams?: Promise<{
-    topic?: string;
-    category?: string;
-  }>;
+  searchParams?: Promise<BlogSearchParams>;
 }
 
-interface BlogTopicOption {
-  value: string;
-  label: string;
-  matchSlugs: readonly string[];
-}
-
-const BLOG_TOPIC_OPTIONS: readonly BlogTopicOption[] = [
-  {
-    value: "all-posts",
-    label: "All Posts",
-    matchSlugs: [],
-  },
-  {
-    value: "short-let-guides",
-    label: "Short-Let Guides",
-    matchSlugs: ["short-let-guides", "short-let-guide", "short-let", "shortlet-guides"],
-  },
-  {
-    value: "lagos-area-guides",
-    label: "Lagos Area Guides",
-    matchSlugs: ["lagos-area-guides", "lagos-guides", "lagos-area-guide", "lagos"],
-  },
-  {
-    value: "corporate-stays",
-    label: "Corporate Stays",
-    matchSlugs: ["corporate-stays", "corporate-stay", "business-stays", "business-travel"],
-  },
-  {
-    value: "stay-experience",
-    label: "Stay Experience",
-    matchSlugs: ["stay-experience", "guest-experience", "stay-tips", "experience"],
-  },
-];
-
-function formatPublishedDate(value: string | null): string {
-  if (!value) {
-    return "Unscheduled";
+async function resolveBlogPageSearchParams(
+  searchParams: BlogPageProps["searchParams"]
+): Promise<BlogSearchParams | undefined> {
+  if (!searchParams) {
+    return undefined;
   }
 
-  return new Date(value).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+  try {
+    const resolvedSearchParams = await searchParams;
 
-function normalizeTopicParam(value: string | undefined): string {
-  if (!value) {
-    return "";
+    if (!resolvedSearchParams || typeof resolvedSearchParams !== "object" || Array.isArray(resolvedSearchParams)) {
+      return undefined;
+    }
+
+    return resolvedSearchParams;
+  } catch (error) {
+    console.error("[blog/page] Failed to resolve blog search params.", { error });
+    return undefined;
   }
-
-  return value.trim().toLowerCase();
 }
 
-function resolveSelectedTopic(value: string): BlogTopicOption {
-  return BLOG_TOPIC_OPTIONS.find((topic) => topic.value === value) ?? BLOG_TOPIC_OPTIONS[0];
-}
+async function loadBlogPagePosts(): Promise<PublicBlogPostSummary[]> {
+  try {
+    const posts = await listPublishedBlogPosts();
+    const safePosts = sanitizeBlogPagePosts(posts);
 
-function topicLink(value: string): string {
-  if (value === "all-posts") {
-    return "/blog";
+    if (safePosts.length !== posts.length) {
+      console.warn("[blog/page] Skipping malformed blog posts while rendering index.", {
+        totalPosts: posts.length,
+        renderedPosts: safePosts.length,
+      });
+    }
+
+    return safePosts;
+  } catch (error) {
+    console.error("[blog/page] Failed to load blog posts.", { error });
+    return [];
   }
-
-  return `/blog?topic=${encodeURIComponent(value)}`;
-}
-
-function postMatchesTopic(categorySlugs: readonly string[], topic: BlogTopicOption): boolean {
-  if (topic.value === "all-posts") {
-    return true;
-  }
-
-  return categorySlugs.some((slug) => topic.matchSlugs.includes(slug));
-}
-
-function resolvePrimaryCategoryLabel(value: { categories: Array<{ title: string }> }): string {
-  return value.categories[0]?.title ?? "General";
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const posts = await listPublishedBlogPosts();
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const selectedTopicValue = normalizeTopicParam(resolvedSearchParams?.topic ?? resolvedSearchParams?.category);
-  const selectedTopic = resolveSelectedTopic(selectedTopicValue);
+  const [posts, resolvedSearchParams] = await Promise.all([loadBlogPagePosts(), resolveBlogPageSearchParams(searchParams)]);
+  const selectedTopicValue = normalizeBlogTopicParam(resolvedSearchParams?.topic ?? resolvedSearchParams?.category);
+  const selectedTopic = resolveSelectedBlogTopic(selectedTopicValue);
 
   const visiblePosts = posts.filter((post) => {
-    const postCategorySlugs = post.categories.map((category) => normalizeTopicParam(category.slug));
-    return postMatchesTopic(postCategorySlugs, selectedTopic);
+    const postCategorySlugs = post.categories.map((category) => normalizeBlogTopicParam(category.slug));
+    return postMatchesBlogTopic(postCategorySlugs, selectedTopic);
   });
 
   const [featuredPost, ...remainingPosts] = visiblePosts;
-  const featuredCategoryLabel = featuredPost ? resolvePrimaryCategoryLabel(featuredPost) : "General";
+  const featuredCategoryLabel = featuredPost ? resolvePrimaryBlogCategoryLabel(featuredPost) : "General";
 
   const topicNavigation = posts.length > 0 ? (
     <nav className="blog-category-row" aria-label="Blog categories">
@@ -118,7 +92,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {BLOG_TOPIC_OPTIONS.map((topic) => (
           <Link
             key={topic.value}
-            href={topicLink(topic.value)}
+            href={buildBlogTopicLink(topic.value)}
             className={`blog-category-chip ${selectedTopic.value === topic.value ? "is-active" : ""}`.trim()}
           >
             {topic.label}
@@ -177,23 +151,18 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   className="blog-featured-image"
                   aria-label={`Read ${featuredPost.title}`}
                 >
-                  {featuredPost.featuredImageUrl ? (
-                    <Image
-                      src={featuredPost.featuredImageUrl}
-                      alt={featuredPost.featuredImageAlt || featuredPost.title}
-                      fill
-                      sizes="(max-width: 960px) 100vw, 48vw"
-                      priority
-                    />
-                  ) : (
-                    <span className="blog-image-fallback" aria-hidden="true" />
-                  )}
+                  <SafeBlogImage
+                    src={featuredPost.featuredImageUrl}
+                    alt={featuredPost.featuredImageAlt || featuredPost.title}
+                    sizes="(max-width: 960px) 100vw, 48vw"
+                    priority
+                  />
                 </Link>
 
                 <div className="blog-featured-body">
                   <div className="blog-card-meta-row">
                     <span className="blog-card-category-chip">{featuredCategoryLabel}</span>
-                    <span className="blog-card-date">{formatPublishedDate(featuredPost.publishedAt)}</span>
+                    <span className="blog-card-date">{formatBlogPublishedDate(featuredPost.publishedAt)}</span>
                   </div>
 
                   {featuredPost.authorName ? <p className="blog-card-byline">By {featuredPost.authorName}</p> : null}
@@ -223,27 +192,22 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <div className="blog-post-grid" aria-label="More published articles">
               {remainingPosts.length > 0 ? (
                 remainingPosts.map((post) => {
-                  const primaryCategoryLabel = resolvePrimaryCategoryLabel(post);
+                  const primaryCategoryLabel = resolvePrimaryBlogCategoryLabel(post);
 
                   return (
                     <article key={post.id} className="blog-post-card">
                       <Link href={`/blog/${post.slug}`} className="blog-post-card-image" aria-label={`Read ${post.title}`}>
-                        {post.featuredImageUrl ? (
-                          <Image
-                            src={post.featuredImageUrl}
-                            alt={post.featuredImageAlt || post.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1180px) 50vw, 33vw"
-                          />
-                        ) : (
-                          <span className="blog-image-fallback" aria-hidden="true" />
-                        )}
+                        <SafeBlogImage
+                          src={post.featuredImageUrl}
+                          alt={post.featuredImageAlt || post.title}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1180px) 50vw, 33vw"
+                        />
                       </Link>
 
                       <div className="blog-post-card-body">
                         <div className="blog-card-meta-row">
                           <span className="blog-card-category-chip">{primaryCategoryLabel}</span>
-                          <span className="blog-card-date">{formatPublishedDate(post.publishedAt)}</span>
+                          <span className="blog-card-date">{formatBlogPublishedDate(post.publishedAt)}</span>
                         </div>
 
                         <h3 className="serif blog-post-card-title">

@@ -1,10 +1,10 @@
 import { getCmsPayload } from "@/cms/payload";
+import type { BlogContentRecordIssue } from "@/server/cms/blog-content-transformers";
 import {
-  mapPublicBlogPostDetail,
-  mapPublicBlogPostSummary,
-  type PublicBlogPostDetail,
-  type PublicBlogPostSummary,
-} from "@/server/cms/blog-public-mappers";
+  mapPublishedBlogPostSummariesFromDocs,
+  resolvePublishedBlogPostDetailFromDocs,
+} from "@/server/cms/blog-content-transformers";
+import type { PublicBlogPostDetail, PublicBlogPostSummary } from "@/server/cms/blog-public-mappers";
 import { buildPublishedBlogDetailQuery, buildPublishedBlogListQuery } from "@/server/cms/blog-public-query";
 
 function reportBlogContentError(
@@ -19,6 +19,15 @@ function reportBlogContentError(
   });
 }
 
+function reportMalformedBlogRecord(issue: BlogContentRecordIssue): void {
+  console.warn("[cms/blog-content-service] Ignoring malformed blog payload record.", {
+    operation: issue.operation,
+    issue: issue.issue,
+    index: issue.index,
+    error: issue.error,
+  });
+}
+
 export async function listPublishedBlogPosts(limit = 20): Promise<PublicBlogPostSummary[]> {
   try {
     const payload = await getCmsPayload();
@@ -28,9 +37,7 @@ export async function listPublishedBlogPosts(limit = 20): Promise<PublicBlogPost
       overrideAccess: true,
     });
 
-    return result.docs
-      .map((doc) => mapPublicBlogPostSummary(doc))
-      .filter((entry): entry is PublicBlogPostSummary => Boolean(entry));
+    return mapPublishedBlogPostSummariesFromDocs(result.docs, reportMalformedBlogRecord);
   } catch (error) {
     reportBlogContentError("listPublishedBlogPosts", error, { limit });
     return [];
@@ -52,11 +59,7 @@ export async function findPublishedBlogPostBySlug(slug: string): Promise<PublicB
       overrideAccess: true,
     });
 
-    if (result.docs.length === 0) {
-      return null;
-    }
-
-    return mapPublicBlogPostDetail(result.docs[0]);
+    return resolvePublishedBlogPostDetailFromDocs(result.docs, reportMalformedBlogRecord);
   } catch (error) {
     reportBlogContentError("findPublishedBlogPostBySlug", error, { slug });
     return null;

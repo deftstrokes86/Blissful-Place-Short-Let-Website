@@ -1,6 +1,8 @@
 import type { SerializedEditorState } from "lexical";
 import type { Metadata } from "next";
 
+import { resolveRenderableBlogImageUrl } from "@/lib/blog-image";
+
 export interface PublicBlogPostMetadataInput {
   title: string;
   slug: string;
@@ -95,7 +97,8 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
     asNonEmptyString(input.metaDescription) ??
     asNonEmptyString(input.excerpt) ??
     "Read this article on Blissful Place Residences.";
-  const socialImage = asNonEmptyString(input.ogImageUrl) ?? asNonEmptyString(input.featuredImageUrl);
+  const socialImage =
+    resolveRenderableBlogImageUrl(input.ogImageUrl) ?? resolveRenderableBlogImageUrl(input.featuredImageUrl);
   const canonical = asNonEmptyString(input.canonicalUrl) ?? `/blog/${input.slug}`;
 
   return {
@@ -118,4 +121,3 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
     },
   };
 }
-

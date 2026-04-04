@@ -1,3 +1,5 @@
+import { resolveBlogMediaDocumentUrl } from "@/lib/blog-image";
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object") {
     return null;
@@ -106,12 +108,13 @@ export function mapBlogMediaSummary(value: unknown): BlogMediaSummary | null {
     return null;
   }
 
-  const id = asIdentifier(record.id);
-  const url = asString(record.url);
+  const url = resolveBlogMediaDocumentUrl(record);
 
-  if (!id || !url) {
+  if (!url) {
     return null;
   }
+
+  const id = asIdentifier(record.id) || asString(record.filename) || url;
 
   return {
     id,

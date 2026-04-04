@@ -2,10 +2,27 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { SafeBlogImage } from "@/components/blog/SafeBlogImage";
 import {
-  mapPublicBlogPostDetail,
-  mapPublicBlogPostSummary,
-} from "../blog-public-mappers";
+  BLOG_TOPIC_OPTIONS,
+  buildBlogTopicLink,
+  formatBlogPublishedDate,
+  normalizeBlogTopicParam,
+  postMatchesBlogTopic,
+  resolvePrimaryBlogCategoryLabel,
+  resolveSelectedBlogTopic,
+  sanitizeBlogPagePosts,
+} from "@/lib/blog-page";
+import {
+  hasRenderableBlogImageCandidate,
+  resolveBlogMediaDocumentUrl,
+  resolveRenderableBlogImageUrl,
+} from "@/lib/blog-image";
+import {
+  mapPublishedBlogPostSummariesFromDocs,
+  resolvePublishedBlogPostDetailFromDocs,
+} from "../blog-content-transformers";
+import { mapPublicBlogPostDetail, mapPublicBlogPostSummary } from "../blog-public-mappers";
 import {
   buildPublishedBlogDetailQuery,
   buildPublishedBlogListQuery,
@@ -139,33 +156,320 @@ async function testPublicMapperSupportsNumericCmsIds(): Promise<void> {
   assert.ok(detail);
 }
 
+async function testBlogImageGuardrails(): Promise<void> {
+  const validSupabaseImage =
+    "https://ghdgxaqumrsovzaqakfb.storage.supabase.co/storage/v1/object/public/blog-media/featured.jpg";
+  const previousProjectRef = process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF;
+  const previousBucket = process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET;
+  const previousEndpoint = process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
+
+  process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF = "ghdgxaqumrsovzaqakfb";
+  process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET = "blog-media";
+  delete process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
+
+  try {
+    assert.equal(resolveRenderableBlogImageUrl("/media/featured.jpg"), "/media/featured.jpg");
+    assert.equal(resolveRenderableBlogImageUrl(validSupabaseImage), validSupabaseImage);
+    assert.equal(resolveRenderableBlogImageUrl(""), null);
+    assert.equal(resolveRenderableBlogImageUrl("   "), null);
+    assert.equal(resolveRenderableBlogImageUrl("featured.jpg"), null);
+    assert.equal(resolveRenderableBlogImageUrl("javascript:alert(1)"), null);
+    assert.equal(resolveRenderableBlogImageUrl("https://example.com/featured.jpg"), null);
+    assert.equal(hasRenderableBlogImageCandidate(validSupabaseImage), true);
+    assert.equal(hasRenderableBlogImageCandidate("https://example.com/featured.jpg"), false);
+
+    assert.equal(
+      resolveBlogMediaDocumentUrl({
+        filename: "featured photo.jpg",
+        prefix: "blog/2026",
+      }),
+      "https://ghdgxaqumrsovzaqakfb.supabase.co/storage/v1/object/public/blog-media/blog/2026/featured%20photo.jpg"
+    );
+
+    const mappedSummary = mapPublicBlogPostSummary({
+      id: 77,
+      title: "Guardrailed Post",
+      slug: "guardrailed-post",
+      excerpt: "Safe rendering",
+      publishedAt: "2026-04-04T10:00:00.000Z",
+      categories: [],
+      author: {
+        id: 2,
+        name: "Editorial Team",
+      },
+      featuredImage: {
+        filename: "cover image.jpg",
+        prefix: "blog/posts",
+        alt: "Derived image",
+      },
+    });
+
+    assert.ok(mappedSummary);
+    assert.equal(
+      mappedSummary?.featuredImageUrl,
+      "https://ghdgxaqumrsovzaqakfb.supabase.co/storage/v1/object/public/blog-media/blog/posts/cover%20image.jpg"
+    );
+
+    const blockedSummary = mapPublicBlogPostSummary({
+      id: 78,
+      title: "Blocked Image Post",
+      slug: "blocked-image-post",
+      excerpt: "Blocked external image",
+      publishedAt: "2026-04-04T10:00:00.000Z",
+      categories: [],
+      author: {
+        id: 2,
+        name: "Editorial Team",
+      },
+      featuredImage: {
+        id: 9,
+        url: "https://example.com/not-allowed.jpg",
+        alt: "Invalid image",
+      },
+    });
+
+    assert.ok(blockedSummary);
+    assert.equal(blockedSummary?.featuredImageUrl, null);
+  } finally {
+    if (typeof previousProjectRef === "string") {
+      process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF = previousProjectRef;
+    } else {
+      delete process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF;
+    }
+
+    if (typeof previousBucket === "string") {
+      process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET = previousBucket;
+    } else {
+      delete process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET;
+    }
+
+    if (typeof previousEndpoint === "string") {
+      process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT = previousEndpoint;
+    } else {
+      delete process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
+    }
+  }
+
+  const validImageElement = SafeBlogImage({
+    src: validSupabaseImage,
+    alt: "Valid image",
+    sizes: "100vw",
+  }) as unknown as { props: Record<string, unknown> };
+  assert.equal(validImageElement.props.src, validSupabaseImage);
+
+  const missingImageFallback = SafeBlogImage({
+    src: "",
+    alt: "Missing image",
+    sizes: "100vw",
+  }) as unknown as { props: Record<string, unknown>; type: unknown };
+  assert.equal(missingImageFallback.type, "span");
+  assert.equal(missingImageFallback.props.className, "blog-image-fallback");
+
+  const malformedImageFallback = SafeBlogImage({
+    src: "not-a-valid-url",
+    alt: "Malformed image",
+    sizes: "100vw",
+    fallbackClassName: "blog-image-fallback custom-fallback",
+  }) as unknown as { props: Record<string, unknown>; type: unknown };
+  assert.equal(malformedImageFallback.type, "span");
+  assert.equal(malformedImageFallback.props.className, "blog-image-fallback custom-fallback");
+}
+
+async function testBlogContentServiceRecoversFromMalformedRecords(): Promise<void> {
+  const explosiveRecord: Record<string, unknown> = {
+    id: 900,
+    slug: "explosive-record",
+  };
+
+  Object.defineProperty(explosiveRecord, "title", {
+    enumerable: true,
+    get() {
+      throw new Error("boom");
+    },
+  });
+
+  const validSummaryRecord = {
+    id: 42,
+    title: "Published Post",
+    slug: "published-post",
+    excerpt: "Short summary",
+    publishedAt: "2026-03-26T19:00:00.000Z",
+    categories: [
+      {
+        id: 10,
+        title: "Guides",
+        slug: "guides",
+      },
+    ],
+    author: {
+      id: 8,
+      name: "Editorial Team",
+    },
+    featuredImage: {
+      id: 7,
+      url: "/media/post.jpg",
+      alt: "Post image",
+    },
+  };
+
+  const partialSummaryRecord = {
+    id: 43,
+    title: "Fallback Image Post",
+    slug: "fallback-image-post",
+    excerpt: "Still render this one",
+    publishedAt: null,
+    categories: [],
+    author: null,
+    featuredImage: {
+      id: 12,
+      url: "https://example.com/not-allowed.jpg",
+      alt: "Blocked image",
+    },
+  };
+
+  const summaryRecords = mapPublishedBlogPostSummariesFromDocs([
+    validSummaryRecord,
+    explosiveRecord,
+    { id: 99, title: "Missing slug" },
+    partialSummaryRecord,
+  ]);
+
+  assert.equal(summaryRecords.length, 2);
+  assert.equal(summaryRecords[0]?.slug, "published-post");
+  assert.equal(summaryRecords[1]?.slug, "fallback-image-post");
+  assert.equal(summaryRecords[1]?.featuredImageUrl, null);
+  assert.deepEqual(mapPublishedBlogPostSummariesFromDocs(null), []);
+
+  const detailRecord = {
+    ...validSummaryRecord,
+    content: {
+      root: {
+        children: [],
+      },
+    },
+    metaTitle: "Meta",
+    metaDescription: "Description",
+    ogImage: {
+      id: 11,
+      url: "/media/og.jpg",
+      alt: "OG",
+    },
+  };
+
+  const detail = resolvePublishedBlogPostDetailFromDocs([explosiveRecord, { id: 1 }, detailRecord]);
+  assert.ok(detail);
+  assert.equal(detail?.slug, "published-post");
+  assert.equal(resolvePublishedBlogPostDetailFromDocs(null), null);
+}
+
+async function testBlogPageHelperGuardrails(): Promise<void> {
+  const safePosts = sanitizeBlogPagePosts([
+    {
+      id: "42",
+      title: "Published Post",
+      slug: "published-post",
+      excerpt: "Short summary",
+      publishedAt: "2026-03-26T19:00:00.000Z",
+      categories: [
+        {
+          id: "10",
+          title: "Guides",
+          slug: "guides",
+        },
+      ],
+      authorName: "Editorial Team",
+      featuredImageUrl: "/media/post.jpg",
+      featuredImageAlt: "Post image",
+    },
+    {
+      id: "99",
+      title: "Missing slug",
+      excerpt: "Invalid post",
+      categories: [],
+    },
+    {
+      id: "100",
+      title: "   ",
+      slug: "blank-title",
+      excerpt: "Invalid title",
+      categories: [],
+    },
+    {
+      id: 101,
+      title: " Partial Data Still Renders ",
+      slug: " partial-data-still-renders ",
+      excerpt: "  ",
+      publishedAt: "not-a-date",
+      categories: [
+        {
+          id: "broken-category",
+          title: "   ",
+          slug: "",
+        },
+      ],
+      authorName: "   ",
+      featuredImageUrl: 12,
+      featuredImageAlt: 8,
+    },
+  ]);
+
+  assert.equal(safePosts.length, 2);
+  assert.equal(safePosts[0]?.slug, "published-post");
+  assert.equal(safePosts[1]?.title, "Partial Data Still Renders");
+  assert.equal(safePosts[1]?.slug, "partial-data-still-renders");
+  assert.equal(safePosts[1]?.excerpt, "");
+  assert.equal(safePosts[1]?.categories.length, 0);
+  assert.equal(safePosts[1]?.authorName, null);
+  assert.equal(safePosts[1]?.featuredImageUrl, null);
+  assert.equal(safePosts[1]?.featuredImageAlt, "");
+  assert.deepEqual(sanitizeBlogPagePosts([]), []);
+  assert.deepEqual(sanitizeBlogPagePosts(null), []);
+
+  assert.equal(formatBlogPublishedDate("not-a-date"), "Unscheduled");
+  assert.equal(formatBlogPublishedDate(null), "Unscheduled");
+  assert.equal(normalizeBlogTopicParam([" Stay-Experience "]), "stay-experience");
+  assert.equal(resolveSelectedBlogTopic("missing-topic").value, "all-posts");
+  assert.equal(resolveSelectedBlogTopic("stay-experience").label, "Stay Experience");
+  assert.equal(buildBlogTopicLink("all-posts"), "/blog");
+  assert.equal(buildBlogTopicLink("corporate-stays"), "/blog?topic=corporate-stays");
+  assert.equal(postMatchesBlogTopic(["stay-experience"], resolveSelectedBlogTopic("stay-experience")), true);
+  assert.equal(resolvePrimaryBlogCategoryLabel({ categories: [] }), "General");
+  assert.equal(BLOG_TOPIC_OPTIONS.length >= 5, true);
+}
+
 async function testPublicBlogServiceUsesExplicitPublishedServerQuery(): Promise<void> {
   const source = readSource("src/server/cms/blog-content-service.ts");
 
   assert.ok(source.includes("overrideAccess: true"));
   assert.ok(source.includes("buildPublishedBlogListQuery"));
   assert.ok(source.includes("buildPublishedBlogDetailQuery"));
+  assert.ok(source.includes("mapPublishedBlogPostSummariesFromDocs"));
+  assert.ok(source.includes("resolvePublishedBlogPostDetailFromDocs"));
 }
 
 async function testBlogIndexEditorialLayoutStructure(): Promise<void> {
   const source = readSource("src/app/(site)/blog/page.tsx");
+  const helperSource = readSource("src/lib/blog-page.ts");
 
   assert.ok(source.includes("const [featuredPost, ...remainingPosts] = visiblePosts"));
   assert.ok(source.includes("const topicNavigation = posts.length > 0 ? ("));
-  assert.ok(source.includes("className=\"blog-featured\""));
-  assert.ok(source.includes("className=\"blog-category-row\""));
-  assert.ok(source.includes("className=\"blog-post-grid\""));
-  assert.ok(source.includes("className=\"blog-card-meta-row\""));
-  assert.ok(source.includes("className=\"blog-card-category-chip\""));
-  assert.ok(source.includes("className=\"blog-card-date\""));
-  assert.ok(source.includes("className=\"blog-post-card-excerpt\""));
+  assert.ok(source.includes('className="blog-featured"'));
+  assert.ok(source.includes('className="blog-category-row"'));
+  assert.ok(source.includes('className="blog-post-grid"'));
+  assert.ok(source.includes('className="blog-card-meta-row"'));
+  assert.ok(source.includes('className="blog-card-category-chip"'));
+  assert.ok(source.includes('className="blog-card-date"'));
+  assert.ok(source.includes('className="blog-post-card-excerpt"'));
   assert.ok(source.includes("blog-grid-heading"));
-  assert.ok(source.includes("All Posts"));
-  assert.ok(source.includes("Short-Let Guides"));
-  assert.ok(source.includes("Lagos Area Guides"));
-  assert.ok(source.includes("Corporate Stays"));
-  assert.ok(source.includes("Stay Experience"));
+  assert.ok(source.includes("loadBlogPagePosts"));
+  assert.ok(source.includes("resolveBlogPageSearchParams"));
   assert.ok(source.includes("resolvedSearchParams?.topic ?? resolvedSearchParams?.category"));
+  assert.ok(source.includes("<SafeBlogImage"));
+  assert.ok(helperSource.includes("All Posts"));
+  assert.ok(helperSource.includes("Short-Let Guides"));
+  assert.ok(helperSource.includes("Lagos Area Guides"));
+  assert.ok(helperSource.includes("Corporate Stays"));
+  assert.ok(helperSource.includes("Stay Experience"));
 }
 
 async function testMetadataAndContentHelpers(): Promise<void> {
@@ -200,6 +504,20 @@ async function testMetadataAndContentHelpers(): Promise<void> {
   assert.equal(fallbackMetadata.description, "Fallback excerpt");
   assert.equal(getFirstImageUrl(fallbackMetadata.openGraph?.images), "/media/fallback-featured.jpg");
   assert.equal(fallbackMetadata.alternates?.canonical, "/blog/fallback-post");
+
+  const unsafeMetadata = buildPublicBlogPostMetadata({
+    title: "Unsafe Image Post",
+    excerpt: "Unsafe image excerpt",
+    metaTitle: "",
+    metaDescription: "",
+    ogImageUrl: "https://example.com/tracking-pixel.jpg",
+    featuredImageUrl: "javascript:alert(1)",
+    canonicalUrl: null,
+    slug: "unsafe-image-post",
+  });
+
+  assert.equal(getFirstImageUrl(unsafeMetadata.openGraph?.images), null);
+  assert.equal((unsafeMetadata.twitter as { card?: string } | undefined)?.card, "summary");
 
   const minimalMetadata = buildPublicBlogPostMetadata({
     title: "Minimal Post",
@@ -244,6 +562,8 @@ async function testBlogPostPageUsesRichTextRenderer(): Promise<void> {
   assert.ok(source.includes('from "@payloadcms/richtext-lexical/react"'));
   assert.ok(source.includes("resolvePublicLexicalContentState"));
   assert.ok(source.includes("<RichText"));
+  assert.ok(source.includes("<SafeBlogImage"));
+  assert.ok(source.includes("hasRenderableBlogImageCandidate"));
   assert.ok(!source.includes("paragraphs.map((paragraph"));
 }
 
@@ -251,6 +571,9 @@ async function run(): Promise<void> {
   await testPublishedOnlyQueryBehavior();
   await testSlugNormalizationAndInvalidHandling();
   await testPublicMapperSupportsNumericCmsIds();
+  await testBlogImageGuardrails();
+  await testBlogContentServiceRecoversFromMalformedRecords();
+  await testBlogPageHelperGuardrails();
   await testPublicBlogServiceUsesExplicitPublishedServerQuery();
   await testBlogIndexEditorialLayoutStructure();
   await testMetadataAndContentHelpers();
@@ -260,3 +583,4 @@ async function run(): Promise<void> {
 }
 
 void run();
+

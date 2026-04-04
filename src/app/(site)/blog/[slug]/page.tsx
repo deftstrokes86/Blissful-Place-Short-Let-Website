@@ -1,10 +1,11 @@
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { SafeBlogImage } from "@/components/blog/SafeBlogImage";
+import { hasRenderableBlogImageCandidate } from "@/lib/blog-image";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import {
@@ -90,12 +91,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {intro ? <p className="blog-description">{intro}</p> : null}
         </header>
 
-        {post.featuredImageUrl ? (
+        {hasRenderableBlogImageCandidate(post.featuredImageUrl) ? (
           <div className="blog-post-image-wrap">
-            <Image
+            <SafeBlogImage
               src={post.featuredImageUrl}
               alt={post.featuredImageAlt || post.title}
-              fill
               sizes="(max-width: 900px) 100vw, 900px"
               priority
             />
