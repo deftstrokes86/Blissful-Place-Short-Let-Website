@@ -20,6 +20,22 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Production CMS Environment
+
+Set these production environment variables before deploying Payload-backed blog content:
+
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME?schema=public"
+PAYLOAD_DATABASE_URL=""
+PAYLOAD_ALLOW_PRODUCTION_SQLITE="false"
+```
+
+Notes:
+- `DATABASE_URL` must point to a persistent Postgres database.
+- Leave `PAYLOAD_DATABASE_URL` blank to let Payload reuse `DATABASE_URL`, or set it to the same Postgres connection string explicitly.
+- Do not set `PAYLOAD_DATABASE_URL` to `file:./.data/payload.db` in production.
+- See `.env.production.example` for the full production-oriented template.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

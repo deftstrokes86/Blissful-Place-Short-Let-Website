@@ -41,6 +41,7 @@
     "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "^3.80.0",
     "@payloadcms/db-sqlite": "^3.80.0",
     "@payloadcms/next": "^3.80.0",
     "@payloadcms/richtext-lexical": "^3.80.0",

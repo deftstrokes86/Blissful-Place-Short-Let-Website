@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { postgresAdapter } from "@payloadcms/db-postgres";
 import { sqliteAdapter } from "@payloadcms/db-sqlite";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
@@ -20,11 +21,18 @@ import { CmsUsersCollection } from "./collections/CmsUsers";
 const CMS_ADMIN_ROUTE = "/cms";
 const CMS_API_ROUTE = "/cms/api";
 const payloadSecret = process.env.PAYLOAD_SECRET?.trim() || "blissful-place-cms-dev-secret";
-const payloadDatabaseUrl = process.env.PAYLOAD_DATABASE_URL?.trim() || "file:./.data/payload.db";
-const payloadAutoPushRaw = process.env.PAYLOAD_AUTO_PUSH_SCHEMA?.trim().toLowerCase();
+const payloadEnvironment = process.env.NODE_ENV?.trim()?.toLowerCase() ?? "development";
+const payloadIsProduction = payloadEnvironment === "production";
+const payloadIsDevelopment = !payloadIsProduction;
+const payloadIsProductionBuild = process.env.NEXT_PHASE === "phase-production-build";
+const payloadPrimaryDatabaseUrl = process.env.DATABASE_URL?.trim();
+const payloadDatabaseUrlOverride = process.env.PAYLOAD_DATABASE_URL?.trim();
+const payloadDefaultSqliteUrl = "file:./.data/payload.db";
+const payloadAutoPushRaw = process.env.PAYLOAD_AUTO_PUSH_SCHEMA?.trim()?.toLowerCase();
 const payloadAutoPushOverride =
   payloadAutoPushRaw === undefined ? undefined : payloadAutoPushRaw === "true";
-const payloadIsDevelopment = (process.env.NODE_ENV?.trim().toLowerCase() ?? "development") !== "production";
+const payloadAllowProductionSqlite =
+  process.env.PAYLOAD_ALLOW_PRODUCTION_SQLITE?.trim()?.toLowerCase() === "true";
 
 type SqliteStatementResult = Array<Record<string, unknown>>;
 
@@ -72,6 +80,22 @@ function toSqliteCollectionTableName(slug: string): string {
   return slug.replace(/-/g, "_");
 }
 
+function resolvePayloadDatabaseUrl(): string {
+  if (payloadDatabaseUrlOverride) {
+    return payloadDatabaseUrlOverride;
+  }
+
+  if (payloadIsProduction && payloadPrimaryDatabaseUrl) {
+    return payloadPrimaryDatabaseUrl;
+  }
+
+  return payloadDefaultSqliteUrl;
+}
+
+function resolvePayloadDatabaseKind(databaseUrl: string): "postgres" | "sqlite" {
+  return databaseUrl.startsWith("file:") ? "sqlite" : "postgres";
+}
+
 function hasSchemaDrift(sqliteFilePath: string, collectionSlugs: readonly string[]): boolean {
   if (!fs.existsSync(sqliteFilePath)) {
     return false;
@@ -104,7 +128,22 @@ function hasSchemaDrift(sqliteFilePath: string, collectionSlugs: readonly string
   }
 }
 
-const payloadSqliteFilePath = resolveSqliteFilePath(payloadDatabaseUrl);
+const payloadDatabaseUrl = resolvePayloadDatabaseUrl();
+const payloadResolvedDatabaseKind = resolvePayloadDatabaseKind(payloadDatabaseUrl);
+
+if (
+  payloadIsProduction &&
+  !payloadIsProductionBuild &&
+  payloadResolvedDatabaseKind === "sqlite" &&
+  !payloadAllowProductionSqlite
+) {
+  throw new Error(
+    "Payload CMS is configured to use SQLite in production. Set PAYLOAD_DATABASE_URL to a persistent Postgres connection string, rely on DATABASE_URL, or set PAYLOAD_ALLOW_PRODUCTION_SQLITE=true only when production has persistent disk."
+  );
+}
+
+const payloadSqliteFilePath =
+  payloadResolvedDatabaseKind === "sqlite" ? resolveSqliteFilePath(payloadDatabaseUrl) : null;
 const payloadCollectionSlugs = [
   CmsUsersCollection.slug,
   CmsPagesCollection.slug,
@@ -123,19 +162,30 @@ const payloadSchemaDriftPush = payloadSqliteFilePath
   ? hasSchemaDrift(payloadSqliteFilePath, payloadCollectionSlugs)
   : false;
 const payloadAutoPushSchema = payloadAutoPushOverride ?? payloadIsDevelopment;
-const payloadShouldPushSchema = payloadAutoPushSchema && (payloadBootstrapPush || payloadSchemaDriftPush);
+const payloadShouldPushSqliteSchema = payloadAutoPushSchema && (payloadBootstrapPush || payloadSchemaDriftPush);
+const payloadShouldPushPostgresSchema = payloadAutoPushSchema;
+const payloadDatabaseAdapter =
+  payloadResolvedDatabaseKind === "sqlite"
+    ? sqliteAdapter({
+        client: {
+          url: payloadDatabaseUrl,
+        },
+        // Keep runtime non-interactive by default.
+        // Automatically bootstrap schema when the local SQLite DB is new or drifted.
+        push: payloadShouldPushSqliteSchema,
+      })
+    : postgresAdapter({
+        pool: {
+          connectionString: payloadDatabaseUrl,
+        },
+        // Production never auto-pushes Postgres schemas, but local env overrides should stay predictable.
+        push: payloadShouldPushPostgresSchema,
+      });
 
 const payloadConfig = buildConfig({
   secret: payloadSecret,
   editor: lexicalEditor(),
-  db: sqliteAdapter({
-    client: {
-      url: payloadDatabaseUrl,
-    },
-    // Keep runtime non-interactive by default.
-    // Automatically bootstrap schema when local DB is new, drifted, or when dev-mode auto-push is enabled.
-    push: payloadShouldPushSchema,
-  }),
+  db: payloadDatabaseAdapter,
   admin: {
     user: CmsUsersCollection.slug,
     suppressHydrationWarning: true,

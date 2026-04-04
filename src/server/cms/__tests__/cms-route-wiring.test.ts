@@ -31,10 +31,18 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
 
   assert.ok(cmsUsersSource.includes('slug: "cms-users"'));
   assert.ok(payloadConfigSource.includes("user: CmsUsersCollection.slug"));
+  assert.ok(payloadConfigSource.includes("@payloadcms/db-postgres"));
+  assert.ok(payloadConfigSource.includes("postgresAdapter"));
+  assert.ok(payloadConfigSource.includes("sqliteAdapter"));
   assert.ok(payloadConfigSource.includes("PAYLOAD_DATABASE_URL"));
+  assert.ok(payloadConfigSource.includes("DATABASE_URL"));
   assert.ok(payloadConfigSource.includes("file:./.data/payload.db"));
-  assert.ok(payloadConfigSource.includes("PAYLOAD_AUTO_PUSH_SCHEMA"));
-  assert.ok(payloadConfigSource.includes("payloadShouldPushSchema"));
+  assert.ok(payloadConfigSource.includes("PAYLOAD_ALLOW_PRODUCTION_SQLITE"));
+  assert.ok(payloadConfigSource.includes("resolvePayloadDatabaseUrl"));
+  assert.ok(payloadConfigSource.includes("resolvePayloadDatabaseKind"));
+  assert.ok(payloadConfigSource.includes("payloadResolvedDatabaseKind"));
+  assert.ok(payloadConfigSource.includes("payloadShouldPushSqliteSchema"));
+  assert.ok(payloadConfigSource.includes("payloadShouldPushPostgresSchema"));
   assert.ok(payloadConfigSource.includes("fs.existsSync"));
   assert.ok(payloadConfigSource.includes("resolveSqliteFilePath"));
   assert.ok(!payloadConfigSource.includes('user: "users"'));
@@ -46,7 +54,18 @@ async function testPayloadSchemaPushSafetyInDevelopment(): Promise<void> {
   assert.ok(source.includes("process.env.NODE_ENV"));
   assert.ok(source.includes("payloadIsDevelopment"));
   assert.ok(source.includes("payloadAutoPushOverride"));
-  assert.ok(source.includes("payloadAutoPushOverride ?? payloadIsDevelopment"));
+  assert.ok(source.includes("payloadAutoPushSchema = payloadAutoPushOverride ?? payloadIsDevelopment"));
+}
+
+async function testPayloadProductionDatabaseSafety(): Promise<void> {
+  const source = readSource("src/cms/payload.config.ts");
+
+  assert.ok(source.includes("payloadIsProduction"));
+  assert.ok(source.includes("payloadIsProductionBuild"));
+  assert.ok(source.includes('process.env.NEXT_PHASE === "phase-production-build"'));
+  assert.ok(source.includes('payloadResolvedDatabaseKind === "sqlite"'));
+  assert.ok(source.includes("throw new Error"));
+  assert.ok(source.includes("persistent Postgres connection string"));
 }
 
 async function testRootPayloadConfigDelegatesToCmsConfig(): Promise<void> {
@@ -91,6 +110,7 @@ async function run(): Promise<void> {
   await testPayloadConfigUsesCmsRoutes();
   await testCmsUsesDedicatedUsersAndDatabaseBoundary();
   await testPayloadSchemaPushSafetyInDevelopment();
+  await testPayloadProductionDatabaseSafety();
   await testRootPayloadConfigDelegatesToCmsConfig();
   await testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml();
   await testCmsImportMapContainsRequiredBuiltInComponents();

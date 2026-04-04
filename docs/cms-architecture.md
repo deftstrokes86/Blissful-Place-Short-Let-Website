@@ -109,6 +109,15 @@ Recommended initial collections under Payload:
 4. Coexistence
 - Existing `/admin/*` and `/staff/*` remain first-class and unchanged in purpose.
 
+5. CMS persistence
+- Local development defaults to file-backed SQLite for fast setup.
+- Production must use persistent Postgres via `PAYLOAD_DATABASE_URL` or `DATABASE_URL`.
+- Production SQLite requires explicit `PAYLOAD_ALLOW_PRODUCTION_SQLITE="true"` and a deployment with persistent disk.
+
+6. CMS media storage
+- Local uploads can use the app filesystem for development.
+- Production deployments should use persistent disk or object storage for `blog-media` uploads.
+
 ## Non-Goals (Architecture)
 1. Replacing worker task execution UX with CMS screens
 2. Replacing custom booking/readiness operational flows with generic CMS forms
