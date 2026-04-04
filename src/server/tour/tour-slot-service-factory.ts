@@ -1,4 +1,4 @@
-import { createDatabaseId } from "../db/file-database";
+import { createDatabaseId } from "../db/database-identifiers";
 import { prismaTourSlotRepository } from "./prisma-tour-slot-repository";
 import { TourSlotService } from "./tour-slot-service";
 
@@ -16,3 +16,4 @@ export function getSharedTourSlotService(): TourSlotService {
 
   return sharedTourSlotService;
 }
+

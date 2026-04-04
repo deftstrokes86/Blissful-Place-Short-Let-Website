@@ -1,4 +1,4 @@
-import { readBookingDatabase } from "../db/file-database";
+import { prisma } from "../db/prisma";
 import type { FlatId } from "../../types/booking";
 import type {
   FlatReadinessRecord,
@@ -71,6 +71,200 @@ export interface AdminInventoryOverview {
   workerTasks: WorkerTaskRecord[];
 }
 
+function mapInventoryItem(row: {
+  id: string;
+  name: string;
+  category: string;
+  internalCode: string | null;
+  unitOfMeasure: string;
+  reorderThreshold: number | null;
+  parLevel: number | null;
+  criticality: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): InventoryItemRecord {
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category as InventoryItemRecord["category"],
+    internalCode: row.internalCode ?? null,
+    unitOfMeasure: row.unitOfMeasure,
+    reorderThreshold: row.reorderThreshold ?? null,
+    parLevel: row.parLevel ?? null,
+    criticality: row.criticality as InventoryItemRecord["criticality"],
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function mapTemplate(row: {
+  id: string;
+  name: string;
+  description: string | null;
+  flatType: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}): InventoryTemplateRecord {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description ?? null,
+    flatType: row.flatType ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function mapTemplateItem(row: {
+  id: string;
+  templateId: string;
+  inventoryItemId: string;
+  expectedQuantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}): TemplateItemRecord {
+  return {
+    id: row.id,
+    templateId: row.templateId,
+    inventoryItemId: row.inventoryItemId,
+    expectedQuantity: row.expectedQuantity,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function mapStockMovement(row: {
+  id: string;
+  inventoryItemId: string;
+  flatId: string | null;
+  movementType: string;
+  quantity: number;
+  reason: string;
+  notes: string | null;
+  actorId: string | null;
+  createdAt: Date;
+}): StockMovementRecord {
+  return {
+    id: row.id,
+    inventoryItemId: row.inventoryItemId,
+    flatId: (row.flatId ?? null) as FlatId | null,
+    movementType: row.movementType as StockMovementRecord["movementType"],
+    quantity: row.quantity,
+    reason: row.reason,
+    notes: row.notes ?? null,
+    actorId: row.actorId ?? null,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+function mapInventoryAlert(row: {
+  id: string;
+  inventoryItemId: string | null;
+  flatId: string | null;
+  alertType: string;
+  severity: string;
+  status: string;
+  message: string;
+  createdAt: Date;
+  resolvedAt: Date | null;
+}): InventoryAlertRecord {
+  return {
+    id: row.id,
+    inventoryItemId: row.inventoryItemId ?? null,
+    flatId: (row.flatId ?? null) as FlatId | null,
+    alertType: row.alertType as InventoryAlertRecord["alertType"],
+    severity: row.severity as InventoryAlertRecord["severity"],
+    status: row.status as InventoryAlertRecord["status"],
+    message: row.message,
+    createdAt: row.createdAt.toISOString(),
+    resolvedAt: row.resolvedAt ? row.resolvedAt.toISOString() : null,
+  };
+}
+
+function mapMaintenanceIssue(row: {
+  id: string;
+  flatId: string;
+  inventoryItemId: string | null;
+  title: string;
+  notes: string | null;
+  severity: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  resolvedAt: Date | null;
+}): MaintenanceIssueRecord {
+  return {
+    id: row.id,
+    flatId: row.flatId as FlatId,
+    inventoryItemId: row.inventoryItemId ?? null,
+    title: row.title,
+    notes: row.notes ?? null,
+    severity: row.severity as MaintenanceIssueRecord["severity"],
+    status: row.status as MaintenanceIssueRecord["status"],
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    resolvedAt: row.resolvedAt ? row.resolvedAt.toISOString() : null,
+  };
+}
+
+function mapWorkerTask(row: {
+  id: string;
+  flatId: string;
+  title: string;
+  description: string | null;
+  taskType: string;
+  priority: string;
+  status: string;
+  sourceType: string;
+  sourceId: string;
+  assignedTo: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt: Date | null;
+}): WorkerTaskRecord {
+  return {
+    id: row.id,
+    flatId: row.flatId as FlatId,
+    title: row.title,
+    description: row.description ?? null,
+    taskType: row.taskType as WorkerTaskRecord["taskType"],
+    priority: row.priority as WorkerTaskRecord["priority"],
+    status: row.status as WorkerTaskRecord["status"],
+    sourceType: row.sourceType as WorkerTaskRecord["sourceType"],
+    sourceId: row.sourceId,
+    assignedTo: row.assignedTo ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    completedAt: row.completedAt ? row.completedAt.toISOString() : null,
+  };
+}
+
+function mapFlatReadiness(row: {
+  flatId: string;
+  cleaningStatus: string;
+  linenStatus: string;
+  consumablesStatus: string;
+  maintenanceStatus: string;
+  criticalAssetStatus: string;
+  readinessStatus: string;
+  overrideStatus: string | null;
+  overrideReason: string | null;
+  updatedAt: Date;
+}): FlatReadinessRecord {
+  return {
+    flatId: row.flatId as FlatId,
+    cleaningStatus: row.cleaningStatus as FlatReadinessRecord["cleaningStatus"],
+    linenStatus: row.linenStatus as FlatReadinessRecord["linenStatus"],
+    consumablesStatus: row.consumablesStatus as FlatReadinessRecord["consumablesStatus"],
+    maintenanceStatus: row.maintenanceStatus as FlatReadinessRecord["maintenanceStatus"],
+    criticalAssetStatus: row.criticalAssetStatus as FlatReadinessRecord["criticalAssetStatus"],
+    readinessStatus: row.readinessStatus as FlatReadinessRecord["readinessStatus"],
+    overrideStatus: (row.overrideStatus ?? null) as FlatReadinessRecord["overrideStatus"],
+    overrideReason: row.overrideReason ?? null,
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
 export class AdminInventoryService {
   private readonly maintenanceIssueService: AdminInventoryServiceDependencies["maintenanceIssueService"];
   private readonly inventoryAlertService: AdminInventoryServiceDependencies["inventoryAlertService"];
@@ -82,95 +276,138 @@ export class AdminInventoryService {
 
   async getOverview(): Promise<AdminInventoryOverview> {
     await this.syncAlertsForAllFlats();
-    const db = await readBookingDatabase();
 
-    const itemById = new Map<string, InventoryItemRecord>(db.inventoryItems.map((item) => [item.id, { ...item }]));
-    const flatById = new Map<FlatId, { id: FlatId; name: string }>(
-      db.flats.map((flat) => [flat.id, { id: flat.id, name: flat.name }])
+    const [
+      flatRows,
+      inventoryItemRows,
+      inventoryTemplateRows,
+      templateItemRows,
+      centralStockRows,
+      flatInventoryRows,
+      stockMovementRows,
+      activeAlertRows,
+      maintenanceIssueRows,
+      workerTaskRows,
+      flatReadinessRows,
+    ] = await Promise.all([
+      prisma.flat.findMany({
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
+      }),
+      prisma.inventoryItem.findMany({
+        orderBy: { name: "asc" },
+      }),
+      prisma.inventoryTemplate.findMany({
+        orderBy: { name: "asc" },
+      }),
+      prisma.templateItem.findMany(),
+      prisma.centralStock.findMany(),
+      prisma.flatInventory.findMany(),
+      prisma.stockMovement.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 40,
+      }),
+      prisma.inventoryAlert.findMany({
+        where: { status: { not: "resolved" } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.maintenanceIssue.findMany({
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.workerTask.findMany({
+        orderBy: { updatedAt: "desc" },
+      }),
+      prisma.flatReadiness.findMany(),
+    ]);
+
+    const flats = flatRows.map((flat) => ({ id: flat.id as FlatId, name: flat.name }));
+    const flatById = new Map<FlatId, { id: FlatId; name: string }>(flats.map((flat) => [flat.id, flat]));
+
+    const inventoryCatalog = inventoryItemRows.map(mapInventoryItem);
+    const itemById = new Map<string, InventoryItemRecord>(inventoryCatalog.map((item) => [item.id, item]));
+    const templateItems = templateItemRows.map(mapTemplateItem);
+    const activeAlerts = activeAlertRows.map(mapInventoryAlert);
+    const maintenanceIssues = maintenanceIssueRows.map(mapMaintenanceIssue);
+    const workerTasks = workerTaskRows.map(mapWorkerTask);
+    const readinessByFlatId = new Map<FlatId, FlatReadinessRecord>(
+      flatReadinessRows.map((row) => {
+        const readiness = mapFlatReadiness(row);
+        return [readiness.flatId, readiness] as const;
+      })
+    );
+    const centralStockQuantityByItemId = new Map<string, number>(
+      centralStockRows.map((row) => [row.inventoryItemId, row.quantity])
     );
 
-    const templates = db.inventoryTemplates
-      .map((template) => ({
+    const templates = inventoryTemplateRows.map((templateRow) => {
+      const template = mapTemplate(templateRow);
+
+      return {
         ...template,
-        items: db.templateItems
+        items: templateItems
           .filter((item) => item.templateId === template.id)
           .map((item) => ({
             ...item,
             itemName: itemById.get(item.inventoryItemId)?.name ?? null,
           }))
           .sort((left, right) => left.inventoryItemId.localeCompare(right.inventoryItemId)),
-      }))
-      .sort((left, right) => left.name.localeCompare(right.name));
+      };
+    });
 
-    const centralStockByItem = db.centralStockByItem ?? {};
-    const centralStock = db.inventoryItems
-      .map((item) => ({
-        inventoryItemId: item.id,
-        itemName: item.name,
-        unitOfMeasure: item.unitOfMeasure,
-        quantity: centralStockByItem[item.id] ?? 0,
-      }))
-      .sort((left, right) => left.itemName.localeCompare(right.itemName));
+    const centralStock = inventoryCatalog.map((item) => ({
+      inventoryItemId: item.id,
+      itemName: item.name,
+      unitOfMeasure: item.unitOfMeasure,
+      quantity: centralStockQuantityByItemId.get(item.id) ?? 0,
+    }));
 
-    const flatInventory = db.flats
-      .map((flat) => ({
-        flatId: flat.id,
-        flatName: flat.name,
-        records: db.flatInventory
-          .filter((record) => record.flatId === flat.id)
-          .map((record) => {
-            const item = itemById.get(record.inventoryItemId);
-            return {
-              id: record.id,
-              inventoryItemId: record.inventoryItemId,
-              itemName: item?.name ?? record.inventoryItemId,
-              category: item?.category ?? "asset",
-              criticality: item?.criticality ?? "minor",
-              unitOfMeasure: item?.unitOfMeasure ?? "unit",
-              expectedQuantity: record.expectedQuantity,
-              currentQuantity: record.currentQuantity,
-              conditionStatus: record.conditionStatus,
-              notes: record.notes,
-              lastCheckedAt: record.lastCheckedAt,
-            };
-          })
-          .sort((left, right) => left.itemName.localeCompare(right.itemName)),
-      }))
-      .sort((left, right) => left.flatName.localeCompare(right.flatName));
+    const flatInventory = flats.map((flat) => ({
+      flatId: flat.id,
+      flatName: flat.name,
+      records: flatInventoryRows
+        .filter((record) => record.flatId === flat.id)
+        .map((record) => {
+          const item = itemById.get(record.inventoryItemId);
+          return {
+            id: record.id,
+            inventoryItemId: record.inventoryItemId,
+            itemName: item?.name ?? record.inventoryItemId,
+            category: item?.category ?? "asset",
+            criticality: item?.criticality ?? "minor",
+            unitOfMeasure: item?.unitOfMeasure ?? "unit",
+            expectedQuantity: record.expectedQuantity,
+            currentQuantity: record.currentQuantity,
+            conditionStatus: record.conditionStatus,
+            notes: record.notes ?? null,
+            lastCheckedAt: record.lastCheckedAt ? record.lastCheckedAt.toISOString() : null,
+          };
+        })
+        .sort((left, right) => left.itemName.localeCompare(right.itemName)),
+    }));
 
-    const stockMovements = [...db.stockMovements]
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-      .slice(0, 40)
-      .map((movement) => ({
-        ...movement,
-        itemName: itemById.get(movement.inventoryItemId)?.name ?? movement.inventoryItemId,
-        contextLabel: movement.flatId ? flatById.get(movement.flatId)?.name ?? movement.flatId : "Central Stock",
-      }));
+    const stockMovements = stockMovementRows.map((movement) => {
+      const mapped = mapStockMovement(movement);
+      return {
+        ...mapped,
+        itemName: itemById.get(mapped.inventoryItemId)?.name ?? mapped.inventoryItemId,
+        contextLabel: mapped.flatId ? flatById.get(mapped.flatId)?.name ?? mapped.flatId : "Central Stock",
+      };
+    });
 
-    const activeAlerts = db.inventoryAlerts
-      .filter((alert) => alert.status !== "resolved")
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-
-    const maintenanceIssues = [...db.maintenanceIssues].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
-
-    const workerTasks = [...db.workerTasks].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-
-    const readiness = db.flats
-      .map((flat) => ({
-        flatId: flat.id,
-        flatName: flat.name,
-        readiness: db.flatReadiness.find((entry) => entry.flatId === flat.id) ?? null,
-        activeAlerts: activeAlerts.filter((alert) => alert.flatId === flat.id),
-        activeIssues: maintenanceIssues.filter(
-          (issue) => issue.flatId === flat.id && (issue.status === "open" || issue.status === "in_progress")
-        ),
-      }))
-      .sort((left, right) => left.flatName.localeCompare(right.flatName));
+    const readiness = flats.map((flat) => ({
+      flatId: flat.id,
+      flatName: flat.name,
+      readiness: readinessByFlatId.get(flat.id) ?? null,
+      activeAlerts: activeAlerts.filter((alert) => alert.flatId === flat.id),
+      activeIssues: maintenanceIssues.filter(
+        (issue) => issue.flatId === flat.id && (issue.status === "open" || issue.status === "in_progress")
+      ),
+    }));
 
     return {
       generatedAt: new Date().toISOString(),
-      flats: db.flats.map((flat) => ({ id: flat.id, name: flat.name })),
-      inventoryCatalog: [...db.inventoryItems].sort((left, right) => left.name.localeCompare(right.name)),
+      flats,
+      inventoryCatalog,
       centralStock,
       templates,
       flatInventory,
@@ -232,9 +469,10 @@ export class AdminInventoryService {
   }
 
   private async syncAlertsForAllFlats(): Promise<void> {
-    const db = await readBookingDatabase();
-    for (const flat of db.flats) {
-      await this.inventoryAlertService.syncFlatAlerts(flat.id);
-    }
+    const flatRows = await prisma.flat.findMany({
+      select: { id: true },
+    });
+
+    await Promise.all(flatRows.map((flat) => this.inventoryAlertService.syncFlatAlerts(flat.id as FlatId)));
   }
 }

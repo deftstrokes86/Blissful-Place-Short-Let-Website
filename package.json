@@ -8,15 +8,19 @@
     "start": "next start",
     "lint": "eslint",
     "test:backend-foundation": "node tests/booking-schema-contract.test.mjs && node tests/booking-schema-alignment.test.mjs",
+    "test:prisma-setup": "node -e \"require('fs').rmSync('.tmp-prisma-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.prisma-tests.json && node .tmp-prisma-test-build/server/db/__tests__/prisma-config.test.js && node tests/prisma-setup-contract.test.mjs",
+    "test:runtime-db-consistency": "node tests/runtime-db-consistency.test.mjs",
     "test:reservation-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/reservation-service.test.js",
     "test:availability-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/availability-service.test.js",
     "test:availability-block-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/availability-block-service.test.js",
     "test:calendar-sync-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/calendar-sync-service.test.js",
     "test:calendar-availability-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/calendar-availability-service.test.js",
     "test:draft-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/draft-service.test.js",
+    "test:legacy-guest-reservation-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/legacy-guest-reservation-service.test.js",
     "test:offline-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/offline-payment-service.test.js",
     "test:expire-transfer-holds-job": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/jobs/__tests__/expire-transfer-holds.test.js",
     "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate --schema prisma/schema.prisma",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "test:website-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/website-payment-service.test.js",
@@ -75,3 +79,7 @@
     "typescript": "^5"
   }
 }
+
+
+
+

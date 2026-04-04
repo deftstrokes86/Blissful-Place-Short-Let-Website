@@ -1,4 +1,4 @@
-﻿import { createDatabaseId } from "../db/file-database";
+import { createDatabaseId } from "../db/database-identifiers";
 import { FlatInventoryService } from "./flat-inventory-service";
 import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { InventoryTemplateService } from "./inventory-template-service";
@@ -40,3 +40,4 @@ export function getSharedInventoryTemplateOperationsService(): InventoryTemplate
 
   return sharedTemplateOperationsService;
 }
+

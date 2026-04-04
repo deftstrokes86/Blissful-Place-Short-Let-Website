@@ -1,5 +1,5 @@
 import { AuthService } from "./auth-service";
-import { fileAuthRepository } from "./file-auth-repository";
+import { prismaAuthRepository } from "./prisma-auth-repository";
 import {
   bootstrapInitialAuthUser,
   parseBootstrapAuthEnv,
@@ -17,8 +17,8 @@ interface BootstrapCliResult {
 
 function createBootstrapUserStore(): BootstrapAuthUserStore {
   return {
-    countUsers: () => fileAuthRepository.countUsers(),
-    findUserByEmail: (email: string) => fileAuthRepository.findUserByEmail(email),
+    countUsers: () => prismaAuthRepository.countUsers(),
+    findUserByEmail: (email: string) => prismaAuthRepository.findUserByEmail(email),
   };
 }
 
@@ -30,7 +30,7 @@ export async function runAuthBootstrapFromEnv(env: NodeJS.ProcessEnv): Promise<B
     AUTH_BOOTSTRAP_ROLE: env.AUTH_BOOTSTRAP_ROLE,
   });
 
-  const authService = new AuthService({ repository: fileAuthRepository });
+  const authService = new AuthService({ repository: prismaAuthRepository });
   const result = await bootstrapInitialAuthUser(input, {
     authService,
     userStore: createBootstrapUserStore(),

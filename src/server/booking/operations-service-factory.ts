@@ -1,4 +1,4 @@
-import { createDatabaseId } from "../db/file-database";
+import { createDatabaseId } from "../db/database-identifiers";
 import { prismaAvailabilityBlockRepository } from "./prisma-availability-block-repository";
 import { prismaOperationsQueryRepository } from "./prisma-operations-query-repository";
 import { prismaWebsitePaymentIdempotencyGateway } from "./prisma-idempotency-service";
@@ -24,3 +24,4 @@ export function getSharedOperationsService(): OperationsService {
 
   return sharedOperationsService;
 }
+

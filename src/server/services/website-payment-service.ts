@@ -1,3 +1,6 @@
+// Legacy file-backed implementation retained for migration/reference only.
+// Active runtime routes use the Prisma-backed services under src/server/booking/*.
+
 import { createDatabaseId, withBookingDatabase } from "@/server/db/file-database";
 import { executeWithIdempotency } from "@/server/services/idempotency-service";
 import { reservationDomainService } from "@/server/services/reservation-domain-service";
@@ -218,3 +221,4 @@ export class WebsitePaymentService {
 }
 
 export const websitePaymentService = new WebsitePaymentService();
+

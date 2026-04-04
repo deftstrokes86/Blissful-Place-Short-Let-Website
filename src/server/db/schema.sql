@@ -1,3 +1,5 @@
+-- Legacy file-db reference schema for older non-Prisma flows.
+-- The active application database target is Supabase Postgres through Prisma and DATABASE_URL.
 -- Backend MVP foundation schema (implementation direction)
 
 CREATE TABLE IF NOT EXISTS flats (
@@ -292,3 +294,4 @@ CREATE TABLE IF NOT EXISTS sessions (
   updated_at TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+

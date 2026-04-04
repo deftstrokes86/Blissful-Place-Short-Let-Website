@@ -1,9 +1,12 @@
-import { randomUUID } from "node:crypto";
+// Legacy JSON file database for older non-Prisma flows.
+// New server-side data access should use Prisma + Supabase Postgres via DATABASE_URL.
+
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { nowIso } from "./db-utils";
+export { createDatabaseId } from "./database-identifiers";
 
 import type {
   BookingDatabaseState,
@@ -246,12 +249,12 @@ export async function withBookingDatabase<T>(
   return queuedOperation;
 }
 
-export function createDatabaseId(prefix: string): string {
-  return `${prefix}_${randomUUID()}`;
-}
-
 export function getDatabaseFilePath(): string {
   return DATA_FILE_PATH;
 }
+
+
+
+
 
 

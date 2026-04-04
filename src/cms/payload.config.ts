@@ -26,8 +26,8 @@ const payloadEnvironment = process.env.NODE_ENV?.trim()?.toLowerCase() ?? "devel
 const payloadIsProduction = payloadEnvironment === "production";
 const payloadIsDevelopment = !payloadIsProduction;
 const payloadIsProductionBuild = process.env.NEXT_PHASE === "phase-production-build";
-const payloadPrimaryDatabaseUrl = process.env.DATABASE_URL?.trim();
-const payloadDatabaseUrlOverride = process.env.PAYLOAD_DATABASE_URL?.trim();
+const payloadPrimaryDatabaseUrl = process.env.DATABASE_URL?.trim(); // Canonical app database URL.
+const payloadDatabaseUrlOverride = process.env.PAYLOAD_DATABASE_URL?.trim(); // Optional legacy Payload-only override.
 const payloadDefaultSqliteUrl = "file:./.data/payload.db";
 const payloadAutoPushRaw = process.env.PAYLOAD_AUTO_PUSH_SCHEMA?.trim()?.toLowerCase();
 const payloadAutoPushOverride =
@@ -192,11 +192,22 @@ if (payloadMediaStorageHasPartialConfig) {
 if (
   payloadIsProduction &&
   !payloadIsProductionBuild &&
+  !hasConfiguredValue(payloadDatabaseUrlOverride) &&
+  !hasConfiguredValue(payloadPrimaryDatabaseUrl)
+) {
+  throw new Error(
+    "Payload CMS has no production Postgres connection string. Set DATABASE_URL in Hostinger, leave PAYLOAD_DATABASE_URL blank unless Payload must intentionally point elsewhere, and then use Settings and redeploy. See docs/supabase-database-setup.md."
+  );
+}
+
+if (
+  payloadIsProduction &&
+  !payloadIsProductionBuild &&
   payloadResolvedDatabaseKind === "sqlite" &&
   !payloadAllowProductionSqlite
 ) {
   throw new Error(
-    "Payload CMS is configured to use SQLite in production. Set PAYLOAD_DATABASE_URL to a persistent Postgres connection string, rely on DATABASE_URL, or set PAYLOAD_ALLOW_PRODUCTION_SQLITE=true only when production has persistent disk."
+    "Payload CMS is configured to use SQLite in production. Set DATABASE_URL to your Supabase Postgres connection string in Hostinger, leave PAYLOAD_DATABASE_URL blank unless Payload must intentionally point elsewhere, and then use Settings and redeploy. Only set PAYLOAD_ALLOW_PRODUCTION_SQLITE=true when production has intentional persistent disk. See docs/supabase-database-setup.md."
   );
 }
 

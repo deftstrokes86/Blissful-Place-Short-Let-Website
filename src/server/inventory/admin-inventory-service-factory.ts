@@ -1,4 +1,4 @@
-import { createDatabaseId } from "../db/file-database";
+import { createDatabaseId } from "../db/database-identifiers";
 import { InventoryAlertService } from "./inventory-alert-service";
 import { ReadinessService } from "./readiness-service";
 import { MaintenanceIssueService } from "./maintenance-issue-service";
@@ -48,3 +48,4 @@ export function getSharedAdminInventoryService(): AdminInventoryService {
 
   return sharedAdminInventoryService;
 }
+

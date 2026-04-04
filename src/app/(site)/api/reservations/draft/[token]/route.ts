@@ -1,3 +1,4 @@
+import { getSharedLegacyGuestReservationService } from "@/server/booking/legacy-guest-reservation-service-factory";
 import { parseDraftInput } from "@/server/http/reservation-payload";
 import {
   jsonError,
@@ -6,7 +7,6 @@ import {
   pickIdempotencyKey,
   readJsonObject,
 } from "@/server/http/route-helpers";
-import { reservationDomainService } from "@/server/services/reservation-domain-service";
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,8 @@ export async function GET(_request: Request, context: RouteContext) {
       return jsonError("Reservation token is required.", 400, "invalid_request");
     }
 
-    const reservation = await reservationDomainService.getReservationByToken(token);
+    const reservationService = getSharedLegacyGuestReservationService();
+    const reservation = await reservationService.loadReservation(token);
     if (!reservation) {
       return jsonError("Reservation not found.", 404, "not_found");
     }
@@ -49,7 +50,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const input = parseDraftInput(body);
-    const reservation = await reservationDomainService.updateDraft(token, input, idempotencyKey);
+    const reservationService = getSharedLegacyGuestReservationService();
+    const reservation = await reservationService.saveDraft(token, input, idempotencyKey);
 
     return jsonSuccess({ reservation });
   } catch (error) {

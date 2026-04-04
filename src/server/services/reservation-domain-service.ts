@@ -1,3 +1,6 @@
+// Legacy file-backed implementation retained for migration/reference only.
+// Active runtime routes use the Prisma-backed services under src/server/booking/*.
+
 import { randomUUID } from "node:crypto";
 
 import { calculateBookingPricing } from "@/lib/booking-pricing";
@@ -493,6 +496,8 @@ export class ReservationDomainService {
 }
 
 export const reservationDomainService = new ReservationDomainService();
+
+
 
 
 

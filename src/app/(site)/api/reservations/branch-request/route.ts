@@ -1,3 +1,4 @@
+import { getSharedLegacyGuestReservationService } from "@/server/booking/legacy-guest-reservation-service-factory";
 import { parsePaymentMethodInput } from "@/server/http/reservation-payload";
 import {
   jsonError,
@@ -7,7 +8,6 @@ import {
   pickString,
   readJsonObject,
 } from "@/server/http/route-helpers";
-import { reservationDomainService } from "@/server/services/reservation-domain-service";
 
 export const runtime = "nodejs";
 
@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     }
 
     const paymentMethod = parsePaymentMethodInput(body, "paymentMethod");
-    const reservation = await reservationDomainService.createBranchRequest({
+    const reservationService = getSharedLegacyGuestReservationService();
+    const reservation = await reservationService.createBranchRequest({
       token,
       paymentMethod,
       actor: "guest",

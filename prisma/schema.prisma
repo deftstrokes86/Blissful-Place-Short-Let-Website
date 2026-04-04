@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// DATABASE_URL is the canonical server-side database connection for this app.
+// For this hosted Node runtime, prefer a Supabase direct connection or the
+// Supavisor session pooler. Avoid the transaction pooler here unless you also
+// plan a separate direct or session connection for Prisma CLI workflows.
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -601,3 +605,4 @@ model CentralStock {
   quantity        Int           @default(0)
   updatedAt       DateTime      @updatedAt
 }
+

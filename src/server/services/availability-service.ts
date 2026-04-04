@@ -1,4 +1,7 @@
-﻿import { randomUUID } from "node:crypto";
+// Legacy file-backed implementation retained for migration/reference only.
+// Active runtime routes use the Prisma-backed services under src/server/booking/*.
+
+import { randomUUID } from "node:crypto";
 
 import { calculateNightCount, parseIsoDate } from "@/lib/booking-pricing";
 import { readBookingDatabase } from "@/server/db/file-database";
@@ -189,3 +192,5 @@ export class BookingAvailabilityService {
 }
 
 export const bookingAvailabilityService = new BookingAvailabilityService();
+
+

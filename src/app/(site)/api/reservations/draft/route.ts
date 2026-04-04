@@ -1,4 +1,4 @@
-import { reservationDomainService } from "@/server/services/reservation-domain-service";
+import { getSharedLegacyGuestReservationService } from "@/server/booking/legacy-guest-reservation-service-factory";
 import { parseDraftInput } from "@/server/http/reservation-payload";
 import {
   jsonError,
@@ -20,7 +20,8 @@ export async function POST(request: Request) {
     }
 
     const input = parseDraftInput(body);
-    const reservation = await reservationDomainService.createDraft(input, idempotencyKey);
+    const reservationService = getSharedLegacyGuestReservationService();
+    const reservation = await reservationService.createDraft(input, idempotencyKey);
 
     return jsonSuccess({ reservation }, 201);
   } catch (error) {

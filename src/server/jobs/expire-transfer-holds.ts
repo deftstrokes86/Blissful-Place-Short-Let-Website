@@ -1,7 +1,5 @@
-import { ReservationAvailabilityGateway } from "../booking/inventory-gateway";
-import { fileReservationRepository } from "../booking/file-reservation-repository";
 import type { ReservationRepositoryReservation } from "../booking/reservation-repository";
-import { ReservationService } from "../booking/reservation-service";
+import type { ReservationService } from "../booking/reservation-service";
 
 interface ExpireTransferHoldsJobDependencies {
   reservationService: Pick<ReservationService, "expireTransferHolds">;
@@ -37,13 +35,26 @@ export class ExpireTransferHoldsJob {
   }
 }
 
+async function createRuntimeReservationService(now: Date): Promise<ReservationService> {
+  const [{ ReservationAvailabilityGateway }, { getSharedNotificationService }, { prismaReservationRepository }, { ReservationService }] =
+    await Promise.all([
+      import("../booking/inventory-gateway"),
+      import("../booking/notification-service-factory"),
+      import("../booking/prisma-reservation-repository"),
+      import("../booking/reservation-service"),
+    ]);
+
+  return new ReservationService({
+    repository: prismaReservationRepository,
+    inventoryGateway: new ReservationAvailabilityGateway(),
+    notificationGateway: getSharedNotificationService(),
+    now: () => now,
+  });
+}
+
 export async function runTransferHoldExpiryJob(nowMs: number = Date.now()): Promise<ExpireTransferHoldsJobResult> {
   const fixedNow = new Date(nowMs);
-  const reservationService = new ReservationService({
-    repository: fileReservationRepository,
-    inventoryGateway: new ReservationAvailabilityGateway(),
-    now: () => fixedNow,
-  });
+  const reservationService = await createRuntimeReservationService(fixedNow);
 
   const job = new ExpireTransferHoldsJob({
     reservationService,
@@ -52,4 +63,3 @@ export async function runTransferHoldExpiryJob(nowMs: number = Date.now()): Prom
 
   return job.run();
 }
-

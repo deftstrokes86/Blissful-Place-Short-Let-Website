@@ -1,4 +1,4 @@
-﻿import { createDatabaseId } from "../db/file-database";
+import { createDatabaseId } from "../db/database-identifiers";
 import { prismaInventoryOperationsRepository } from "./prisma-inventory-operations-repository";
 import { WorkerTaskService } from "./worker-task-service";
 
@@ -16,3 +16,4 @@ export function getSharedWorkerTaskService(): WorkerTaskService {
 
   return sharedWorkerTaskService;
 }
+
