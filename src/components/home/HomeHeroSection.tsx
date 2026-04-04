@@ -8,12 +8,12 @@ export function HomeHeroSection() {
   return (
     <section className="hero" style={{ backgroundImage: 'url("/hero-opulence.png")' }}>
       <div className="container hero-content">
-        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginBottom: "1.5rem", opacity: 0.9 }}>
+        <div className="hero-meta-strip">
           <span className="subtitle-tag" style={{ margin: 0 }}>
             5-STAR GUEST RATING 4.9/5
           </span>
-          <span className="subtitle-tag" style={{ margin: 0 }}>
-            •
+          <span className="subtitle-tag hero-meta-separator" style={{ margin: 0 }}>
+            /
           </span>
           <span className="subtitle-tag" style={{ margin: 0 }}>
             {SITE_LOCATION_LABEL.toUpperCase()}
@@ -34,7 +34,7 @@ export function HomeHeroSection() {
             <Calendar className="booking-icon" size={20} />
             <div className="booking-input-group">
               <span className="booking-label">CHECK-IN / OUT</span>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div className="hero-date-row">
                 <input type="date" className="date-input" aria-label="Check-in date" />
                 <span style={{ color: "var(--text-secondary)" }}>-</span>
                 <input type="date" className="date-input" aria-label="Check-out date" />
@@ -63,4 +63,3 @@ export function HomeHeroSection() {
     </section>
   );
 }
-

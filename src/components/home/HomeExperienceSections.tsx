@@ -76,7 +76,7 @@ export function HomeExperienceSections() {
           experience.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
+        <div className="home-advantages-grid">
           <div className="advantage-card">
             <CheckCircle2 className="text-primary" size={28} />
             <h4 className="serif">Up to 15% Lower Rates</h4>
@@ -108,88 +108,35 @@ export function HomeExperienceSections() {
           </div>
         </div>
 
-        <div
-          className="comparison-table"
-          style={{
-            marginTop: "5rem",
-            background: "var(--bg-panel)",
-            borderRadius: "var(--radius-lg)",
-            padding: "3.5rem",
-            border: "1px solid rgba(255,255,255,0.05)",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          }}
-        >
+        <div className="comparison-table">
           <h3 className="heading-sm serif text-center" style={{ marginBottom: "3rem", fontSize: "1.75rem" }}>
             The True Cost of Third-Party Booking
           </h3>
-          <div
-            className="comparison-grid"
-            style={{ display: "grid", gridTemplateColumns: "minmax(150px, 1fr) 1.5fr 1.5fr", gap: "1.5rem", textAlign: "left", alignItems: "center" }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.5rem",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-                fontSize: "0.9rem",
-                paddingTop: "3.5rem",
-              }}
-            >
-              <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Booking Fees</span>
-              <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Customer Support</span>
-              <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Check-in / Out</span>
+          <div className="comparison-grid">
+            <div className="comparison-grid-labels">
+              <span>Booking Fees</span>
+              <span>Customer Support</span>
+              <span>Check-in / Out</span>
               <span>Loyalty Rewards</span>
             </div>
 
-            <div style={{ background: "rgba(255,255,255,0.02)", padding: "2rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontWeight: 700, marginBottom: "2rem", color: "var(--text-secondary)", textAlign: "center", letterSpacing: "0.05em" }}>
-                AIRBNB / BOOKING.COM
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", color: "var(--text-secondary)" }}>
-                <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Up to 15% Extra (Hidden Fees)</span>
-                <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Platform Ticketing System</span>
-                <span style={{ borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1.5rem" }}>Strict Standard Times</span>
+            <div className="comparison-grid-panel">
+              <div className="comparison-grid-panel-header is-muted">AIRBNB / BOOKING.COM</div>
+              <div className="comparison-grid-stack">
+                <span>Up to 15% Extra (Hidden Fees)</span>
+                <span>Platform Ticketing System</span>
+                <span>Strict Standard Times</span>
                 <span>None</span>
               </div>
             </div>
 
-            <div
-              style={{
-                border: "1px solid var(--primary)",
-                background: "rgba(238,29,82,0.05)",
-                padding: "2.5rem 2rem",
-                borderRadius: "var(--radius-md)",
-                boxShadow: "0 10px 30px rgba(238,29,82,0.1)",
-                position: "relative",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-12px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  background: "var(--primary)",
-                  color: "white",
-                  padding: "0.25rem 1rem",
-                  borderRadius: "100px",
-                  fontSize: "0.7rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                MOST REWARDING
-              </div>
-              <div style={{ fontWeight: 700, marginBottom: "2rem", color: "var(--primary)", textAlign: "center", letterSpacing: "0.05em" }}>
-                BLISSFUL DIRECT
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", fontWeight: 600, color: "white" }}>
-                <span style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "1.5rem" }}>0% Hidden Fees (Best Rate Guaranteed)</span>
-                <span style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "1.5rem" }}>Instant Priority WhatsApp Concierge</span>
-                <span style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "1.5rem" }}>Priority Early / Late Access</span>
+            <div className="comparison-grid-panel comparison-grid-panel-featured">
+              <div className="comparison-grid-badge">MOST REWARDING</div>
+              <div className="comparison-grid-panel-header is-featured">BLISSFUL DIRECT</div>
+              <div className="comparison-grid-stack is-featured">
+                <span>0% Hidden Fees (Best Rate Guaranteed)</span>
+                <span>Instant Priority WhatsApp Concierge</span>
+                <span>Priority Early / Late Access</span>
                 <span>15% Off Your Next Stay + Upgrades</span>
               </div>
             </div>
@@ -199,20 +146,7 @@ export function HomeExperienceSections() {
 
       <section className="section bg-light-panel" style={{ paddingBottom: "2rem" }}>
         <div className="container">
-          <div
-            className="vip-section-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.2fr 1fr",
-              gap: "4rem",
-              alignItems: "center",
-              background: "var(--bg-dark)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "var(--radius-lg)",
-              padding: "4rem",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-            }}
-          >
+          <div className="vip-section-grid vip-section-panel">
             <div>
               <span className="subtitle-tag">VIP GUEST PROGRAM</span>
               <h2 className="heading-lg serif">Unlock the Inner Circle</h2>
@@ -220,12 +154,11 @@ export function HomeExperienceSections() {
                 Join our exclusive guest list and instantly receive a promo code for <strong>10% off your first direct booking</strong>. Returning guests unlock our Blissful Black tier, gaining complimentary upgrades, 15% off subsequent stays, and private chef access.
               </p>
 
-              <div className="lead-capture-form" style={{ display: "flex", gap: "1rem", marginTop: "3rem" }}>
+              <div className="lead-capture-form" style={{ marginTop: "3rem" }}>
                 <input
                   type="email"
                   placeholder="Enter your email for instant VIP access..."
                   style={{
-                    flex: 1,
                     padding: "1.25rem 1.5rem",
                     borderRadius: "var(--radius-sm)",
                     border: "1px solid var(--border-subtle)",
@@ -246,33 +179,8 @@ export function HomeExperienceSections() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div
-                style={{
-                  background: "linear-gradient(135deg, rgba(22,21,23,0.8) 0%, rgba(10,10,11,1) 100%)",
-                  height: "320px",
-                  width: "100%",
-                  maxWidth: "380px",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  boxShadow: "0 30px 60px rgba(0,0,0,0.6)",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: "4px",
-                    background: "linear-gradient(90deg, #d4af37, #f3e5ab, #d4af37)",
-                  }}
-                />
+              <div className="vip-member-card">
+                <div className="vip-member-card-bar" />
                 <Sparkles size={48} className="text-secondary" style={{ marginBottom: "1.5rem" }} />
                 <h3 className="serif heading-sm" style={{ letterSpacing: "0.1em" }}>
                   BLISSFUL BLACK
@@ -344,8 +252,8 @@ export function HomeExperienceSections() {
             Our residences are strictly embedded within the safest, high-value corridors of {SITE_LOCATION_LABEL}. You are never
             more than a 10-minute drive from your next important meeting or exclusive reservation.
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <div className="neighborhood-points">
+            <div className="neighborhood-point">
               <MapPin className="text-primary" size={24} />
               <div>
                 <span style={{ fontSize: "0.95rem", color: "var(--text-secondary)" }}>
@@ -353,7 +261,7 @@ export function HomeExperienceSections() {
                 </span>
               </div>
             </div>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            <div className="neighborhood-point">
               <Coffee className="text-primary" size={24} />
               <div>
                 <strong style={{ display: "block", fontSize: "1.1rem" }}>Elite Lifestyle Corridors</strong>
@@ -373,7 +281,7 @@ export function HomeExperienceSections() {
             Don&apos;t Just Take Our Word For It
           </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem", textAlign: "left" }}>
+          <div className="testimonial-grid">
             <div className="testimonial-card">
               <div className="stars">
                 <Star fill="currentColor" size={16} />
@@ -388,7 +296,7 @@ export function HomeExperienceSections() {
                 every time I fly in now.&rdquo;
               </p>
               <div className="testimonial-author">Dr. Chuka O.</div>
-              <div className="testimonial-type">Diaspora Executive • 2 Week Stay</div>
+              <div className="testimonial-type">Diaspora Executive / 2 Week Stay</div>
             </div>
             <div className="testimonial-card">
               <div className="stars">
@@ -403,8 +311,8 @@ export function HomeExperienceSections() {
                 corporate-friendly. The concierge arranging our airport pickup directly to the door at 2 AM was 5-star
                 standard.&rdquo;
               </p>
-              <div className="testimonial-author">Sarah & Mark T.</div>
-              <div className="testimonial-type">Corporate Team • 1 Month Stay</div>
+              <div className="testimonial-author">Sarah &amp; Mark T.</div>
+              <div className="testimonial-type">Corporate Team / 1 Month Stay</div>
             </div>
             <div className="testimonial-card">
               <div className="stars">
@@ -419,7 +327,7 @@ export function HomeExperienceSections() {
                 is invisible when you want peace, but instantly responsive on WhatsApp when needed.&rdquo;
               </p>
               <div className="testimonial-author">Amina B.</div>
-              <div className="testimonial-type">Solo Premium Traveler • 5 Night Stay</div>
+              <div className="testimonial-type">Solo Premium Traveler / 5 Night Stay</div>
             </div>
           </div>
         </div>
@@ -427,5 +335,3 @@ export function HomeExperienceSections() {
     </>
   );
 }
-
-

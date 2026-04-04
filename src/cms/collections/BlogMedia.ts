@@ -14,6 +14,8 @@ export const BlogMediaCollection: CollectionConfig = {
     delete: blogManageAccess,
   },
   upload: {
+    // Local filesystem remains the dev fallback.
+    // Production object storage is configured centrally in payload.config.ts.
     staticDir: "media",
     mimeTypes: ["image/*"],
   },

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { ChevronDown, Menu, X } from "@/lib/lucide-react";
@@ -44,46 +44,67 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [promoHeight, setPromoHeight] = useState(38);
+  const promoBarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const promoBar = promoBarRef.current;
+
+    if (!promoBar) {
+      return;
+    }
+
+    const updatePromoHeight = () => {
+      setPromoHeight(Math.ceil(promoBar.getBoundingClientRect().height));
+    };
+
+    updatePromoHeight();
+    window.addEventListener("resize", updatePromoHeight);
+
+    if (typeof ResizeObserver === "undefined") {
+      return () => {
+        window.removeEventListener("resize", updatePromoHeight);
+      };
+    }
+
+    const observer = new ResizeObserver(() => {
+      updatePromoHeight();
+    });
+
+    observer.observe(promoBar);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updatePromoHeight);
+    };
+  }, [promoText]);
+
+  useEffect(() => {
+    document.body.classList.toggle("mobile-menu-open", isMobileMenuOpen);
+
+    return () => {
+      document.body.classList.remove("mobile-menu-open");
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <>
-      <div
-        style={{
-          background: "var(--primary)",
-          color: "white",
-          textAlign: "center",
-          padding: "0.6rem 1rem",
-          fontSize: "0.75rem",
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1001,
-          textTransform: "uppercase",
-        }}
-      >
+      <div ref={promoBarRef} className="site-promo-bar">
         {promoText}
       </div>
 
-      <nav
-        className={`navbar ${isScrolled ? "sticky" : ""}`}
-        style={
-          !isScrolled
-            ? { top: "38px", transition: "all 0.3s ease" }
-            : { transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }
-        }
-      >
-        <div className="logo" style={{ marginTop: "-0.3rem" }}>
+      <nav className={`navbar ${isScrolled ? "sticky" : ""}`} style={!isScrolled ? { top: `${promoHeight}px` } : undefined}>
+        <div className="logo site-header-logo">
           <Link href="/" style={{ color: "inherit", textDecoration: "none", display: "flex", alignItems: "center" }}>
             <BrandLogo variant="nav" />
           </Link>
@@ -184,3 +205,4 @@ export function SiteHeader({
     </>
   );
 }
+

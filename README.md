@@ -28,13 +28,36 @@ Set these production environment variables before deploying Payload-backed blog 
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE_NAME?schema=public"
 PAYLOAD_DATABASE_URL=""
 PAYLOAD_ALLOW_PRODUCTION_SQLITE="false"
+PAYLOAD_MEDIA_S3_BUCKET="your-media-bucket"
+PAYLOAD_MEDIA_S3_REGION="eu-west-1"
+PAYLOAD_MEDIA_S3_ENDPOINT=""
+PAYLOAD_MEDIA_S3_ACCESS_KEY_ID="replace-with-access-key"
+PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY="replace-with-secret-key"
+PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE="true"
+PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA="false"
 ```
 
 Notes:
 - `DATABASE_URL` must point to a persistent Postgres database.
 - Leave `PAYLOAD_DATABASE_URL` blank to let Payload reuse `DATABASE_URL`, or set it to the same Postgres connection string explicitly.
 - Do not set `PAYLOAD_DATABASE_URL` to `file:./.data/payload.db` in production.
+- `PAYLOAD_MEDIA_S3_ENDPOINT` can stay blank on AWS and will default to `https://s3.<region>.amazonaws.com`.
+- For S3-compatible providers like Cloudflare R2, DigitalOcean Spaces, or MinIO, set `PAYLOAD_MEDIA_S3_ENDPOINT` explicitly.
 - See `.env.production.example` for the full production-oriented template.
+
+## CMS Migration
+
+After production Postgres and media env vars are set, run Payload migrations to create the CMS schema and import the legacy blog snapshot:
+
+```bash
+npx payload migrate
+```
+
+Notes:
+- The first migration bootstraps the Payload Postgres schema.
+- The second migration imports the current legacy blog snapshot from `src/migrations/data/legacy-blog-content.json`.
+- When S3 storage is configured, imported blog images are uploaded into object storage during the migration.
+- The import intentionally creates a non-login legacy author account instead of copying old password hashes from SQLite.
 
 ## Learn More
 

@@ -48,6 +48,23 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
   assert.ok(!payloadConfigSource.includes('user: "users"'));
 }
 
+async function testPayloadMediaStorageUsesS3AdapterWhenConfigured(): Promise<void> {
+  const source = readSource("src/cms/payload.config.ts");
+
+  assert.ok(source.includes("@payloadcms/storage-s3"));
+  assert.ok(source.includes("s3Storage"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_BUCKET"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_REGION"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_ENDPOINT"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_ACCESS_KEY_ID"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY"));
+  assert.ok(source.includes("PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE"));
+  assert.ok(source.includes("payloadMediaStorageEnabled"));
+  assert.ok(source.includes("collections: {"));
+  assert.ok(source.includes("[BlogMediaCollection.slug]: true"));
+  assert.ok(source.includes("plugins: payloadPlugins"));
+}
+
 async function testPayloadSchemaPushSafetyInDevelopment(): Promise<void> {
   const source = readSource("src/cms/payload.config.ts");
 
@@ -68,10 +85,19 @@ async function testPayloadProductionDatabaseSafety(): Promise<void> {
   assert.ok(source.includes("persistent Postgres connection string"));
 }
 
+async function testPayloadProductionMediaSafety(): Promise<void> {
+  const source = readSource("src/cms/payload.config.ts");
+
+  assert.ok(source.includes("payloadMediaStorageHasPartialConfig"));
+  assert.ok(source.includes("PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA"));
+  assert.ok(source.includes("Payload CMS blog media is configured to use local filesystem storage in production"));
+  assert.ok(source.includes("Payload CMS S3 media storage is partially configured"));
+}
+
 async function testRootPayloadConfigDelegatesToCmsConfig(): Promise<void> {
   const source = readSource("payload.config.ts");
 
-  assert.ok(source.includes("./src/cms/payload.config.ts"));
+  assert.ok(source.includes("./src/cms/payload.config"));
 }
 
 async function testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml(): Promise<void> {
@@ -109,8 +135,10 @@ async function run(): Promise<void> {
   await testCmsMountFilesExist();
   await testPayloadConfigUsesCmsRoutes();
   await testCmsUsesDedicatedUsersAndDatabaseBoundary();
+  await testPayloadMediaStorageUsesS3AdapterWhenConfigured();
   await testPayloadSchemaPushSafetyInDevelopment();
   await testPayloadProductionDatabaseSafety();
+  await testPayloadProductionMediaSafety();
   await testRootPayloadConfigDelegatesToCmsConfig();
   await testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml();
   await testCmsImportMapContainsRequiredBuiltInComponents();

@@ -14,29 +14,20 @@ import {
 export function SiteFooter() {
   return (
     <>
-      <footer
-        className="footer"
-        style={{ padding: "6rem 0 3rem", borderTop: "1px solid var(--border-subtle)", background: "var(--bg-dark)" }}
-      >
+      <footer className="footer">
         <div className="container">
-          <div
-            className="footer-grid"
-            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "4rem", alignItems: "start" }}
-          >
-            <div
-              className="footer-brand"
-              style={{ display: "flex", flexDirection: "column", gap: "1.5rem", gridColumn: "1 / span 2", maxWidth: "380px" }}
-            >
+          <div className="footer-grid">
+            <div className="footer-brand">
               <div style={{ display: "inline-block" }}>
                 <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
                   <BrandLogo variant="footer" />
                 </Link>
               </div>
-              <p style={{ color: "var(--text-secondary)", fontSize: "0.90rem", lineHeight: "1.8" }}>
+              <p className="footer-brand-copy">
                 Premium short-let stays prepared for guests who value order, comfort, and reliable support.
                 Expect clear communication, steady essentials, and a calm hospitality experience from inquiry to checkout.
               </p>
-              <div className="footer-socials" style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
+              <div className="footer-socials" style={{ marginTop: "0.5rem" }}>
                 <a href={SOCIAL_LINKS.instagram} className="social-circle" aria-label="Instagram">
                   <Instagram size={16} />
                 </a>
@@ -50,13 +41,8 @@ export function SiteFooter() {
             </div>
 
             <div className="footer-column">
-              <h4 className="serif" style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "white", letterSpacing: "0.05em" }}>
-                Residences
-              </h4>
-              <ul
-                className="footer-links-list"
-                style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.9rem" }}
-              >
+              <h4 className="serif footer-column-title">Residences</h4>
+              <ul className="footer-links-list">
                 <li>
                   <Link href="/property" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Windsor Residence
@@ -91,13 +77,8 @@ export function SiteFooter() {
             </div>
 
             <div className="footer-column">
-              <h4 className="serif" style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "white", letterSpacing: "0.05em" }}>
-                Company
-              </h4>
-              <ul
-                className="footer-links-list"
-                style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.9rem" }}
-              >
+              <h4 className="serif footer-column-title">Company</h4>
+              <ul className="footer-links-list">
                 <li>
                   <Link href="/about" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     About
@@ -132,16 +113,11 @@ export function SiteFooter() {
             </div>
 
             <div className="footer-column" id="contact">
-              <h4 className="serif" style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "white", letterSpacing: "0.05em" }}>
-                Connect
-              </h4>
-              <ul
-                className="footer-contact-list"
-                style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "1.5rem" }}
-              >
+              <h4 className="serif footer-column-title">Connect</h4>
+              <ul className="footer-contact-list">
                 <li style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                   <MapPin size={20} className="text-primary" style={{ marginTop: "0.1rem", flexShrink: 0 }} />
-                  <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: "1.5" }}>
+                  <span className="footer-contact-text">
                     {SITE_ADDRESS_LINE_1},<br />
                     {SITE_ADDRESS_LINE_2}
                   </span>
@@ -176,23 +152,11 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div
-            className="footer-bottom"
-            style={{
-              borderTop: "1px solid rgba(255,255,255,0.05)",
-              paddingTop: "2.5rem",
-              marginTop: "5rem",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "1rem",
-            }}
-          >
+          <div className="footer-bottom">
             <div style={{ color: "var(--text-secondary)", fontSize: "0.8rem" }}>
               &copy; {new Date().getFullYear()} Blissful Place Residences. All rights reserved.
             </div>
-            <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem", letterSpacing: "0.08em" }}>
+            <div className="footer-bottom-note">
               <span className="serif" style={{ fontStyle: "italic" }}>
                 Uncompromised Luxury.
               </span>

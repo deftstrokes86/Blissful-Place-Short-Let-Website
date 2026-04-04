@@ -4,6 +4,7 @@ import path from "node:path";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { sqliteAdapter } from "@payloadcms/db-sqlite";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 
 import { BlogCategoriesCollection } from "./collections/BlogCategories";
@@ -33,6 +34,16 @@ const payloadAutoPushOverride =
   payloadAutoPushRaw === undefined ? undefined : payloadAutoPushRaw === "true";
 const payloadAllowProductionSqlite =
   process.env.PAYLOAD_ALLOW_PRODUCTION_SQLITE?.trim()?.toLowerCase() === "true";
+const payloadMediaBucket = process.env.PAYLOAD_MEDIA_S3_BUCKET?.trim();
+const payloadMediaRegion = process.env.PAYLOAD_MEDIA_S3_REGION?.trim();
+const payloadMediaEndpointOverride = process.env.PAYLOAD_MEDIA_S3_ENDPOINT?.trim();
+const payloadMediaAccessKeyId = process.env.PAYLOAD_MEDIA_S3_ACCESS_KEY_ID?.trim();
+const payloadMediaSecretAccessKey = process.env.PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY?.trim();
+const payloadMediaForcePathStyleRaw = process.env.PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE?.trim()?.toLowerCase();
+const payloadMediaForcePathStyle =
+  payloadMediaForcePathStyleRaw === undefined ? true : payloadMediaForcePathStyleRaw === "true";
+const payloadAllowProductionLocalMedia =
+  process.env.PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA?.trim()?.toLowerCase() === "true";
 
 type SqliteStatementResult = Array<Record<string, unknown>>;
 
@@ -46,6 +57,10 @@ interface SqliteDatabase {
 }
 
 type SqliteDatabaseConstructor = new (filePath: string, options: { readOnly: boolean }) => SqliteDatabase;
+
+function hasConfiguredValue(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
 
 function loadSqliteDatabaseConstructor(): SqliteDatabaseConstructor | null {
   try {
@@ -96,6 +111,18 @@ function resolvePayloadDatabaseKind(databaseUrl: string): "postgres" | "sqlite" 
   return databaseUrl.startsWith("file:") ? "sqlite" : "postgres";
 }
 
+function resolvePayloadMediaStorageEndpoint(): string | null {
+  if (hasConfiguredValue(payloadMediaEndpointOverride)) {
+    return payloadMediaEndpointOverride;
+  }
+
+  if (hasConfiguredValue(payloadMediaRegion)) {
+    return `https://s3.${payloadMediaRegion}.amazonaws.com`;
+  }
+
+  return null;
+}
+
 function hasSchemaDrift(sqliteFilePath: string, collectionSlugs: readonly string[]): boolean {
   if (!fs.existsSync(sqliteFilePath)) {
     return false;
@@ -130,6 +157,24 @@ function hasSchemaDrift(sqliteFilePath: string, collectionSlugs: readonly string
 
 const payloadDatabaseUrl = resolvePayloadDatabaseUrl();
 const payloadResolvedDatabaseKind = resolvePayloadDatabaseKind(payloadDatabaseUrl);
+const payloadResolvedMediaStorageEndpoint = resolvePayloadMediaStorageEndpoint();
+const payloadMediaStorageRequiredValues = [
+  payloadMediaBucket,
+  payloadMediaRegion,
+  payloadMediaAccessKeyId,
+  payloadMediaSecretAccessKey,
+  payloadResolvedMediaStorageEndpoint,
+] as const;
+const payloadMediaStorageConfiguredCount = payloadMediaStorageRequiredValues.filter(hasConfiguredValue).length;
+const payloadMediaStorageEnabled = payloadMediaStorageConfiguredCount === payloadMediaStorageRequiredValues.length;
+const payloadMediaStorageHasPartialConfig =
+  payloadMediaStorageConfiguredCount > 0 && !payloadMediaStorageEnabled;
+
+if (payloadMediaStorageHasPartialConfig) {
+  throw new Error(
+    "Payload CMS S3 media storage is partially configured. Set PAYLOAD_MEDIA_S3_BUCKET, PAYLOAD_MEDIA_S3_REGION, PAYLOAD_MEDIA_S3_ACCESS_KEY_ID, PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY, and optionally PAYLOAD_MEDIA_S3_ENDPOINT for non-AWS providers."
+  );
+}
 
 if (
   payloadIsProduction &&
@@ -139,6 +184,17 @@ if (
 ) {
   throw new Error(
     "Payload CMS is configured to use SQLite in production. Set PAYLOAD_DATABASE_URL to a persistent Postgres connection string, rely on DATABASE_URL, or set PAYLOAD_ALLOW_PRODUCTION_SQLITE=true only when production has persistent disk."
+  );
+}
+
+if (
+  payloadIsProduction &&
+  !payloadIsProductionBuild &&
+  !payloadMediaStorageEnabled &&
+  !payloadAllowProductionLocalMedia
+) {
+  throw new Error(
+    "Payload CMS blog media is configured to use local filesystem storage in production. Set PAYLOAD_MEDIA_S3_BUCKET, PAYLOAD_MEDIA_S3_REGION, PAYLOAD_MEDIA_S3_ACCESS_KEY_ID, PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY, and PAYLOAD_MEDIA_S3_ENDPOINT for persistent object storage, or set PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA=true only when production has persistent disk."
   );
 }
 
@@ -181,6 +237,26 @@ const payloadDatabaseAdapter =
         // Production never auto-pushes Postgres schemas, but local env overrides should stay predictable.
         push: payloadShouldPushPostgresSchema,
       });
+const payloadPlugins = payloadMediaStorageEnabled
+  ? [
+      s3Storage({
+        acl: "public-read",
+        bucket: payloadMediaBucket!,
+        collections: {
+          [BlogMediaCollection.slug]: true,
+        },
+        config: {
+          credentials: {
+            accessKeyId: payloadMediaAccessKeyId!,
+            secretAccessKey: payloadMediaSecretAccessKey!,
+          },
+          endpoint: payloadResolvedMediaStorageEndpoint!,
+          forcePathStyle: payloadMediaForcePathStyle,
+          region: payloadMediaRegion!,
+        },
+      }),
+    ]
+  : [];
 
 const payloadConfig = buildConfig({
   secret: payloadSecret,
@@ -207,6 +283,7 @@ const payloadConfig = buildConfig({
     CmsInventoryAlertsCollection,
     CmsMaintenanceIssuesCollection,
   ],
+  plugins: payloadPlugins,
   typescript: {
     outputFile: path.resolve(process.cwd(), "src/types/payload-types"),
   },

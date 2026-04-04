@@ -14,6 +14,8 @@ exports.BlogMediaCollection = {
         delete: access_controls_1.blogManageAccess,
     },
     upload: {
+        // Local filesystem remains the dev fallback.
+        // Production object storage is configured centrally in payload.config.ts.
         staticDir: "media",
         mimeTypes: ["image/*"],
     },

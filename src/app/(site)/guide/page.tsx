@@ -4,13 +4,13 @@ import { SITE_CITY_NAME, SUPPORT_PHONE_URL, SUPPORT_WHATSAPP_URL } from "@/lib/s
 
 export default function GuestGuide() {
   return (
-    <main className="container" style={{ paddingTop: "8rem", paddingBottom: "4rem", minHeight: "100vh", maxWidth: "800px" }}>
+    <main className="container guest-guide-page">
       <PageIntro
         title="Digital Guest Concierge"
         description={`Everything you need for a seamless, luxurious stay in ${SITE_CITY_NAME}.`}
       />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div className="guest-guide-stack">
         <section className="booking-section">
           <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
             <Zap className="text-primary" size={24} /> 24/7 Power Management
@@ -19,7 +19,7 @@ export default function GuestGuide() {
             {SITE_CITY_NAME} power grids can fluctuate, but your experience will not. Our building operates a fully automated
             dual-grid system hooked directly to heavy-duty industrial backup generators.
           </p>
-          <div style={{ background: "rgba(238, 29, 82, 0.05)", borderLeft: "4px solid var(--primary)", padding: "1rem", borderRadius: "0 4px 4px 0" }}>
+          <div className="guest-guide-callout">
             <strong style={{ display: "block", marginBottom: "0.25rem" }}>No Action Required</strong>
             <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
               If city power drops, our generators kick in automatically within 3 seconds. The AC, lights, and WiFi
@@ -72,7 +72,7 @@ export default function GuestGuide() {
             Our hospitality team is available 24/7 via WhatsApp to arrange airport pickups, grocery stocking,
             cleaning, or general maintenance requests.
           </p>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+          <div className="guest-guide-actions">
             <a
               href={SUPPORT_WHATSAPP_URL}
               target="_blank"
@@ -95,4 +95,3 @@ export default function GuestGuide() {
     </main>
   );
 }
-

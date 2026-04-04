@@ -116,7 +116,9 @@ Recommended initial collections under Payload:
 
 6. CMS media storage
 - Local uploads can use the app filesystem for development.
-- Production deployments should use persistent disk or object storage for `blog-media` uploads.
+- Production deployments should use persistent S3-compatible object storage for `blog-media` uploads.
+- Recommended envs: `PAYLOAD_MEDIA_S3_BUCKET`, `PAYLOAD_MEDIA_S3_REGION`, `PAYLOAD_MEDIA_S3_ACCESS_KEY_ID`, `PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY`, and `PAYLOAD_MEDIA_S3_ENDPOINT` for non-AWS providers.
+- Production local media requires explicit `PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA="true"` and a deployment with persistent disk.
 
 ## Non-Goals (Architecture)
 1. Replacing worker task execution UX with CMS screens

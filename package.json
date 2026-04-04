@@ -36,7 +36,7 @@
     "test:stock-movement-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js",
     "test:readiness-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
     "test:inventory-services": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/inventory-template-service.test.js && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
-    "test:cms": "node -e \"require('fs').rmSync('.tmp-cms-tests',{recursive:true,force:true})\" && npx tsc -p tsconfig.cms-tests.json && node .tmp-cms-tests/server/cms/__tests__/cms-access.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/blog-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-page-public-routes.test.js && node .tmp-cms-tests/server/cms/__tests__/page-builder-collection.test.js && node .tmp-cms-tests/server/cms/__tests__/inventory-cms-collections.test.js && node .tmp-cms-tests/server/cms/__tests__/cms-route-wiring.test.js",
+    "test:cms": "tsc -p tsconfig.cms-tests.json --noEmit && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-access.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/blog-collections.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/blog-public-routes.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-page-public-routes.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/page-builder-collection.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/inventory-cms-collections.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-route-wiring.test.ts",
     "cms:e2e:seed-user": "node scripts/cms-seed-e2e-user.mjs",
     "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts"
   },
@@ -45,6 +45,7 @@
     "@payloadcms/db-sqlite": "^3.80.0",
     "@payloadcms/next": "^3.80.0",
     "@payloadcms/richtext-lexical": "^3.80.0",
+    "@payloadcms/storage-s3": "^3.80.0",
     "@prisma/client": "^6.7.0",
     "framer-motion": "^12.38.0",
     "graphql": "^16.8.1",
@@ -70,6 +71,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "prisma": "^6.7.0",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

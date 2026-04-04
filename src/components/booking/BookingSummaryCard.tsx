@@ -60,8 +60,8 @@ export function BookingSummaryCard({
         </span>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem" }}>
-        <div>
+      <div className="summary-split-row">
+        <div className="summary-meta-block">
           <div
             style={{
               fontSize: "0.78rem",
@@ -75,7 +75,7 @@ export function BookingSummaryCard({
           </div>
           <div style={{ fontWeight: 600 }}>{selectedFlat?.name || "Pending"}</div>
         </div>
-        <div style={{ textAlign: "right" }}>
+        <div className="summary-meta-block summary-meta-block-end">
           <div
             style={{
               fontSize: "0.78rem",
@@ -91,8 +91,8 @@ export function BookingSummaryCard({
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", paddingBottom: "1.25rem", borderBottom: "1px solid var(--border-subtle)", marginBottom: "1.25rem" }}>
-        <div>
+      <div className="summary-split-row" style={{ paddingBottom: "1.25rem", borderBottom: "1px solid var(--border-subtle)", marginBottom: "1.25rem" }}>
+        <div className="summary-meta-block">
           <div
             style={{
               fontSize: "0.78rem",
@@ -106,7 +106,7 @@ export function BookingSummaryCard({
           </div>
           <div style={{ fontWeight: 600 }}>{checkIn || "--"}</div>
         </div>
-        <div>
+        <div className="summary-meta-block summary-meta-block-end">
           <div
             style={{
               fontSize: "0.78rem",
@@ -176,7 +176,7 @@ export function BookingSummaryCard({
         <div style={{ fontSize: "0.85rem", lineHeight: 1.4, opacity: 0.9 }}>{getBranchPolicyText(paymentMethod)}</div>
       </div>
 
-      <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem", color: "var(--text-secondary)", fontSize: "0.8rem", lineHeight: 1.4 }}>
+      <div className="summary-security-note">
         <ShieldCheck size={18} className="text-primary" style={{ flexShrink: 0 }} />
         <span>Encrypted submission filters enable secure data preservation across booking branches.</span>
       </div>

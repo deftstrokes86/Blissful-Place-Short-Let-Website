@@ -37,7 +37,6 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
   const [selectedFlatId, setSelectedFlatId] = useState<FlatId>(initialFlatId);
   const [contentAnimationKey, setContentAnimationKey] = useState(0);
 
-
   const selectedFlat = useMemo(
     () => FLATS.find((flat) => flat.id === selectedFlatId) ?? FLATS[0],
     [selectedFlatId],
@@ -63,7 +62,7 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
   }
 
   return (
-    <main className="container property-page" style={{ paddingTop: "8rem", paddingBottom: "4rem", minHeight: "100vh", maxWidth: "1200px" }}>
+    <main className="container property-page">
       <PageIntro
         subtitle={selectedContent.subtitle}
         title={selectedFlat.name}
@@ -98,10 +97,9 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
       <div className="property-grid">
         <div
           key={`${selectedFlat.id}-${contentAnimationKey}`}
-          className={`property-content-swap${isSwitchPending ? " is-pending" : ""}`}
-          style={{ display: "flex", flexDirection: "column", gap: "3rem" }}
+          className={`property-content-column property-content-swap${isSwitchPending ? " is-pending" : ""}`}
         >
-          <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+          <div className="property-hero-frame">
             <Image src={selectedContent.heroImage.src} alt={selectedContent.heroImage.alt} fill style={{ objectFit: "cover" }} />
           </div>
 
@@ -117,10 +115,8 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
           </div>
 
           <section>
-            <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1rem" }}>
-              Property Overview
-            </h2>
-            <div style={{ display: "grid", gap: "1.2rem", marginBottom: "2rem" }}>
+            <h2 className="heading-sm serif property-section-title">Property Overview</h2>
+            <div className="property-overview-stack">
               {selectedContent.overview.map((paragraph) => (
                 <p key={paragraph} style={{ color: "var(--text-secondary)", lineHeight: 1.8 }}>
                   {paragraph}
@@ -143,10 +139,8 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
           </section>
 
           <section>
-            <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1rem" }}>
-              Operational Comfort Highlights
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }}>
+            <h2 className="heading-sm serif property-section-title">Operational Comfort Highlights</h2>
+            <div className="property-feature-list">
               {selectedContent.featureCards.map((feature) => {
                 const Icon = FEATURE_ICON_BY_KEY[feature.icon];
 
@@ -166,25 +160,23 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
           </section>
 
           <section>
-            <h2 className="heading-sm serif" style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1rem" }}>
-              House Rules Summary
-            </h2>
-            <ul style={{ color: "var(--text-secondary)", lineHeight: 2, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <h2 className="heading-sm serif property-section-title">House Rules Summary</h2>
+            <ul className="property-rule-list">
               {selectedContent.houseRules.map((rule) => (
-                <li key={rule} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <li key={rule}>
                   <Check size={16} className="text-primary" /> {rule}
                 </li>
               ))}
-              <li style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <li>
                 <Check size={16} className="text-primary" /> Refundable {formatCurrency(selectedContent.securityDeposit)} security deposit required before check-in.
               </li>
             </ul>
           </section>
         </div>
 
-        <div className={`property-pricing-sticky property-summary-card${isSwitchPending ? " is-pending" : ""}`} style={{ position: "sticky", top: "100px" }}>
-          <div className="summary-card" style={{ padding: "2.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1.5rem" }}>
+        <div className={`property-pricing-sticky property-summary-card${isSwitchPending ? " is-pending" : ""}`}>
+          <div className="summary-card property-summary-inner">
+            <div className="property-price-row">
               <span style={{ fontSize: "1.75rem", fontWeight: 700, fontFamily: "var(--font-serif)" }}>{formatCurrency(selectedFlat.rate)}</span>
               <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 / Night
@@ -197,7 +189,7 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
               Check Dates & Secure Booking
             </Link>
 
-            <div style={{ display: "grid", gap: "0.6rem", marginBottom: "1rem" }}>
+            <div className="property-summary-links">
               <Link href={availabilityHref} className="btn btn-outline-primary btn-full" style={{ padding: "0.9rem", fontSize: "0.9rem" }}>
                 Check Availability
               </Link>
@@ -214,9 +206,9 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
               <h4 className="serif" style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>
                 Included in this rate:
               </h4>
-              <ul style={{ fontSize: "0.85rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <ul className="property-included-list">
                 {selectedContent.includedInRate.map((item) => (
-                  <li key={item} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <li key={item}>
                     <CheckCircle2 size={14} className="text-primary" /> {item}
                   </li>
                 ))}
@@ -228,4 +220,3 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
     </main>
   );
 }
-

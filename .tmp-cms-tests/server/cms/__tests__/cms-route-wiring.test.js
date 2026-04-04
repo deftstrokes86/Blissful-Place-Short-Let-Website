@@ -30,24 +30,63 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary() {
     const cmsUsersSource = readSource("src/cms/collections/CmsUsers.ts");
     strict_1.default.ok(cmsUsersSource.includes('slug: "cms-users"'));
     strict_1.default.ok(payloadConfigSource.includes("user: CmsUsersCollection.slug"));
+    strict_1.default.ok(payloadConfigSource.includes("@payloadcms/db-postgres"));
+    strict_1.default.ok(payloadConfigSource.includes("postgresAdapter"));
+    strict_1.default.ok(payloadConfigSource.includes("sqliteAdapter"));
     strict_1.default.ok(payloadConfigSource.includes("PAYLOAD_DATABASE_URL"));
+    strict_1.default.ok(payloadConfigSource.includes("DATABASE_URL"));
     strict_1.default.ok(payloadConfigSource.includes("file:./.data/payload.db"));
-    strict_1.default.ok(payloadConfigSource.includes("PAYLOAD_AUTO_PUSH_SCHEMA"));
-    strict_1.default.ok(payloadConfigSource.includes("payloadShouldPushSchema"));
+    strict_1.default.ok(payloadConfigSource.includes("PAYLOAD_ALLOW_PRODUCTION_SQLITE"));
+    strict_1.default.ok(payloadConfigSource.includes("resolvePayloadDatabaseUrl"));
+    strict_1.default.ok(payloadConfigSource.includes("resolvePayloadDatabaseKind"));
+    strict_1.default.ok(payloadConfigSource.includes("payloadResolvedDatabaseKind"));
+    strict_1.default.ok(payloadConfigSource.includes("payloadShouldPushSqliteSchema"));
+    strict_1.default.ok(payloadConfigSource.includes("payloadShouldPushPostgresSchema"));
     strict_1.default.ok(payloadConfigSource.includes("fs.existsSync"));
     strict_1.default.ok(payloadConfigSource.includes("resolveSqliteFilePath"));
     strict_1.default.ok(!payloadConfigSource.includes('user: "users"'));
+}
+async function testPayloadMediaStorageUsesS3AdapterWhenConfigured() {
+    const source = readSource("src/cms/payload.config.ts");
+    strict_1.default.ok(source.includes("@payloadcms/storage-s3"));
+    strict_1.default.ok(source.includes("s3Storage"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_BUCKET"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_REGION"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_ENDPOINT"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_ACCESS_KEY_ID"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_SECRET_ACCESS_KEY"));
+    strict_1.default.ok(source.includes("PAYLOAD_MEDIA_S3_FORCE_PATH_STYLE"));
+    strict_1.default.ok(source.includes("payloadMediaStorageEnabled"));
+    strict_1.default.ok(source.includes("collections: {"));
+    strict_1.default.ok(source.includes("[BlogMediaCollection.slug]: true"));
+    strict_1.default.ok(source.includes("plugins: payloadPlugins"));
 }
 async function testPayloadSchemaPushSafetyInDevelopment() {
     const source = readSource("src/cms/payload.config.ts");
     strict_1.default.ok(source.includes("process.env.NODE_ENV"));
     strict_1.default.ok(source.includes("payloadIsDevelopment"));
     strict_1.default.ok(source.includes("payloadAutoPushOverride"));
-    strict_1.default.ok(source.includes("payloadAutoPushOverride ?? payloadIsDevelopment"));
+    strict_1.default.ok(source.includes("payloadAutoPushSchema = payloadAutoPushOverride ?? payloadIsDevelopment"));
+}
+async function testPayloadProductionDatabaseSafety() {
+    const source = readSource("src/cms/payload.config.ts");
+    strict_1.default.ok(source.includes("payloadIsProduction"));
+    strict_1.default.ok(source.includes("payloadIsProductionBuild"));
+    strict_1.default.ok(source.includes('process.env.NEXT_PHASE === "phase-production-build"'));
+    strict_1.default.ok(source.includes('payloadResolvedDatabaseKind === "sqlite"'));
+    strict_1.default.ok(source.includes("throw new Error"));
+    strict_1.default.ok(source.includes("persistent Postgres connection string"));
+}
+async function testPayloadProductionMediaSafety() {
+    const source = readSource("src/cms/payload.config.ts");
+    strict_1.default.ok(source.includes("payloadMediaStorageHasPartialConfig"));
+    strict_1.default.ok(source.includes("PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA"));
+    strict_1.default.ok(source.includes("Payload CMS blog media is configured to use local filesystem storage in production"));
+    strict_1.default.ok(source.includes("Payload CMS S3 media storage is partially configured"));
 }
 async function testRootPayloadConfigDelegatesToCmsConfig() {
     const source = readSource("payload.config.ts");
-    strict_1.default.ok(source.includes("./src/cms/payload.config.ts"));
+    strict_1.default.ok(source.includes("./src/cms/payload.config"));
 }
 async function testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml() {
     const cmsRootLayoutSource = readSource("src/app/(cms)/layout.tsx");
@@ -78,7 +117,10 @@ async function run() {
     await testCmsMountFilesExist();
     await testPayloadConfigUsesCmsRoutes();
     await testCmsUsesDedicatedUsersAndDatabaseBoundary();
+    await testPayloadMediaStorageUsesS3AdapterWhenConfigured();
     await testPayloadSchemaPushSafetyInDevelopment();
+    await testPayloadProductionDatabaseSafety();
+    await testPayloadProductionMediaSafety();
     await testRootPayloadConfigDelegatesToCmsConfig();
     await testCmsAdminUiWiringUsesPayloadViewsWithoutNestedHtml();
     await testCmsImportMapContainsRequiredBuiltInComponents();
