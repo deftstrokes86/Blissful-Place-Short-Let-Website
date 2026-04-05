@@ -1,8 +1,44 @@
-# Supabase Database Setup For Hostinger Production
+﻿# Supabase Database Setup For Hostinger Production
 
 This app expects Supabase Postgres to be the production database, with Prisma using `DATABASE_URL` as the canonical server-side connection string.
 
-## Recommended connection string for this repo
+## Local Prisma CLI setup
+
+For local development, keep `DATABASE_URL` in the repo root `.env` so Prisma CLI can read it directly.
+
+Preferred local direct connection shape:
+
+```env
+DATABASE_URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require"
+```
+
+Use `.env.local` for app/runtime-only overrides after that. This keeps local Prisma commands, the Next.js app, and the Prisma client aligned.
+
+If the direct host is not reachable from your machine or network, the safe alternative is the Supabase session pooler on port `5432`:
+
+```env
+DATABASE_URL="postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require"
+```
+
+Windows PowerShell note: if `npx prisma ...` is blocked by execution policy, use the npm scripts in this repo or `npx.cmd prisma ...`.
+
+## Recommended developer workflow
+
+Use this local path for schema work against Supabase Postgres:
+
+1. Put `DATABASE_URL` in the repo root `.env`.
+2. Run `npm run prisma:validate` to confirm Prisma sees the right schema and env.
+3. Run `npm run prisma:push` to sync schema changes to your development Supabase database.
+4. Run `npm run prisma:generate` if you need to refresh the generated client.
+5. Use `npm run prisma:migrate:deploy` only for deployment-ready migration application.
+
+Notes:
+
+- `npm run prisma:db:push` is kept as a backwards-compatible alias, but `npm run prisma:push` is the preferred local command.
+- `SHADOW_DATABASE_URL` is not part of this workflow; leave it blank unless you intentionally run `prisma migrate dev` against a separate development shadow database.
+- Optional: `npm run prisma:status` can be used to inspect Prisma migration state when the DB connection itself is healthy.
+
+## Recommended connection string for Hostinger production
 
 For the current Hostinger deployment, use the Supabase **Supavisor session pooler** connection string on port `5432` unless you have already verified that the direct database host works reliably from your Hostinger environment.
 
@@ -25,9 +61,10 @@ Avoid making the transaction pooler on port `6543` your default runtime connecti
 1. Open your Supabase project.
 2. Click **Connect**.
 3. Copy either:
-   - the **Session pooler** connection string on port `5432` for the default Hostinger-safe setup, or
-   - the **Direct connection** string on port `5432` if you have already confirmed direct connectivity.
+   - the **Direct connection** string on port `5432` for local Prisma CLI work, or
+   - the **Session pooler** connection string on port `5432` for the default Hostinger-safe production setup.
 4. Replace the password placeholder with your actual database password if Supabase shows a templated URI.
+5. Keep `?sslmode=require` on the final connection string.
 
 ## Required production env vars
 
@@ -85,10 +122,16 @@ Run Prisma schema migrations against the production `DATABASE_URL`:
 npm run prisma:migrate:deploy
 ```
 
-If you need to confirm migration state first:
+Local schema-sync command:
 
 ```bash
-npx prisma migrate status
+npm run prisma:push
+```
+
+If you need to confirm migration state first and the database connection is healthy:
+
+```bash
+npm run prisma:status
 ```
 
 If the generated Prisma client is stale in the deployment environment, regenerate it:
@@ -119,11 +162,12 @@ Changing `DATABASE_URL`, `PAYLOAD_DATABASE_URL`, `PAYLOAD_SECRET`, or any Supaba
 
 ## Expected failure modes
 
-The app now fails more explicitly when the DB config is wrong:
+The app and Prisma workflow now fail more explicitly when the DB config is wrong:
 
-- Missing `DATABASE_URL`: startup tells you to set it in Hostinger and redeploy.
-- Wrong protocol or malformed URI: startup tells you the app needs a valid `postgres://` or `postgresql://` Supabase connection string.
-- Supabase transaction pooler on `6543` without `pgbouncer=true`: startup explains the mismatch and points you back to the preferred Hostinger setup.
+- Missing `DATABASE_URL`: startup or Prisma CLI tells you to place it in root `.env` locally, or set it in Hostinger and redeploy for production.
+- Wrong protocol or malformed URI: startup and Prisma CLI tell you the app needs a valid `postgres://` or `postgresql://` Supabase connection string.
+- Supabase URL missing `sslmode=require`: startup and the Prisma npm scripts explain the required Prisma-ready Supabase format instead of leaving a vague schema-engine error.
+- Supabase transaction pooler on `6543` without `pgbouncer=true`: startup explains the mismatch and points you back to the preferred setup.
 - Missing production Payload DB config: Payload now throws a direct production Postgres configuration error instead of silently looking like a SQLite fallback problem.
 
 ## Quick production checklist

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 
 import {
   resolvePrismaClientOptions,
@@ -35,6 +35,22 @@ function testResolvePrismaDatabaseUrlRejectsWrongProtocol(): void {
     () => resolvePrismaDatabaseUrl({ DATABASE_URL: "mysql://user:pass@example.com:3306/app" }),
     /must use a postgres:\/\/ or postgresql:\/\//i
   );
+}
+
+function testResolvePrismaDatabaseUrlRejectsSupabaseUrlWithoutSslModeRequire(): void {
+  assert.throws(
+    () =>
+      resolvePrismaDatabaseUrl({
+        DATABASE_URL: "postgresql://postgres:secret@db.example.supabase.co:5432/postgres",
+      }),
+    /sslmode=require/i
+  );
+}
+
+function testResolvePrismaDatabaseUrlAllowsDirectSupabaseConnectionWithSslModeRequire(): void {
+  const databaseUrl = "postgresql://postgres:secret@db.example.supabase.co:5432/postgres?sslmode=require";
+
+  assert.equal(resolvePrismaDatabaseUrl({ DATABASE_URL: databaseUrl }), databaseUrl);
 }
 
 function testResolvePrismaDatabaseUrlRejectsSupabaseTransactionPoolerWithoutPgbouncer(): void {
@@ -81,6 +97,8 @@ function run(): void {
   testResolvePrismaDatabaseUrlRejectsFileUrls();
   testResolvePrismaDatabaseUrlRejectsMalformedValues();
   testResolvePrismaDatabaseUrlRejectsWrongProtocol();
+  testResolvePrismaDatabaseUrlRejectsSupabaseUrlWithoutSslModeRequire();
+  testResolvePrismaDatabaseUrlAllowsDirectSupabaseConnectionWithSslModeRequire();
   testResolvePrismaDatabaseUrlRejectsSupabaseTransactionPoolerWithoutPgbouncer();
   testResolvePrismaDatabaseUrlAllowsSupabaseTransactionPoolerWithPgbouncer();
   testResolvePrismaLogLevelsFollowEnvironment();

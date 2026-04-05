@@ -1,8 +1,16 @@
-# Blissful Place Residences
+﻿# Blissful Place Residences
 
 This is a Next.js application with Prisma-backed booking, availability, inventory, auth, tour, and blog/CMS flows.
 
 ## Local development
+
+For local Prisma CLI work, keep `DATABASE_URL` in the repo root `.env` with a Prisma-ready Supabase connection string such as:
+
+```env
+DATABASE_URL="postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require"
+```
+
+Use `.env.local` for app/runtime-only overrides after that. This keeps raw Prisma CLI commands and the app aligned without shell-only env hacks.
 
 Start the dev server:
 
@@ -11,6 +19,23 @@ npm run dev
 ```
 
 Open `http://localhost:3000` in your browser.
+
+## Prisma local workflow
+
+Use this path for developer schema work against Supabase Postgres:
+
+1. Put `DATABASE_URL` in the repo root `.env`.
+2. Run `npm run prisma:validate` to confirm Prisma sees the right env and schema.
+3. Run `npm run prisma:push` to sync schema changes to your development Supabase database.
+4. Use `npm run prisma:generate` if the generated client needs to be refreshed.
+5. Use `npm run prisma:migrate:deploy` only for deployment-ready migration application, not as the normal local schema-sync step.
+
+Notes:
+
+- `npm run prisma:db:push` is kept as a backwards-compatible alias, but `npm run prisma:push` is the preferred local command now.
+- `SHADOW_DATABASE_URL` is not part of the normal `prisma:push` workflow.
+- Optional: `npm run prisma:status` can be used to inspect Prisma migration state when the database connection itself is healthy.
+- Windows PowerShell can block `npx prisma ...`; prefer the npm scripts in this repo or `npx.cmd prisma ...`.
 
 ## Production database setup
 
@@ -50,6 +75,10 @@ If you change production environment variables on Hostinger, save them and then 
 - `npm run build`
 - `npm run start`
 - `npm run prisma:generate`
+- `npm run prisma:validate`
+- `npm run prisma:push`
+- `npm run prisma:db:push`
+- `npm run prisma:status`
 - `npm run prisma:migrate:deploy`
 - `npm run test:prisma-setup`
 - `npm run test:runtime-db-consistency`

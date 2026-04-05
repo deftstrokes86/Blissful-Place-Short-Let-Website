@@ -1,10 +1,14 @@
-import { Prisma } from "@prisma/client";
+﻿import { Prisma } from "@prisma/client";
 
 const POSTGRES_PROTOCOLS = new Set(["postgres:", "postgresql:"]);
 const HOSTINGER_DEPLOY_GUIDANCE =
   "On Hostinger, add or update it in your Node.js app environment variables and then use Settings and redeploy. See docs/supabase-database-setup.md.";
+const SUPABASE_DIRECT_EXAMPLE =
+  "postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require";
+const SUPABASE_SESSION_POOLER_EXAMPLE =
+  "postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require";
 
-type PrismaServerEnv = {
+export type PrismaServerEnv = {
   DATABASE_URL?: string;
   NODE_ENV?: string;
 };
@@ -26,7 +30,32 @@ function parseDatabaseUrl(databaseUrl: string): URL {
     return new URL(databaseUrl);
   } catch {
     throw new Error(
-      `DATABASE_URL must be a valid postgres:// or postgresql:// connection string for Supabase Postgres. Use the direct connection or the Supavisor session pooler on port 5432, not the dashboard URL. ${HOSTINGER_DEPLOY_GUIDANCE}`
+      `DATABASE_URL must be a valid postgres:// or postgresql:// connection string for Supabase Postgres. Use ${SUPABASE_DIRECT_EXAMPLE} or ${SUPABASE_SESSION_POOLER_EXAMPLE}. ${HOSTINGER_DEPLOY_GUIDANCE}`
+    );
+  }
+}
+
+function formatResolvedDatabaseTarget(parsed: URL): string {
+  const databaseName = parsed.pathname.replace(/^\/+/, "") || "postgres";
+  const queryKeys = ["sslmode", "pgbouncer"]
+    .map((key) => {
+      const value = parsed.searchParams.get(key);
+      return value ? `${key}=${value}` : null;
+    })
+    .filter((value): value is string => value !== null);
+  const querySuffix = queryKeys.length > 0 ? `?${queryKeys.join("&")}` : "";
+
+  return `${parsed.hostname}:${parsed.port || "5432"}/${databaseName}${querySuffix}`;
+}
+
+function isSupabaseHost(parsed: URL): boolean {
+  return parsed.hostname.endsWith(".supabase.co") || parsed.hostname.endsWith(".pooler.supabase.com");
+}
+
+function assertSupabaseSslConfiguration(parsed: URL): void {
+  if (isSupabaseHost(parsed) && parsed.searchParams.get("sslmode")?.toLowerCase() !== "require") {
+    throw new Error(
+      `DATABASE_URL points at Supabase without sslmode=require. Use ${SUPABASE_DIRECT_EXAMPLE} for direct connections or ${SUPABASE_SESSION_POOLER_EXAMPLE} for the session pooler. ${HOSTINGER_DEPLOY_GUIDANCE}`
     );
   }
 }
@@ -59,9 +88,24 @@ export function resolvePrismaDatabaseUrl(env: PrismaServerEnv = process.env): st
     );
   }
 
+  assertSupabaseSslConfiguration(parsed);
   assertSupportedPoolerConfiguration(parsed);
 
   return databaseUrl;
+}
+
+export function describePrismaDatabaseTarget(env: PrismaServerEnv = process.env): string {
+  const databaseUrl = env.DATABASE_URL;
+
+  if (typeof databaseUrl !== "string" || databaseUrl.trim().length === 0) {
+    return "DATABASE_URL is not set";
+  }
+
+  try {
+    return formatResolvedDatabaseTarget(new URL(databaseUrl.trim()));
+  } catch {
+    return "DATABASE_URL could not be parsed";
+  }
 }
 
 export function resolvePrismaLogLevels(env: PrismaServerEnv = process.env): Prisma.LogLevel[] {

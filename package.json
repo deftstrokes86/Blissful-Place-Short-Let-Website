@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:backend-foundation": "node tests/booking-schema-contract.test.mjs && node tests/booking-schema-alignment.test.mjs",
-    "test:prisma-setup": "node -e \"require('fs').rmSync('.tmp-prisma-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.prisma-tests.json && node .tmp-prisma-test-build/server/db/__tests__/prisma-config.test.js && node tests/prisma-setup-contract.test.mjs",
+    "test:prisma-setup": "node -e \"require('fs').rmSync('.tmp-prisma-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.prisma-tests.json && node .tmp-prisma-test-build/server/db/__tests__/prisma-config.test.js && node .tmp-prisma-test-build/server/db/__tests__/prisma-bootstrap.test.js && node tests/prisma-setup-contract.test.mjs && node tests/prisma-cli-env.test.mjs",
     "test:runtime-db-consistency": "node tests/runtime-db-consistency.test.mjs",
     "test:reservation-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/reservation-service.test.js",
     "test:availability-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/availability-service.test.js",
@@ -19,10 +19,10 @@
     "test:legacy-guest-reservation-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/legacy-guest-reservation-service.test.js",
     "test:offline-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/offline-payment-service.test.js",
     "test:expire-transfer-holds-job": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/jobs/__tests__/expire-transfer-holds.test.js",
-    "prisma:generate": "prisma generate",
-    "prisma:validate": "prisma validate --schema prisma/schema.prisma",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:generate": "node scripts/prisma-cli.mjs generate",
+    "prisma:validate": "node scripts/prisma-cli.mjs validate --schema prisma/schema.prisma",
+    "prisma:migrate:dev": "node scripts/prisma-cli.mjs migrate dev",
+    "prisma:migrate:deploy": "node scripts/prisma-cli.mjs migrate deploy",
     "test:website-payment-service": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/booking/__tests__/website-payment-service.test.js",
     "test:flutterwave-checkout": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/payments/__tests__/flutterwave-checkout.test.js",
     "test:flutterwave-webhook": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/payments/__tests__/flutterwave-webhook.test.js",
@@ -42,7 +42,10 @@
     "test:inventory-services": "node -e \"require('fs').rmSync('.tmp-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.reservation-tests.json && node .tmp-test-build/server/inventory/__tests__/inventory-template-service.test.js && node .tmp-test-build/server/inventory/__tests__/flat-inventory-service.test.js && node .tmp-test-build/server/inventory/__tests__/stock-movement-service.test.js && node .tmp-test-build/server/inventory/__tests__/readiness-service.test.js",
     "test:cms": "tsc -p tsconfig.cms-tests.json --noEmit && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-access.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/blog-collections.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/blog-public-routes.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-page-public-routes.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/page-builder-collection.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/inventory-cms-collections.test.ts && tsx --tsconfig tsconfig.cms-tests.json src/server/cms/__tests__/cms-route-wiring.test.ts",
     "cms:e2e:seed-user": "node scripts/cms-seed-e2e-user.mjs",
-    "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts"
+    "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts",
+    "prisma:db:push": "npm run prisma:push",
+    "prisma:push": "node scripts/prisma-cli.mjs db push",
+    "prisma:status": "node scripts/prisma-cli.mjs migrate status"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.80.0",
@@ -79,7 +82,3 @@
     "typescript": "^5"
   }
 }
-
-
-
-
