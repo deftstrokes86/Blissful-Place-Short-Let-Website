@@ -33,6 +33,11 @@ function readHostnameFromUrl(value: string | null | undefined): string | null {
   }
 }
 
+function buildRenderableSiteRelativePath(url: URL): string {
+  const relativePath = `${url.pathname}${url.search}`;
+  return relativePath.length > 0 ? relativePath : "/";
+}
+
 function readConfiguredSiteHostname(): string | null {
   return readHostnameFromUrl(process.env.SITE_URL);
 }
@@ -157,7 +162,11 @@ export function resolveRenderableBlogImageUrl(value: string | null | undefined):
     }
 
     if (isConfiguredSiteHostname(parsedUrl.hostname)) {
-      return trimmed;
+      return buildRenderableSiteRelativePath(parsedUrl);
+    }
+
+    if (parsedUrl.protocol !== "https:") {
+      return null;
     }
 
     return isAllowedSupabaseImageUrl(parsedUrl) ? trimmed : null;

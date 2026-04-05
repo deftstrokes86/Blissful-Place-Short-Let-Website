@@ -1,4 +1,4 @@
-﻿# Blissful Place Residences
+# Blissful Place Residences
 
 This is a Next.js application with Prisma-backed booking, availability, inventory, auth, tour, and blog/CMS flows.
 
@@ -43,11 +43,15 @@ Supabase Postgres is the primary server-side database for this repo.
 
 - `DATABASE_URL` is the canonical runtime database variable for Prisma.
 - Payload CMS reuses `DATABASE_URL` by default when `PAYLOAD_DATABASE_URL` is left blank.
+- If you intentionally set `PAYLOAD_DATABASE_URL` in normal production, it should usually be the same Supabase Postgres value as `DATABASE_URL`.
 - For the current Hostinger deployment, the recommended default is the Supabase **Supavisor session pooler** on port `5432`.
 - If you have already verified direct database connectivity from Hostinger, the direct `db.<project-ref>.supabase.co:5432` connection is also acceptable.
 - Do not use the Supabase transaction pooler on `6543` here unless you intentionally append `pgbouncer=true` and keep a separate direct or session connection available for Prisma CLI workflows.
 
-Start here for the full deployment checklist:
+Start here for the production env checklist:
+[docs/production-env-setup.md](/e:/Blissful_Place%20-%20Copy/docs/production-env-setup.md)
+
+Use this for deeper Supabase connection and migration details:
 [docs/supabase-database-setup.md](/e:/Blissful_Place%20-%20Copy/docs/supabase-database-setup.md)
 
 Templates:

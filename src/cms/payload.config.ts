@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import path from "node:path";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
@@ -18,22 +17,12 @@ import { CmsInventoryTemplatesCollection } from "./collections/CmsInventoryTempl
 import { CmsMaintenanceIssuesCollection } from "./collections/CmsMaintenanceIssues";
 import { CmsPagesCollection } from "./collections/CmsPages";
 import { CmsUsersCollection } from "./collections/CmsUsers";
+import { resolvePayloadDatabaseConfig } from "./payload-database-config";
 
 const CMS_ADMIN_ROUTE = "/cms";
 const CMS_API_ROUTE = "/cms/api";
 const payloadSecret = process.env.PAYLOAD_SECRET?.trim() || "blissful-place-cms-dev-secret";
-const payloadEnvironment = process.env.NODE_ENV?.trim()?.toLowerCase() ?? "development";
-const payloadIsProduction = payloadEnvironment === "production";
-const payloadIsDevelopment = !payloadIsProduction;
-const payloadIsProductionBuild = process.env.NEXT_PHASE === "phase-production-build";
-const payloadPrimaryDatabaseUrl = process.env.DATABASE_URL?.trim(); // Canonical app database URL.
-const payloadDatabaseUrlOverride = process.env.PAYLOAD_DATABASE_URL?.trim(); // Optional legacy Payload-only override.
-const payloadDefaultSqliteUrl = "file:./.data/payload.db";
-const payloadAutoPushRaw = process.env.PAYLOAD_AUTO_PUSH_SCHEMA?.trim()?.toLowerCase();
-const payloadAutoPushOverride =
-  payloadAutoPushRaw === undefined ? undefined : payloadAutoPushRaw === "true";
-const payloadAllowProductionSqlite =
-  process.env.PAYLOAD_ALLOW_PRODUCTION_SQLITE?.trim()?.toLowerCase() === "true";
+const payloadDatabase = resolvePayloadDatabaseConfig();
 const payloadMediaBucket =
   process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET?.trim() ?? process.env.PAYLOAD_MEDIA_S3_BUCKET?.trim();
 const payloadMediaRegion =
@@ -54,70 +43,8 @@ const payloadMediaForcePathStyle =
 const payloadAllowProductionLocalMedia =
   process.env.PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA?.trim()?.toLowerCase() === "true";
 
-type SqliteStatementResult = Array<Record<string, unknown>>;
-
-interface SqliteStatement {
-  all: () => SqliteStatementResult;
-}
-
-interface SqliteDatabase {
-  prepare: (sql: string) => SqliteStatement;
-  close: () => void;
-}
-
-type SqliteDatabaseConstructor = new (filePath: string, options: { readOnly: boolean }) => SqliteDatabase;
-
 function hasConfiguredValue(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
-}
-
-function loadSqliteDatabaseConstructor(): SqliteDatabaseConstructor | null {
-  try {
-    const runtimeRequire = typeof require === "function" ? require : null;
-
-    if (!runtimeRequire) {
-      return null;
-    }
-
-    const sqliteModule = runtimeRequire("node:sqlite") as { DatabaseSync?: SqliteDatabaseConstructor };
-
-    if (typeof sqliteModule.DatabaseSync === "function") {
-      return sqliteModule.DatabaseSync;
-    }
-  } catch {
-    // Ignore runtime environments that do not expose node:sqlite.
-  }
-
-  return null;
-}
-
-function resolveSqliteFilePath(databaseUrl: string): string | null {
-  if (!databaseUrl.startsWith("file:")) {
-    return null;
-  }
-
-  const relativePath = databaseUrl.slice("file:".length);
-  return path.resolve(process.cwd(), relativePath);
-}
-
-function toSqliteCollectionTableName(slug: string): string {
-  return slug.replace(/-/g, "_");
-}
-
-function resolvePayloadDatabaseUrl(): string {
-  if (payloadDatabaseUrlOverride) {
-    return payloadDatabaseUrlOverride;
-  }
-
-  if (payloadIsProduction && payloadPrimaryDatabaseUrl) {
-    return payloadPrimaryDatabaseUrl;
-  }
-
-  return payloadDefaultSqliteUrl;
-}
-
-function resolvePayloadDatabaseKind(databaseUrl: string): "postgres" | "sqlite" {
-  return databaseUrl.startsWith("file:") ? "sqlite" : "postgres";
 }
 
 function resolvePayloadMediaStorageEndpoint(): string | null {
@@ -136,40 +63,6 @@ function resolvePayloadMediaStorageEndpoint(): string | null {
   return null;
 }
 
-function hasSchemaDrift(sqliteFilePath: string, collectionSlugs: readonly string[]): boolean {
-  if (!fs.existsSync(sqliteFilePath)) {
-    return false;
-  }
-
-  const DatabaseSync = loadSqliteDatabaseConstructor();
-
-  if (!DatabaseSync) {
-    return false;
-  }
-
-  const expectedTables = collectionSlugs.map((slug) => toSqliteCollectionTableName(slug));
-  const database = new DatabaseSync(sqliteFilePath, { readOnly: true });
-
-  try {
-    const tableNames = new Set(
-      database
-        .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
-        .all()
-        .map((row) => (typeof row.name === "string" ? row.name : ""))
-        .filter((name) => name.length > 0)
-    );
-
-    return expectedTables.some((tableName) => !tableNames.has(tableName));
-  } catch {
-    // If we cannot inspect schema drift safely, do not force push here.
-    return false;
-  } finally {
-    database.close();
-  }
-}
-
-const payloadDatabaseUrl = resolvePayloadDatabaseUrl();
-const payloadResolvedDatabaseKind = resolvePayloadDatabaseKind(payloadDatabaseUrl);
 const payloadResolvedMediaStorageEndpoint = resolvePayloadMediaStorageEndpoint();
 const payloadMediaStorageRequiredValues = [
   payloadMediaBucket,
@@ -190,30 +83,8 @@ if (payloadMediaStorageHasPartialConfig) {
 }
 
 if (
-  payloadIsProduction &&
-  !payloadIsProductionBuild &&
-  !hasConfiguredValue(payloadDatabaseUrlOverride) &&
-  !hasConfiguredValue(payloadPrimaryDatabaseUrl)
-) {
-  throw new Error(
-    "Payload CMS has no production Postgres connection string. Set DATABASE_URL in Hostinger, leave PAYLOAD_DATABASE_URL blank unless Payload must intentionally point elsewhere, and then use Settings and redeploy. See docs/supabase-database-setup.md."
-  );
-}
-
-if (
-  payloadIsProduction &&
-  !payloadIsProductionBuild &&
-  payloadResolvedDatabaseKind === "sqlite" &&
-  !payloadAllowProductionSqlite
-) {
-  throw new Error(
-    "Payload CMS is configured to use SQLite in production. Set DATABASE_URL to your Supabase Postgres connection string in Hostinger, leave PAYLOAD_DATABASE_URL blank unless Payload must intentionally point elsewhere, and then use Settings and redeploy. Only set PAYLOAD_ALLOW_PRODUCTION_SQLITE=true when production has intentional persistent disk. See docs/supabase-database-setup.md."
-  );
-}
-
-if (
-  payloadIsProduction &&
-  !payloadIsProductionBuild &&
+  payloadDatabase.isProduction &&
+  !payloadDatabase.isProductionBuild &&
   !payloadMediaStorageEnabled &&
   !payloadAllowProductionLocalMedia
 ) {
@@ -222,44 +93,20 @@ if (
   );
 }
 
-const payloadSqliteFilePath =
-  payloadResolvedDatabaseKind === "sqlite" ? resolveSqliteFilePath(payloadDatabaseUrl) : null;
-const payloadCollectionSlugs = [
-  CmsUsersCollection.slug,
-  CmsPagesCollection.slug,
-  BlogCategoriesCollection.slug,
-  BlogTagsCollection.slug,
-  BlogMediaCollection.slug,
-  BlogPostsCollection.slug,
-  CmsInventoryItemsCollection.slug,
-  CmsInventoryTemplatesCollection.slug,
-  CmsInventoryTemplateItemsCollection.slug,
-  CmsInventoryAlertsCollection.slug,
-  CmsMaintenanceIssuesCollection.slug,
-] as const;
-const payloadBootstrapPush = payloadSqliteFilePath ? !fs.existsSync(payloadSqliteFilePath) : false;
-const payloadSchemaDriftPush = payloadSqliteFilePath
-  ? hasSchemaDrift(payloadSqliteFilePath, payloadCollectionSlugs)
-  : false;
-const payloadAutoPushSchema = payloadAutoPushOverride ?? payloadIsDevelopment;
-const payloadShouldPushSqliteSchema = payloadAutoPushSchema && (payloadBootstrapPush || payloadSchemaDriftPush);
-const payloadShouldPushPostgresSchema = payloadAutoPushSchema;
 const payloadDatabaseAdapter =
-  payloadResolvedDatabaseKind === "sqlite"
+  payloadDatabase.kind === "sqlite"
     ? sqliteAdapter({
         client: {
-          url: payloadDatabaseUrl,
+          url: payloadDatabase.databaseUrl,
         },
-        // Keep runtime non-interactive by default.
-        // Automatically bootstrap schema when the local SQLite DB is new or drifted.
-        push: payloadShouldPushSqliteSchema,
+        // Local SQLite is an explicit CMS-only sandbox path.
+        push: payloadDatabase.pushSchema,
       })
     : postgresAdapter({
         pool: {
-          connectionString: payloadDatabaseUrl,
+          connectionString: payloadDatabase.databaseUrl,
         },
-        // Production never auto-pushes Postgres schemas, but local env overrides should stay predictable.
-        push: payloadShouldPushPostgresSchema,
+        push: payloadDatabase.pushSchema,
       });
 const payloadPlugins = payloadMediaStorageEnabled
   ? [
@@ -313,6 +160,3 @@ const payloadConfig = buildConfig({
 });
 
 export default payloadConfig;
-
-
-

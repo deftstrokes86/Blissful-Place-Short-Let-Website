@@ -1,6 +1,8 @@
-﻿# Supabase Database Setup For Hostinger Production
+# Supabase Database Setup For Hostinger Production
 
 This app expects Supabase Postgres to be the production database, with Prisma using `DATABASE_URL` as the canonical server-side connection string.
+
+Start with [production-env-setup.md](/e:/Blissful_Place%20-%20Copy/docs/production-env-setup.md) for the grouped Hostinger environment-variable checklist. This document goes deeper on Supabase connection shapes, Prisma commands, and migration workflow details.
 
 ## Local Prisma CLI setup
 
@@ -75,7 +77,6 @@ NODE_ENV="production"
 DATABASE_URL="postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require"
 PAYLOAD_SECRET="replace-with-a-long-random-secret"
 PAYLOAD_DATABASE_URL=""
-PAYLOAD_ALLOW_PRODUCTION_SQLITE="false"
 PAYLOAD_AUTO_PUSH_SCHEMA="false"
 SITE_URL="https://your-production-domain.example"
 ```
@@ -96,6 +97,7 @@ PAYLOAD_ALLOW_PRODUCTION_LOCAL_MEDIA="false"
 Notes:
 
 - Leave `PAYLOAD_DATABASE_URL` blank in the normal setup so Payload reuses `DATABASE_URL`.
+- If you intentionally want a local CMS-only SQLite sandbox, set `PAYLOAD_DATABASE_URL="file:./.data/payload.db"` in non-production only and keep `DATABASE_URL` on Supabase Postgres.
 - `SHADOW_DATABASE_URL` is not required for normal production runtime.
 - Never expose `DATABASE_URL` or storage secrets through `NEXT_PUBLIC_*` variables.
 
@@ -168,14 +170,18 @@ The app and Prisma workflow now fail more explicitly when the DB config is wrong
 - Wrong protocol or malformed URI: startup and Prisma CLI tell you the app needs a valid `postgres://` or `postgresql://` Supabase connection string.
 - Supabase URL missing `sslmode=require`: startup and the Prisma npm scripts explain the required Prisma-ready Supabase format instead of leaving a vague schema-engine error.
 - Supabase transaction pooler on `6543` without `pgbouncer=true`: startup explains the mismatch and points you back to the preferred setup.
-- Missing production Payload DB config: Payload now throws a direct production Postgres configuration error instead of silently looking like a SQLite fallback problem.
+- Missing production Payload DB config: Payload now throws a direct production Postgres configuration error instead of falling back to a hidden local SQLite default.
 
 ## Quick production checklist
 
 - `DATABASE_URL` is set to the Supabase session pooler on `5432` or a verified direct connection.
 - `PAYLOAD_DATABASE_URL` is blank unless intentionally overridden.
-- `PAYLOAD_ALLOW_PRODUCTION_SQLITE=false`.
+
 - `npm run prisma:migrate:deploy` completed successfully.
 - `npx payload migrate` completed successfully.
 - Hostinger app was redeployed after env changes.
 - `/blog` and `/cms` both load after deploy.
+
+
+
+

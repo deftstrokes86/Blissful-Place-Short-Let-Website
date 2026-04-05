@@ -110,9 +110,9 @@ Recommended initial collections under Payload:
 - Existing `/admin/*` and `/staff/*` remain first-class and unchanged in purpose.
 
 5. CMS persistence
-- Local development defaults to file-backed SQLite for fast setup.
-- Production must use persistent Postgres via `PAYLOAD_DATABASE_URL` or `DATABASE_URL`.
-- Production SQLite requires explicit `PAYLOAD_ALLOW_PRODUCTION_SQLITE="true"` and a deployment with persistent disk.
+- Normal local and production setups should use the same Supabase Postgres `DATABASE_URL` as Prisma.
+- `PAYLOAD_DATABASE_URL` stays blank in the normal setup so Payload reuses `DATABASE_URL`.
+- Local SQLite is no longer the default. The only remaining SQLite path is an explicit non-production `PAYLOAD_DATABASE_URL="file:./.data/payload.db"` override for a local CMS-only sandbox.
 
 6. CMS media storage
 - Local uploads can use the app filesystem for development.
@@ -125,4 +125,5 @@ Recommended initial collections under Payload:
 1. Replacing worker task execution UX with CMS screens
 2. Replacing custom booking/readiness operational flows with generic CMS forms
 3. Building a broad ERP/marketing platform in this phase
+
 

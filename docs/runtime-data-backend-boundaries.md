@@ -1,4 +1,4 @@
-﻿# Runtime Data Backend Boundaries
+# Runtime Data Backend Boundaries
 
 This repo now treats Supabase Postgres, reached through Prisma and `DATABASE_URL`, as the primary runtime database for the application.
 
@@ -30,4 +30,5 @@ If a new runtime route, job, CLI, or shared factory needs booking, availability,
 
 ## Payload boundary
 
-Payload production runtime should resolve to Supabase Postgres through `DATABASE_URL`, with `PAYLOAD_DATABASE_URL` used only when Payload must intentionally point at a different Postgres database. The remaining local SQLite bootstrap path in `src/cms/payload.config.ts` is a development-only exception and is not part of the intended deployed runtime data path.
+Payload production runtime should resolve to Supabase Postgres through `DATABASE_URL`, with `PAYLOAD_DATABASE_URL` used only when Payload must intentionally point at a different Postgres database. The only remaining SQLite path is an explicit non-production `PAYLOAD_DATABASE_URL="file:./.data/payload.db"` override for a local CMS-only sandbox and is not part of the intended deployed runtime data path.
+

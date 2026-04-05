@@ -1,4 +1,4 @@
-ï»¿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -86,11 +86,23 @@ function run() {
   assert.match(runtimeBoundaryDoc, /despite the name, that compatibility service is Prisma-backed/i);
 
   const databaseMigrationStatusDoc = read("docs/database-migration-status.md");
-  assert.match(databaseMigrationStatusDoc, /Migrated to Supabase Postgres/i);
+  assert.match(databaseMigrationStatusDoc, /Current database posture/i);
+  assert.match(databaseMigrationStatusDoc, /Prisma now uses Supabase Postgres/i);
+  assert.match(databaseMigrationStatusDoc, /Payload now uses Supabase Postgres in the normal path/i);
   assert.match(databaseMigrationStatusDoc, /Still on legacy file-db services/i);
   assert.match(databaseMigrationStatusDoc, /src\/server\/services\/\*/i);
   assert.match(databaseMigrationStatusDoc, /legacy-guest-reservation-service\.ts/);
   assert.match(databaseMigrationStatusDoc, /Prisma-backed compatibility adapter/i);
+  assert.match(databaseMigrationStatusDoc, /pending future migration/i);
+  assert.match(databaseMigrationStatusDoc, /Prisma fixed” and “Payload fixed” do not mean the entire application is fully migrated|Prisma fixed" and "Payload fixed" do not mean the entire application is fully migrated/i);
+
+  const payloadBlogDatabaseDoc = read("docs/payload-blog-database-path.md");
+  assert.match(payloadBlogDatabaseDoc, /\/blog/);
+  assert.match(payloadBlogDatabaseDoc, /Payload CMS/);
+  assert.match(payloadBlogDatabaseDoc, /DATABASE_URL/);
+  assert.match(payloadBlogDatabaseDoc, /PAYLOAD_DATABASE_URL/);
+  assert.match(payloadBlogDatabaseDoc, /file:\.\/\.data\/payload\.db/);
+  assert.match(payloadBlogDatabaseDoc, /not the normal deployed blog database path/i);
 
   const migrationAuditDoc = read("docs/supabase-postgres-migration-audit.md");
   assert.match(migrationAuditDoc, /project is now coherently oriented around Supabase Postgres/i);
@@ -101,3 +113,5 @@ function run() {
 }
 
 run();
+
+

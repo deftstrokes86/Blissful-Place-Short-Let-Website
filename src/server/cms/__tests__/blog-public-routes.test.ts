@@ -159,17 +159,26 @@ async function testPublicMapperSupportsNumericCmsIds(): Promise<void> {
 async function testBlogImageGuardrails(): Promise<void> {
   const validSupabaseImage =
     "https://ghdgxaqumrsovzaqakfb.storage.supabase.co/storage/v1/object/public/blog-media/featured.jpg";
+  const insecureSupabaseImage =
+    "http://ghdgxaqumrsovzaqakfb.storage.supabase.co/storage/v1/object/public/blog-media/featured.jpg";
   const previousProjectRef = process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF;
   const previousBucket = process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET;
   const previousEndpoint = process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
+  const previousSiteUrl = process.env.SITE_URL;
 
   process.env.PAYLOAD_MEDIA_SUPABASE_PROJECT_REF = "ghdgxaqumrsovzaqakfb";
   process.env.PAYLOAD_MEDIA_SUPABASE_BUCKET = "blog-media";
+  process.env.SITE_URL = "http://localhost:3000";
   delete process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
 
   try {
     assert.equal(resolveRenderableBlogImageUrl("/media/featured.jpg"), "/media/featured.jpg");
     assert.equal(resolveRenderableBlogImageUrl(validSupabaseImage), validSupabaseImage);
+    assert.equal(
+      resolveRenderableBlogImageUrl("http://localhost:3000/media/featured.jpg?cache=1"),
+      "/media/featured.jpg?cache=1"
+    );
+    assert.equal(resolveRenderableBlogImageUrl(insecureSupabaseImage), null);
     assert.equal(resolveRenderableBlogImageUrl(""), null);
     assert.equal(resolveRenderableBlogImageUrl("   "), null);
     assert.equal(resolveRenderableBlogImageUrl("featured.jpg"), null);
@@ -248,6 +257,12 @@ async function testBlogImageGuardrails(): Promise<void> {
     } else {
       delete process.env.PAYLOAD_MEDIA_SUPABASE_ENDPOINT;
     }
+
+    if (typeof previousSiteUrl === "string") {
+      process.env.SITE_URL = previousSiteUrl;
+    } else {
+      delete process.env.SITE_URL;
+    }
   }
 
   const validImageElement = SafeBlogImage({
@@ -256,6 +271,13 @@ async function testBlogImageGuardrails(): Promise<void> {
     sizes: "100vw",
   }) as unknown as { props: Record<string, unknown> };
   assert.equal(validImageElement.props.src, validSupabaseImage);
+
+  const normalizedSiteImageElement = SafeBlogImage({
+    src: "http://localhost:3000/media/featured.jpg?cache=1",
+    alt: "Normalized site image",
+    sizes: "100vw",
+  }) as unknown as { props: Record<string, unknown> };
+  assert.equal(normalizedSiteImageElement.props.src, "/media/featured.jpg?cache=1");
 
   const missingImageFallback = SafeBlogImage({
     src: "",
@@ -273,6 +295,14 @@ async function testBlogImageGuardrails(): Promise<void> {
   }) as unknown as { props: Record<string, unknown>; type: unknown };
   assert.equal(malformedImageFallback.type, "span");
   assert.equal(malformedImageFallback.props.className, "blog-image-fallback custom-fallback");
+
+  const insecureExternalFallback = SafeBlogImage({
+    src: insecureSupabaseImage,
+    alt: "Insecure external image",
+    sizes: "100vw",
+  }) as unknown as { props: Record<string, unknown>; type: unknown };
+  assert.equal(insecureExternalFallback.type, "span");
+  assert.equal(insecureExternalFallback.props.className, "blog-image-fallback");
 }
 
 async function testBlogContentServiceRecoversFromMalformedRecords(): Promise<void> {
@@ -583,4 +613,5 @@ async function run(): Promise<void> {
 }
 
 void run();
+
 

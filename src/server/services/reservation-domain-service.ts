@@ -1,5 +1,6 @@
-﻿// LEGACY FILE-DB BOUNDARY:
-// This service still persists to the JSON file database and is kept only for migration/reference.
+// LEGACY FILE-DB BOUNDARY:
+// This service still persists to the JSON file database and is pending future migration or removal.
+// It is not part of the Prisma + Payload + Supabase runtime path.
 // Active runtime routes should use the Prisma-backed services under src/server/booking/*.
 
 import { randomUUID } from "node:crypto";
@@ -497,6 +498,7 @@ export class ReservationDomainService {
 }
 
 export const reservationDomainService = new ReservationDomainService();
+
 
 
 

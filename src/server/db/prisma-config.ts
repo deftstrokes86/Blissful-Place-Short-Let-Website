@@ -1,8 +1,8 @@
-﻿import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 const POSTGRES_PROTOCOLS = new Set(["postgres:", "postgresql:"]);
 const HOSTINGER_DEPLOY_GUIDANCE =
-  "On Hostinger, add or update it in your Node.js app environment variables and then use Settings and redeploy. See docs/supabase-database-setup.md.";
+  "On Hostinger, add or update it in your Node.js app environment variables and then use Settings and redeploy. See docs/production-env-setup.md.";
 const SUPABASE_DIRECT_EXAMPLE =
   "postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require";
 const SUPABASE_SESSION_POOLER_EXAMPLE =
@@ -124,3 +124,4 @@ export function resolvePrismaClientOptions(
     log: resolvePrismaLogLevels(env),
   };
 }
+

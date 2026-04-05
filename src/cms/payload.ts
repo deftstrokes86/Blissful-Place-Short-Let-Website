@@ -31,7 +31,7 @@ import {
   RscEntryLexicalField,
 } from "@payloadcms/richtext-lexical/rsc";
 
-import payloadConfig from "./payload.config";
+import { describePayloadDatabaseDependency } from "./payload-database-config";
 
 export const cmsImportMap: ImportMap = {
   "@payloadcms/next/rsc#CollectionCards": CollectionCards,
@@ -60,11 +60,59 @@ export const cmsImportMap: ImportMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField,
 };
-const payloadConfigPromise = Promise.resolve(payloadConfig);
+
+type PayloadConfig = Awaited<(typeof import("./payload.config"))["default"]>;
+
+let payloadConfigPromise: Promise<PayloadConfig> | null = null;
+
+export class PayloadInitializationError extends Error {
+  cause: unknown;
+
+  constructor(message: string, cause: unknown) {
+    super(message);
+    this.name = "PayloadInitializationError";
+    this.cause = cause;
+  }
+}
+
+function buildPayloadInitializationMessage(): string {
+  const dependency = describePayloadDatabaseDependency();
+
+  return [
+    "Payload CMS failed to initialize before the app could read blog or CMS content.",
+    dependency.summary,
+    "In the normal production path, leave PAYLOAD_DATABASE_URL blank so Payload reuses DATABASE_URL.",
+    "See docs/payload-blog-database-path.md and docs/production-env-setup.md.",
+  ].join(" ");
+}
+
+async function loadPayloadConfig(): Promise<PayloadConfig> {
+  if (payloadConfigPromise) {
+    return payloadConfigPromise;
+  }
+
+  const nextPayloadConfigPromise = import("./payload.config")
+    .then((module) => module.default)
+    .catch((error: unknown) => {
+      payloadConfigPromise = null;
+      throw error;
+    });
+
+  payloadConfigPromise = nextPayloadConfigPromise;
+
+  return nextPayloadConfigPromise;
+}
 
 export async function getCmsPayload() {
-  return getPayload({
-    config: payloadConfigPromise,
-    importMap: cmsImportMap,
-  });
+  try {
+    const payloadConfig = await loadPayloadConfig();
+
+    return getPayload({
+      config: Promise.resolve(payloadConfig),
+      importMap: cmsImportMap,
+    });
+  } catch (error) {
+    throw new PayloadInitializationError(buildPayloadInitializationMessage(), error);
+  }
 }
+

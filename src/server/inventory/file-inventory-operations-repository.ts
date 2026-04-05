@@ -1,6 +1,6 @@
-﻿// LEGACY FILE-DB BOUNDARY:
-// This repository persists inventory/readiness data to the JSON file database and is not part of
-// the Prisma + Supabase Postgres runtime path. Keep it isolated until the legacy cleanup phase.
+// LEGACY FILE-DB BOUNDARY:
+// This repository persists inventory/readiness data to the JSON file database and is pending future migration or removal.
+// It is not part of the Prisma + Payload + Supabase runtime path. Keep it isolated until the legacy cleanup phase.
 import { readBookingDatabase, withBookingDatabase } from "../db/file-database";
 import type { FlatId } from "../../types/booking";
 import type {
@@ -499,4 +499,5 @@ export class FileInventoryOperationsRepository
 }
 
 export const fileInventoryOperationsRepository = new FileInventoryOperationsRepository();
+
 

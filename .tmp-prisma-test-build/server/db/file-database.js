@@ -1,7 +1,8 @@
 "use strict";
 // LEGACY FILE-DB BOUNDARY:
 // This JSON database under .data/booking-mvp-db.json is retained only for legacy reservation,
-// inventory, and tour modules that have not been migrated yet.
+// inventory, and tour modules that are still pending future migration or removal.
+// It is not part of the Prisma + Payload + Supabase runtime path.
 // Active runtime flows must use Prisma + Supabase Postgres via DATABASE_URL instead.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDatabaseId = void 0;
