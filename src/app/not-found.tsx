@@ -80,8 +80,8 @@ function FloatingParticles() {
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 24 },
+const fadeUp = (delay: number, mounted: boolean) => ({
+  initial: mounted ? { opacity: 0, y: 24 } : false,
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.85, ease, delay },
 });
@@ -89,6 +89,12 @@ const fadeUp = (delay: number) => ({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function NotFound() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <>
       <style>{`
@@ -181,7 +187,7 @@ export default function NotFound() {
         >
           {/* 404 — shimmer */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 24 }}
+            initial={mounted ? { opacity: 0, scale: 0.9, y: 24 } : false}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1.05, ease }}
           >
@@ -202,7 +208,7 @@ export default function NotFound() {
 
           {/* Decorative rule */}
           <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
+            initial={mounted ? { opacity: 0, scaleX: 0 } : false}
             animate={{ opacity: 1, scaleX: 1 }}
             transition={{ duration: 0.65, ease: "easeOut", delay: 0.22 }}
             style={{
@@ -217,7 +223,7 @@ export default function NotFound() {
 
           {/* Serif heading */}
           <motion.h1
-            {...fadeUp(0.3)}
+            {...fadeUp(0.3, mounted)}
             style={{
               fontFamily: "'Playfair Display', 'Times New Roman', serif",
               fontStyle: "italic",
@@ -233,7 +239,7 @@ export default function NotFound() {
 
           {/* Subtext */}
           <motion.p
-            {...fadeUp(0.46)}
+            {...fadeUp(0.46, mounted)}
             style={{
               marginTop: "1.25rem",
               color: "#AAA8A9",
@@ -248,7 +254,7 @@ export default function NotFound() {
 
           {/* Actions */}
           <motion.div
-            {...fadeUp(0.62)}
+            {...fadeUp(0.62, mounted)}
             style={{
               marginTop: "2.5rem",
               display: "flex",
@@ -260,8 +266,8 @@ export default function NotFound() {
           >
             {/* Primary CTA */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={mounted ? { scale: 1.05 } : {}}
+              whileTap={mounted ? { scale: 0.96 } : {}}
               transition={{ type: "spring", stiffness: 340, damping: 20 }}
             >
               <Link href="/" className="nf-btn-primary">
@@ -271,7 +277,7 @@ export default function NotFound() {
 
             {/* Secondary link */}
             <motion.div
-              whileHover={{ x: 4 }}
+              whileHover={mounted ? { x: 4 } : {}}
               transition={{ type: "spring", stiffness: 420, damping: 22 }}
             >
               <Link href="/property" className="nf-btn-secondary">
