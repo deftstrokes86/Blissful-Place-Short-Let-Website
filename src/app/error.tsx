@@ -38,8 +38,8 @@ function BrokenKeyIcon() {
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 24 },
+const fadeUp = (delay: number, mounted: boolean) => ({
+  initial: mounted ? { opacity: 0, y: 24 } : false,
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.85, ease, delay },
 });
@@ -48,10 +48,15 @@ const fadeUp = (delay: number) => ({
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   const [resetting, setResetting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     console.error("[ErrorBoundary]", error.message);
   }, [error]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function handleReset() {
     if (resetting) return;
@@ -139,12 +144,12 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         >
           {/* Icon — gentle float */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={mounted ? { opacity: 0, scale: 0.8, y: 20 } : false}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, ease }}
           >
             <motion.div
-              animate={{ rotate: [-3, 3, -3], y: [0, -5, 0] }}
+              animate={mounted ? { rotate: [-3, 3, -3], y: [0, -5, 0] } : {}}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
             >
               {/* Backdrop ring */}
@@ -172,7 +177,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           {/* Decorative rule */}
           <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
+            initial={mounted ? { opacity: 0, scaleX: 0 } : false}
             animate={{ opacity: 1, scaleX: 1 }}
             transition={{ duration: 0.65, ease: "easeOut", delay: 0.25 }}
             style={{
@@ -187,7 +192,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           {/* Serif heading */}
           <motion.h1
-            {...fadeUp(0.32)}
+            {...fadeUp(0.32, mounted)}
             style={{
               fontFamily: "var(--font-serif, 'Playfair Display', 'Times New Roman', serif)",
               fontStyle: "italic",
@@ -203,7 +208,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           {/* Subtext */}
           <motion.p
-            {...fadeUp(0.48)}
+            {...fadeUp(0.48, mounted)}
             style={{
               marginTop: "1.25rem",
               color: "#AAA8A9",
@@ -218,7 +223,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           {/* Actions */}
           <motion.div
-            {...fadeUp(0.63)}
+            {...fadeUp(0.63, mounted)}
             style={{
               marginTop: "2.5rem",
               display: "flex",
@@ -232,8 +237,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             <motion.button
               onClick={handleReset}
               disabled={resetting}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={mounted ? { scale: 1.05 } : {}}
+              whileTap={mounted ? { scale: 0.96 } : {}}
               transition={{ type: "spring", stiffness: 340, damping: 20 }}
               className="err-btn-primary"
             >
@@ -242,8 +247,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
             {/* Return Home */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={mounted ? { scale: 1.05 } : {}}
+              whileTap={mounted ? { scale: 0.96 } : {}}
               transition={{ type: "spring", stiffness: 340, damping: 20 }}
             >
               <Link href="/" className="err-btn-ghost">
