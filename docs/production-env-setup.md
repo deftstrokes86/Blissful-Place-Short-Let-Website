@@ -105,6 +105,18 @@ Use [.env.example](/e:/Blissful_Place%20-%20Copy/.env.example) as the grouped te
 4. Use **Settings and redeploy** so the running app picks up the new values.
 5. After the redeploy, run any deployment migration commands required by the release.
 
+## Strict npm peer dependency fallback
+
+Normal deployment should keep the committed `package-lock.json` and use the platform's standard install behavior first.
+
+Only if Hostinger or another strict npm environment still fails with a peer-dependency resolution error after the lockfile has been refreshed locally:
+
+1. Retry the deployment with `npm install --legacy-peer-deps` as the install command, if your host lets you customize it.
+2. If the host only supports env-based npm configuration, temporarily set `NPM_CONFIG_LEGACY_PEER_DEPS=true` for that deployment.
+3. Redeploy, confirm the install completes, and then remove that fallback when the dependency graph no longer needs it.
+
+This is intentionally a last resort. Do not treat `legacy-peer-deps` as the default production install mode for this repo.
+
 ## After env changes
 
 Changing `DATABASE_URL`, `PAYLOAD_DATABASE_URL`, `PAYLOAD_SECRET`, or any `PAYLOAD_MEDIA_SUPABASE_*` value is not a hot change.
@@ -122,4 +134,5 @@ After updating them:
 - [supabase-database-setup.md](/e:/Blissful_Place%20-%20Copy/docs/supabase-database-setup.md) for deeper Supabase connection and migration workflow details
 - [.env.production.example](/e:/Blissful_Place%20-%20Copy/.env.production.example) for the production-oriented env template
 - [.env.example](/e:/Blissful_Place%20-%20Copy/.env.example) for the full grouped env template
+
 

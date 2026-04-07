@@ -74,6 +74,20 @@ npx payload migrate
 
 If you change production environment variables on Hostinger, save them and then use **Settings and redeploy** before expecting the running app to see the new values.
 
+## Dependency refresh
+
+If `package.json` changes for core tooling such as Next.js, Payload, React, or Prisma, do a clean local reinstall before debugging build issues:
+
+1. Stop any running dev server or test watcher.
+2. Delete `node_modules`.
+3. Keep the committed `package-lock.json` unless you are intentionally regenerating the lockfile in the same change.
+4. Run `npm install`.
+5. Verify the core graph with `npm ls next payload @payloadcms/next`.
+
+This repo treats `package-lock.json` as the source of truth for repeatable installs, so the normal cleanup path is "remove `node_modules`, keep the lockfile, reinstall".
+
+If a strict npm environment still rejects the committed lockfile with a peer-dependency resolution error, use `npm install --legacy-peer-deps` only as a deployment fallback. Do not make that the normal local or CI install path once the lockfile is healthy again.
+
 ## Useful scripts
 
 - `npm run build`
@@ -92,3 +106,4 @@ If you change production environment variables on Hostinger, save them and then 
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Learn Next.js](https://nextjs.org/learn)
+
