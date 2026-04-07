@@ -16,6 +16,8 @@ export default async function AdminAvailabilityPage() {
           description="Manage manual availability blocks and calendar controls from the protected operations surface."
           backHref="/admin/bookings"
           backLabel="Back to Booking Administration"
+          // Keep this guarded admin route free of router-context assumptions during build analysis.
+          backLinkMode="anchor"
           wrapperStyle={{ marginBottom: "2rem" }}
         />
 

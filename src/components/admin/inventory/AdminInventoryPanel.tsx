@@ -16,6 +16,23 @@ function getErrorMessage(error: unknown): string {
   return "Unable to load inventory overview right now.";
 }
 
+function formatGeneratedLabel(value: string | null | undefined): string {
+  if (!value) {
+    return "Not loaded";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Unavailable";
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(date);
+}
+
 export function AdminInventoryPanel() {
   const [overview, setOverview] = useState<AdminInventoryOverview | null>(null);
   const [selectedFlatId, setSelectedFlatId] = useState<string>("mayfair");
@@ -32,10 +49,12 @@ export function AdminInventoryPanel() {
 
     try {
       const next = await fetchAdminInventoryOverview();
+      const nextFlats = Array.isArray(next?.flats) ? next.flats : [];
+
       setOverview(next);
 
-      if (!next.flats.some((flat) => flat.id === selectedFlatId)) {
-        setSelectedFlatId(next.flats[0]?.id ?? "mayfair");
+      if (!nextFlats.some((flat) => flat.id === selectedFlatId)) {
+        setSelectedFlatId(nextFlats[0]?.id ?? "mayfair");
       }
 
       setLoadError(null);
@@ -54,17 +73,7 @@ export function AdminInventoryPanel() {
     void loadOverview("initial");
   }, [loadOverview]);
 
-  const generatedLabel = useMemo(() => {
-    if (!overview) {
-      return "Not loaded";
-    }
-
-    return new Intl.DateTimeFormat("en-NG", {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Africa/Lagos",
-    }).format(new Date(overview.generatedAt));
-  }, [overview]);
+  const generatedLabel = useMemo(() => formatGeneratedLabel(overview?.generatedAt), [overview?.generatedAt]);
 
   return (
     <div className="admin-inventory-panel">

@@ -54,10 +54,14 @@ export function AdminInventoryFlatDetailPanel({ flatId }: AdminInventoryFlatDeta
 
     try {
       const next = await fetchAdminInventoryOverview();
+      const flatInventory = Array.isArray(next?.flatInventory) ? next.flatInventory : [];
+      const readinessEntries = Array.isArray(next?.readiness) ? next.readiness : [];
+
       setOverview(next);
 
       if (normalizedFlatId) {
-        const flatRecords = next.flatInventory.find((entry) => entry.flatId === normalizedFlatId)?.records ?? [];
+        const flatRecordCandidate = flatInventory.find((entry) => entry.flatId === normalizedFlatId)?.records;
+        const flatRecords = Array.isArray(flatRecordCandidate) ? flatRecordCandidate : [];
 
         setQuantityDrafts(
           Object.fromEntries(flatRecords.map((record) => [record.id, String(record.currentQuantity)]))
@@ -66,7 +70,7 @@ export function AdminInventoryFlatDetailPanel({ flatId }: AdminInventoryFlatDeta
           Object.fromEntries(flatRecords.map((record) => [record.id, record.notes ?? ""]))
         );
 
-        const readiness = next.readiness.find((entry) => entry.flatId === normalizedFlatId)?.readiness ?? null;
+        const readiness = readinessEntries.find((entry) => entry.flatId === normalizedFlatId)?.readiness ?? null;
         if (readiness?.overrideStatus) {
           setOverrideStatusDraft(readiness.overrideStatus);
           setOverrideReasonDraft(readiness.overrideReason ?? "");
@@ -250,5 +254,6 @@ export function AdminInventoryFlatDetailPanel({ flatId }: AdminInventoryFlatDeta
     </div>
   );
 }
+
 
 

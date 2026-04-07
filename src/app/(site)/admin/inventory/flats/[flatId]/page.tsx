@@ -4,6 +4,8 @@ import { AdminInventoryFlatDetailPanel } from "@/components/admin/inventory/flat
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 interface AdminInventoryFlatDetailPageProps {
   params: Promise<{
     flatId: string;

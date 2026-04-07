@@ -1,7 +1,10 @@
 import { PageIntro } from "@/components/common/PageIntro";
+
 import { AdminBookingsPanel } from "@/components/admin/bookings/AdminBookingsPanel";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminBookingsPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/bookings" });

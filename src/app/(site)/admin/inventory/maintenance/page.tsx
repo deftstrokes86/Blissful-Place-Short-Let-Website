@@ -4,6 +4,8 @@ import { AdminInventoryMaintenancePanel } from "@/components/admin/inventory/mai
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminInventoryMaintenancePage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/inventory/maintenance" });
 

@@ -14,12 +14,12 @@ import {
 import { canRestock, formatNonReadyReasons, parseNonNegativeInteger } from "./admin-flat-inventory-view-model";
 
 interface AdminInventoryFlatDetailSnapshotViewProps {
-  overview: AdminInventoryOverview;
+  overview: AdminInventoryOverview | null | undefined;
   flatId: "windsor" | "kensington" | "mayfair";
-  quantityDrafts: Record<string, string>;
-  noteDrafts: Record<string, string>;
+  quantityDrafts: Record<string, string> | null | undefined;
+  noteDrafts: Record<string, string> | null | undefined;
   overrideStatusDraft: "ready" | "needs_attention" | "out_of_service";
-  overrideReasonDraft: string;
+  overrideReasonDraft: string | null | undefined;
   isSubmitting: boolean;
   onQuantityDraftChange: (recordId: string, value: string) => void;
   onNoteDraftChange: (recordId: string, value: string) => void;
@@ -81,13 +81,28 @@ function isActionDisabled(input: {
 }
 
 export function AdminInventoryFlatDetailSnapshotView(input: AdminInventoryFlatDetailSnapshotViewProps) {
-  const flatSummary = input.overview.flats.find((flat) => flat.id === input.flatId) ?? null;
-  const flatInventory = input.overview.flatInventory.find((entry) => entry.flatId === input.flatId)?.records ?? [];
-  const readinessEntry = input.overview.readiness.find((entry) => entry.flatId === input.flatId) ?? null;
+  const flats = Array.isArray(input.overview?.flats) ? input.overview.flats : [];
+  const flatInventoryEntries = Array.isArray(input.overview?.flatInventory) ? input.overview.flatInventory : [];
+  const readinessEntries = Array.isArray(input.overview?.readiness) ? input.overview.readiness : [];
+  const allActiveAlerts = Array.isArray(input.overview?.activeAlerts) ? input.overview.activeAlerts : [];
+  const allActiveIssues = Array.isArray(input.overview?.maintenanceIssues) ? input.overview.maintenanceIssues : [];
+  const stockMovements = Array.isArray(input.overview?.stockMovements) ? input.overview.stockMovements : [];
+  const quantityDrafts = input.quantityDrafts ?? {};
+  const noteDrafts = input.noteDrafts ?? {};
+  const overrideReasonDraft = input.overrideReasonDraft ?? "";
 
-  const activeAlerts = readinessEntry?.activeAlerts ?? input.overview.activeAlerts.filter((alert) => alert.flatId === input.flatId);
-  const activeIssues = readinessEntry?.activeIssues ?? input.overview.maintenanceIssues.filter((issue) => issue.flatId === input.flatId);
-  const recentMovements = input.overview.stockMovements.filter((movement) => movement.flatId === input.flatId).slice(0, 10);
+  const flatSummary = flats.find((flat) => flat.id === input.flatId) ?? null;
+  const flatInventoryCandidate = flatInventoryEntries.find((entry) => entry.flatId === input.flatId)?.records;
+  const flatInventory = Array.isArray(flatInventoryCandidate) ? flatInventoryCandidate : [];
+  const readinessEntry = readinessEntries.find((entry) => entry.flatId === input.flatId) ?? null;
+
+  const activeAlerts = Array.isArray(readinessEntry?.activeAlerts)
+    ? readinessEntry.activeAlerts
+    : allActiveAlerts.filter((alert) => alert.flatId === input.flatId);
+  const activeIssues = Array.isArray(readinessEntry?.activeIssues)
+    ? readinessEntry.activeIssues
+    : allActiveIssues.filter((issue) => issue.flatId === input.flatId);
+  const recentMovements = stockMovements.filter((movement) => movement.flatId === input.flatId).slice(0, 10);
 
   const nonReadyReasons = formatNonReadyReasons({
     readiness: readinessEntry?.readiness ?? null,
@@ -265,7 +280,7 @@ export function AdminInventoryFlatDetailSnapshotView(input: AdminInventoryFlatDe
             <textarea
               className="standard-input"
               rows={2}
-              value={input.overrideReasonDraft}
+              value={overrideReasonDraft}
               onChange={(event) => input.onOverrideReasonDraftChange(event.target.value)}
               placeholder="Override reason"
               disabled={input.isSubmitting}
@@ -275,7 +290,7 @@ export function AdminInventoryFlatDetailSnapshotView(input: AdminInventoryFlatDe
               <button
                 type="button"
                 className="btn btn-outline-primary"
-                disabled={input.isSubmitting || input.overrideReasonDraft.trim().length === 0}
+                disabled={input.isSubmitting || overrideReasonDraft.trim().length === 0}
                 onClick={() => {
                   void input.onSetOverride();
                 }}
@@ -334,8 +349,8 @@ export function AdminInventoryFlatDetailSnapshotView(input: AdminInventoryFlatDe
               </thead>
               <tbody>
                 {flatInventory.map((record) => {
-                  const quantityDraft = input.quantityDrafts[record.id] ?? String(record.currentQuantity);
-                  const noteDraft = input.noteDrafts[record.id] ?? record.notes ?? "";
+                  const quantityDraft = quantityDrafts[record.id] ?? String(record.currentQuantity);
+                  const noteDraft = noteDrafts[record.id] ?? record.notes ?? "";
 
                   return (
                     <tr key={record.id}>
@@ -579,3 +594,4 @@ export function AdminInventoryFlatDetailSnapshotView(input: AdminInventoryFlatDe
     </div>
   );
 }
+

@@ -36,8 +36,11 @@ export function StaffTasksPanel() {
         fetchInventoryWorkerTasks({ flatId, sync: true, openOnly: true }),
       ]);
 
-      setFlatOptions(overview.flats);
-      setTasks(loadedTasks);
+      const nextFlats = Array.isArray(overview?.flats) ? overview.flats : [];
+      const safeTasks = Array.isArray(loadedTasks) ? loadedTasks : [];
+
+      setFlatOptions(nextFlats);
+      setTasks(safeTasks);
       setErrorMessage(null);
     } catch (error) {
       setErrorMessage(getErrorMessage(error));

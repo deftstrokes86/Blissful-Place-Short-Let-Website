@@ -16,6 +16,23 @@ function getErrorMessage(error: unknown): string {
   return "Unable to load inventory hub right now.";
 }
 
+function formatGeneratedLabel(value: string | null | undefined): string {
+  if (!value) {
+    return "Not loaded";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Unavailable";
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(date);
+}
+
 export function AdminInventoryHubPanel() {
   const [overview, setOverview] = useState<AdminInventoryOverview | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -48,17 +65,7 @@ export function AdminInventoryHubPanel() {
     void loadOverview("initial");
   }, [loadOverview]);
 
-  const generatedLabel = useMemo(() => {
-    if (!overview) {
-      return "Not loaded";
-    }
-
-    return new Intl.DateTimeFormat("en-NG", {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Africa/Lagos",
-    }).format(new Date(overview.generatedAt));
-  }, [overview]);
+  const generatedLabel = useMemo(() => formatGeneratedLabel(overview?.generatedAt), [overview?.generatedAt]);
 
   return (
     <div className="admin-inventory-panel">

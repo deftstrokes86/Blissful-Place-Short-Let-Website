@@ -1,8 +1,11 @@
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+
 import { PageIntro } from "@/components/common/PageIntro";
 import { StaffMaintenancePanel } from "@/components/staff/StaffMaintenancePanel";
 import { StaffWorkerRouteNav } from "@/components/staff/StaffWorkerRouteNav";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
+
+export const dynamic = "force-dynamic";
 
 export default async function StaffMaintenancePage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/staff/maintenance" });

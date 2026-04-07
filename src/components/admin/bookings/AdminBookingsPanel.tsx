@@ -34,15 +34,27 @@ function getErrorMessage(error: unknown): string {
   return "Unable to complete the action right now.";
 }
 
-function formatLagosDateRange(checkIn: string, checkOut: string): string {
-  const formatter = new Intl.DateTimeFormat("en-NG", {
+function formatLagosDate(value: string): string | null {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-NG", {
     dateStyle: "medium",
     timeZone: "Africa/Lagos",
-  });
+  }).format(date);
+}
 
-  return `${formatter.format(new Date(`${checkIn}T00:00:00.000Z`))} to ${formatter.format(
-    new Date(`${checkOut}T00:00:00.000Z`)
-  )}`;
+function formatLagosDateRange(checkIn: string, checkOut: string): string {
+  const formattedCheckIn = formatLagosDate(checkIn);
+  const formattedCheckOut = formatLagosDate(checkOut);
+
+  if (formattedCheckIn && formattedCheckOut) {
+    return `${formattedCheckIn} to ${formattedCheckOut}`;
+  }
+
+  return "Dates unavailable";
 }
 
 function statusClassName(status: string): string {
@@ -123,8 +135,8 @@ export function AdminBookingsPanel() {
         fetchPendingPosReservations(),
       ]);
 
-      setTransferReservations(transfer);
-      setPosReservations(pos);
+      setTransferReservations(Array.isArray(transfer) ? transfer : []);
+      setPosReservations(Array.isArray(pos) ? pos : []);
       setLoadError(null);
     } catch (error) {
       setLoadError(getErrorMessage(error));
@@ -337,12 +349,12 @@ export function AdminBookingsPanel() {
                   <div className="admin-bookings-meta-grid">
                     <div>
                       <p className="admin-meta-label">Guest</p>
-                      <p>{reservation.guestName}</p>
+                      <p>{reservation.guestName || "Guest"}</p>
                       <p className="text-secondary" style={{ fontSize: "0.82rem" }}>
-                        {reservation.guestEmail}
+                        {reservation.guestEmail || "Email not provided"}
                       </p>
                       <p className="text-secondary" style={{ fontSize: "0.82rem" }}>
-                        {reservation.guestPhone}
+                        {reservation.guestPhone || "Phone not provided"}
                       </p>
                     </div>
                     <div>
@@ -451,12 +463,12 @@ export function AdminBookingsPanel() {
                   <div className="admin-bookings-meta-grid">
                     <div>
                       <p className="admin-meta-label">Guest</p>
-                      <p>{reservation.guestName}</p>
+                      <p>{reservation.guestName || "Guest"}</p>
                       <p className="text-secondary" style={{ fontSize: "0.82rem" }}>
-                        {reservation.guestEmail}
+                        {reservation.guestEmail || "Email not provided"}
                       </p>
                       <p className="text-secondary" style={{ fontSize: "0.82rem" }}>
-                        {reservation.guestPhone}
+                        {reservation.guestPhone || "Phone not provided"}
                       </p>
                     </div>
                     <div>
@@ -503,4 +515,3 @@ export function AdminBookingsPanel() {
     </div>
   );
 }
-

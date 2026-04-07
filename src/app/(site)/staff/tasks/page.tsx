@@ -1,8 +1,11 @@
-﻿import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+
 import { PageIntro } from "@/components/common/PageIntro";
 import { StaffTasksPanel } from "@/components/staff/StaffTasksPanel";
 import { StaffWorkerRouteNav } from "@/components/staff/StaffWorkerRouteNav";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
+
+export const dynamic = "force-dynamic";
 
 export default async function StaffTasksPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/staff/tasks" });

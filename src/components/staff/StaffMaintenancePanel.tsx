@@ -23,7 +23,8 @@ export function StaffMaintenancePanel() {
 
   const load = useCallback(async () => {
     const overview = await fetchAdminInventoryOverview();
-    const nextIssues = overview.maintenanceIssues.filter(isWorkerVisibleIssue);
+    const maintenanceIssues = Array.isArray(overview?.maintenanceIssues) ? overview.maintenanceIssues : [];
+    const nextIssues = maintenanceIssues.filter(isWorkerVisibleIssue);
 
     setIssues(nextIssues);
     setNoteDrafts((current) => {

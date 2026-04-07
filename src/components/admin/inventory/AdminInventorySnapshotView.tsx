@@ -11,17 +11,20 @@ import {
 } from "./admin-inventory-view-model";
 
 interface AdminInventorySnapshotViewProps {
-  overview: AdminInventoryOverview;
-  selectedFlatId: string;
+  overview: AdminInventoryOverview | null | undefined;
+  selectedFlatId: string | null | undefined;
 }
 
 export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProps) {
-  const selectedFlat =
-    input.overview.flatInventory.find((entry) => entry.flatId === input.selectedFlatId) ??
-    input.overview.flatInventory[0] ??
-    null;
+  const inventoryCatalog = Array.isArray(input.overview?.inventoryCatalog) ? input.overview.inventoryCatalog : [];
+  const centralStock = Array.isArray(input.overview?.centralStock) ? input.overview.centralStock : [];
+  const templates = Array.isArray(input.overview?.templates) ? input.overview.templates : [];
+  const flatInventory = Array.isArray(input.overview?.flatInventory) ? input.overview.flatInventory : [];
+  const stockMovements = Array.isArray(input.overview?.stockMovements) ? input.overview.stockMovements : [];
 
-  const centralStock = input.overview.centralStock ?? [];
+  const selectedFlat =
+    flatInventory.find((entry) => entry.flatId === input.selectedFlatId) ?? flatInventory[0] ?? null;
+  const selectedFlatRecords = Array.isArray(selectedFlat?.records) ? selectedFlat.records : [];
 
   return (
     <div className="admin-inventory-snapshot">
@@ -30,10 +33,10 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
           <h3 id="inventory-catalog-heading" className="heading-sm" style={{ margin: 0 }}>
             Inventory Catalog
           </h3>
-          <span className="admin-count-pill">{input.overview.inventoryCatalog.length} items</span>
+          <span className="admin-count-pill">{inventoryCatalog.length} items</span>
         </div>
 
-        {input.overview.inventoryCatalog.length === 0 ? (
+        {inventoryCatalog.length === 0 ? (
           <p className="text-secondary">No inventory catalog items yet.</p>
         ) : (
           <div className="admin-table-wrap">
@@ -48,21 +51,26 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
                 </tr>
               </thead>
               <tbody>
-                {input.overview.inventoryCatalog.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <Link href={`/admin/inventory/items/${item.id}`}>{item.name}</Link>
-                    </td>
-                    <td>{formatInventoryCategoryLabel(item.category)}</td>
-                    <td>{item.unitOfMeasure}</td>
-                    <td>
-                      {item.parLevel ?? "-"} / {item.reorderThreshold ?? "-"}
-                    </td>
-                    <td>
-                      <span className={getSeverityClassName(item.criticality)}>{formatCriticalityLabel(item.criticality)}</span>
-                    </td>
-                  </tr>
-                ))}
+                {inventoryCatalog.map((item, index) => {
+                  const itemId = typeof item.id === "string" ? item.id.trim() : "";
+                  const itemLabel = item.name?.trim() || `Item ${index + 1}`;
+
+                  return (
+                    <tr key={itemId || `catalog-item-${index}`}>
+                      <td>
+                        {itemId ? <Link href={`/admin/inventory/items/${itemId}`}>{itemLabel}</Link> : itemLabel}
+                      </td>
+                      <td>{formatInventoryCategoryLabel(item.category)}</td>
+                      <td>{item.unitOfMeasure || "-"}</td>
+                      <td>
+                        {item.parLevel ?? "-"} / {item.reorderThreshold ?? "-"}
+                      </td>
+                      <td>
+                        <span className={getSeverityClassName(item.criticality)}>{formatCriticalityLabel(item.criticality)}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -95,11 +103,11 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
                 </tr>
               </thead>
               <tbody>
-                {centralStock.map((stock) => (
-                  <tr key={stock.inventoryItemId}>
-                    <td>{stock.itemName}</td>
-                    <td>{stock.quantity}</td>
-                    <td>{stock.unitOfMeasure}</td>
+                {centralStock.map((stock, index) => (
+                  <tr key={stock.inventoryItemId || `central-stock-${index}`}>
+                    <td>{stock.itemName || "Inventory item"}</td>
+                    <td>{stock.quantity ?? 0}</td>
+                    <td>{stock.unitOfMeasure || "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -113,39 +121,43 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
           <h3 id="inventory-templates-heading" className="heading-sm" style={{ margin: 0 }}>
             Templates
           </h3>
-          <span className="admin-count-pill">{input.overview.templates.length} templates</span>
+          <span className="admin-count-pill">{templates.length} templates</span>
         </div>
 
-        {input.overview.templates.length === 0 ? (
+        {templates.length === 0 ? (
           <p className="text-secondary">No inventory templates configured yet.</p>
         ) : (
           <div className="admin-bookings-list">
-            {input.overview.templates.map((template) => (
-              <article key={template.id} className="admin-bookings-card">
-                <div className="admin-bookings-card-header">
-                  <div>
-                    <p className="admin-card-title">{template.name}</p>
-                    <p className="text-secondary" style={{ fontSize: "0.84rem" }}>
-                      {template.description ?? "No description"}
-                    </p>
-                  </div>
-                  <span className="admin-count-pill">{template.items.length} items</span>
-                </div>
+            {templates.map((template, index) => {
+              const templateItems = Array.isArray(template.items) ? template.items : [];
 
-                {template.items.length === 0 ? (
-                  <p className="text-secondary">No template items yet.</p>
-                ) : (
-                  <div className="admin-mini-table">
-                    {template.items.map((item) => (
-                      <div key={item.id} className="admin-mini-table-row">
-                        <p>{item.itemName ?? item.inventoryItemId}</p>
-                        <p className="text-secondary">Expected: {item.expectedQuantity}</p>
-                      </div>
-                    ))}
+              return (
+                <article key={template.id || `template-${index}`} className="admin-bookings-card">
+                  <div className="admin-bookings-card-header">
+                    <div>
+                      <p className="admin-card-title">{template.name || `Template ${index + 1}`}</p>
+                      <p className="text-secondary" style={{ fontSize: "0.84rem" }}>
+                        {template.description ?? "No description"}
+                      </p>
+                    </div>
+                    <span className="admin-count-pill">{templateItems.length} items</span>
                   </div>
-                )}
-              </article>
-            ))}
+
+                  {templateItems.length === 0 ? (
+                    <p className="text-secondary">No template items yet.</p>
+                  ) : (
+                    <div className="admin-mini-table">
+                      {templateItems.map((item, itemIndex) => (
+                        <div key={item.id || `template-item-${index}-${itemIndex}`} className="admin-mini-table-row">
+                          <p>{item.itemName ?? item.inventoryItemId ?? "Inventory item"}</p>
+                          <p className="text-secondary">Expected: {item.expectedQuantity ?? 0}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -155,13 +167,13 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
           <h3 id="flat-inventory-heading" className="heading-sm" style={{ margin: 0 }}>
             Flat Inventory
           </h3>
-          <span className="admin-count-pill">{selectedFlat?.records.length ?? 0} records</span>
+          <span className="admin-count-pill">{selectedFlatRecords.length} records</span>
         </div>
 
         {!selectedFlat ? (
           <p className="text-secondary">No flat inventory records yet.</p>
-        ) : selectedFlat.records.length === 0 ? (
-          <p className="text-secondary">No flat inventory records for {selectedFlat.flatName}.</p>
+        ) : selectedFlatRecords.length === 0 ? (
+          <p className="text-secondary">No flat inventory records for {selectedFlat.flatName || selectedFlat.flatId}.</p>
         ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
@@ -175,11 +187,11 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
                 </tr>
               </thead>
               <tbody>
-                {selectedFlat.records.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.itemName}</td>
-                    <td>{record.expectedQuantity}</td>
-                    <td>{record.currentQuantity}</td>
+                {selectedFlatRecords.map((record, index) => (
+                  <tr key={record.id || `flat-record-${index}`}>
+                    <td>{record.itemName || "Inventory item"}</td>
+                    <td>{record.expectedQuantity ?? 0}</td>
+                    <td>{record.currentQuantity ?? 0}</td>
                     <td>{formatConditionStatusLabel(record.conditionStatus)}</td>
                     <td>{record.notes ?? "-"}</td>
                   </tr>
@@ -196,35 +208,35 @@ export function AdminInventorySnapshotView(input: AdminInventorySnapshotViewProp
             Stock Movements
           </h3>
           <div className="admin-bookings-actions-row">
-            <span className="admin-count-pill">{input.overview.stockMovements.length} recent</span>
+            <span className="admin-count-pill">{stockMovements.length} recent</span>
             <Link href="/admin/inventory/movements/new" className="btn btn-outline-primary">
               Record Movement
             </Link>
           </div>
         </div>
 
-        {input.overview.stockMovements.length === 0 ? (
+        {stockMovements.length === 0 ? (
           <p className="text-secondary">No stock movements recorded yet.</p>
         ) : (
           <div className="admin-bookings-list">
-            {input.overview.stockMovements.map((movement) => (
-              <article key={movement.id} className="admin-bookings-card">
+            {stockMovements.map((movement, index) => (
+              <article key={movement.id || `movement-${index}`} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
-                  <p className="admin-card-title">{movement.itemName}</p>
+                  <p className="admin-card-title">{movement.itemName || "Inventory item"}</p>
                   <span className="admin-status-pill">{formatMovementTypeLabel(movement.movementType)}</span>
                 </div>
                 <div className="admin-notifications-meta-grid">
                   <div>
                     <p className="admin-meta-label">Quantity</p>
-                    <p>{movement.quantity}</p>
+                    <p>{movement.quantity ?? 0}</p>
                   </div>
                   <div>
                     <p className="admin-meta-label">Context</p>
-                    <p>{movement.contextLabel}</p>
+                    <p>{movement.contextLabel || "Context unavailable"}</p>
                   </div>
                   <div>
                     <p className="admin-meta-label">Reason</p>
-                    <p>{movement.reason}</p>
+                    <p>{movement.reason || "Reason unavailable"}</p>
                   </div>
                   <div>
                     <p className="admin-meta-label">When</p>

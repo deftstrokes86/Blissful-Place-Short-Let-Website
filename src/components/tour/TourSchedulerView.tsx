@@ -26,14 +26,14 @@ interface TourCalendarCell {
 interface TourSchedulerViewProps {
   visibleYear: number;
   visibleMonth: number;
-  dates: TourScheduleDateSnapshot[];
+  dates: TourScheduleDateSnapshot[] | null | undefined;
   selectedDate: string | null;
   selectedTime: string | null;
-  selectedDateEntry: TourScheduleDateSnapshot | null;
+  selectedDateEntry: TourScheduleDateSnapshot | null | undefined;
   isTimePanelOpen: boolean;
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
+  guestName: string | null | undefined;
+  guestEmail: string | null | undefined;
+  guestPhone: string | null | undefined;
   isLoading: boolean;
   isSubmitting: boolean;
   notice: {
@@ -193,22 +193,33 @@ export function TourSchedulerView({
   onGuestPhoneChange,
   onConfirm,
 }: TourSchedulerViewProps) {
+  const safeDates = Array.isArray(dates) ? dates : [];
+  const safeSelectedDateEntry = selectedDateEntry
+    ? {
+        ...selectedDateEntry,
+        slots: Array.isArray(selectedDateEntry.slots) ? selectedDateEntry.slots : [],
+      }
+    : null;
+  const safeGuestName = guestName ?? "";
+  const safeGuestEmail = guestEmail ?? "";
+  const safeGuestPhone = guestPhone ?? "";
+
   const calendarCells = buildCalendarCells({
     year: visibleYear,
     month: visibleMonth,
-    dates,
+    dates: safeDates,
     selectedDate,
   });
 
   const monthLabel = formatMonthLabel(visibleYear, visibleMonth);
-  const availableTimeSlots = (selectedDateEntry?.slots ?? []).filter((slot) => slot.available);
-  const hasSelectableDates = dates.some((entry) => entry.availableSlots > 0);
-  const selectedDateLabel = selectedDateEntry
-    ? `${selectedDateEntry.weekdayLabel}, ${selectedDateEntry.dateLabel}`
+  const availableTimeSlots = safeSelectedDateEntry?.slots.filter((slot) => slot.available) ?? [];
+  const hasSelectableDates = safeDates.some((entry) => entry.availableSlots > 0);
+  const selectedDateLabel = safeSelectedDateEntry
+    ? `${safeSelectedDateEntry.weekdayLabel}, ${safeSelectedDateEntry.dateLabel}`
     : "Not selected";
   const selectedTimeLabel = selectedTime ? formatTimeLabel(selectedTime) : "Not selected";
 
-  const detailsComplete = guestName.trim().length > 0 && guestEmail.trim().length > 0;
+  const detailsComplete = safeGuestName.trim().length > 0 && safeGuestEmail.trim().length > 0;
   const canConfirm =
     Boolean(selectedDate && selectedTime) && detailsComplete && !isLoading && !isSubmitting;
 
@@ -404,7 +415,7 @@ export function TourSchedulerView({
             <button
               type="button"
               className="btn btn-outline-primary"
-              disabled={!selectedDateEntry || isSubmitting}
+              disabled={!safeSelectedDateEntry || isSubmitting}
               onClick={onOpenTimePanel}
             >
               {selectedTime ? "Change Time" : "Choose Time"}
@@ -459,7 +470,7 @@ export function TourSchedulerView({
                 <input
                   id="tour-guest-name"
                   className="standard-input"
-                  value={guestName}
+                  value={safeGuestName}
                   onChange={(event) => onGuestNameChange(event.target.value)}
                   disabled={isSubmitting}
                   placeholder="Your full name"
@@ -472,7 +483,7 @@ export function TourSchedulerView({
                   id="tour-guest-email"
                   className="standard-input"
                   type="email"
-                  value={guestEmail}
+                  value={safeGuestEmail}
                   onChange={(event) => onGuestEmailChange(event.target.value)}
                   disabled={isSubmitting}
                   placeholder="you@example.com"
@@ -484,7 +495,7 @@ export function TourSchedulerView({
                 <input
                   id="tour-guest-phone"
                   className="standard-input"
-                  value={guestPhone}
+                  value={safeGuestPhone}
                   onChange={(event) => onGuestPhoneChange(event.target.value)}
                   disabled={isSubmitting}
                   placeholder="+234..."
@@ -514,5 +525,3 @@ export function TourSchedulerView({
     </section>
   );
 }
-
-

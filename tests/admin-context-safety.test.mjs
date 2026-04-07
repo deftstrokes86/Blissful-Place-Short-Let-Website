@@ -6,6 +6,7 @@ const ADMIN_SURFACE_ROOTS = [
   "src/app/(site)/admin",
   "src/app/(site)/staff",
   "src/components/admin",
+  "src/components/staff",
 ];
 
 const SOURCE_FILE_EXTENSIONS = new Set([".ts", ".tsx"]);
@@ -54,6 +55,18 @@ function run() {
       `Unexpected context usage: ${contextConsumers.join(", ")}`,
     ].join(" "),
   );
+
+  const adminLayout = read("src/app/(site)/admin/layout.tsx");
+  assert.match(adminLayout, /server-side auth guards/i);
+  assert.match(adminLayout, /not React context providers/i);
+
+  const staffLayout = read("src/app/(site)/staff/layout.tsx");
+  assert.match(staffLayout, /server-side auth guards/i);
+  assert.match(staffLayout, /no custom React context yet/i);
+
+  const cmsLayout = read("src/app/(cms)/layout.tsx");
+  assert.match(cmsLayout, /@payloadcms\/next\/layouts/);
+  assert.match(cmsLayout, /RootLayout/);
 
   console.log("admin-context-safety: ok");
 }

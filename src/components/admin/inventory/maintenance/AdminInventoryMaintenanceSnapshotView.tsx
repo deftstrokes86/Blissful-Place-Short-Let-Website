@@ -4,10 +4,10 @@ import type { AdminInventoryItem, AdminMaintenanceIssue } from "@/lib/admin-inve
 import { formatLagosDateTime, getSeverityClassName } from "../admin-inventory-view-model";
 
 interface AdminInventoryMaintenanceSnapshotViewProps {
-  issues: AdminMaintenanceIssue[];
-  inventoryItems: AdminInventoryItem[];
-  statusDrafts: Record<string, AdminMaintenanceIssue["status"]>;
-  noteDrafts: Record<string, string>;
+  issues: AdminMaintenanceIssue[] | null | undefined;
+  inventoryItems: AdminInventoryItem[] | null | undefined;
+  statusDrafts: Record<string, AdminMaintenanceIssue["status"]> | null | undefined;
+  noteDrafts: Record<string, string> | null | undefined;
   isSubmitting: boolean;
   onStatusDraftChange: (issueId: string, status: AdminMaintenanceIssue["status"]) => void;
   onNoteDraftChange: (issueId: string, note: string) => void;
@@ -26,7 +26,11 @@ function titleCaseFromSnake(value: string): string {
 }
 
 export function AdminInventoryMaintenanceSnapshotView(input: AdminInventoryMaintenanceSnapshotViewProps) {
-  const itemNameById = new Map(input.inventoryItems.map((item) => [item.id, item.name]));
+  const issues = Array.isArray(input.issues) ? input.issues : [];
+  const inventoryItems = Array.isArray(input.inventoryItems) ? input.inventoryItems : [];
+  const statusDrafts = input.statusDrafts ?? {};
+  const noteDrafts = input.noteDrafts ?? {};
+  const itemNameById = new Map(inventoryItems.map((item) => [item.id, item.name]));
 
   return (
     <section className="admin-bookings-section" aria-labelledby="admin-maintenance-heading">
@@ -34,24 +38,27 @@ export function AdminInventoryMaintenanceSnapshotView(input: AdminInventoryMaint
         <h2 id="admin-maintenance-heading" className="heading-sm" style={{ margin: 0 }}>
           Maintenance Issues
         </h2>
-        <span className="admin-count-pill">{input.issues.length} issues</span>
+        <span className="admin-count-pill">{issues.length} issues</span>
       </div>
 
-      {input.issues.length === 0 ? (
+      {issues.length === 0 ? (
         <p className="text-secondary">No maintenance issues recorded.</p>
       ) : (
         <div className="admin-bookings-list">
-          {input.issues.map((issue) => {
-            const statusDraft = input.statusDrafts[issue.id] ?? issue.status;
-            const noteDraft = input.noteDrafts[issue.id] ?? issue.notes ?? "";
+          {issues.map((issue, index) => {
+            const statusDraft = statusDrafts[issue.id] ?? issue.status;
+            const noteDraft = noteDrafts[issue.id] ?? issue.notes ?? "";
             const linkedItemName = issue.inventoryItemId
               ? itemNameById.get(issue.inventoryItemId) ?? issue.inventoryItemId
               : "N/A";
+            const issueKey = issue.id?.trim() || `maintenance-issue-${index}`;
+            const issueTitle = issue.title?.trim() || `Maintenance Issue ${index + 1}`;
+            const flatLabel = issue.flatId?.trim() || "Flat unavailable";
 
             return (
-              <article key={issue.id} className="admin-bookings-card">
+              <article key={issueKey} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
-                  <p className="admin-card-title">{issue.title}</p>
+                  <p className="admin-card-title">{issueTitle}</p>
                   <div className="admin-bookings-actions-row">
                     <span className={getSeverityClassName(issue.severity)}>{issue.severity}</span>
                     <span className="admin-status-pill">{titleCaseFromSnake(issue.status)}</span>
@@ -64,7 +71,12 @@ export function AdminInventoryMaintenanceSnapshotView(input: AdminInventoryMaint
                   <div>
                     <p className="admin-meta-label">Flat</p>
                     <p>
-                      Flat: <Link href={`/admin/inventory/flats/${issue.flatId}`}>{issue.flatId}</Link>
+                      Flat:{" "}
+                      {issue.flatId ? (
+                        <Link href={`/admin/inventory/flats/${issue.flatId}`}>{flatLabel}</Link>
+                      ) : (
+                        flatLabel
+                      )}
                     </p>
                   </div>
                   <div>

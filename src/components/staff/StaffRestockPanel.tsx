@@ -33,13 +33,16 @@ export function StaffRestockPanel() {
       fetchInventoryWorkerTasks({ sync: true, openOnly: true }),
     ]);
 
+    const flatInventoryEntries = Array.isArray(overview?.flatInventory) ? overview.flatInventory : [];
+    const safeWorkerTasks = Array.isArray(workerTasks) ? workerTasks : [];
     const nextEntries: RestockEntry[] = [];
-    for (const flatInventory of overview.flatInventory) {
-      nextEntries.push(...buildRestockEntries(flatInventory.records, flatInventory.flatId, flatInventory.flatName));
+    for (const flatInventory of flatInventoryEntries) {
+      const records = Array.isArray(flatInventory.records) ? flatInventory.records : [];
+      nextEntries.push(...buildRestockEntries(records, flatInventory.flatId, flatInventory.flatName));
     }
 
     setEntries(nextEntries);
-    setTasks(workerTasks);
+    setTasks(safeWorkerTasks);
     setQuantityDrafts((current) => {
       const next: Record<string, string> = { ...current };
       for (const entry of nextEntries) {

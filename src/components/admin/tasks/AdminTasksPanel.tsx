@@ -57,11 +57,14 @@ export function AdminTasksPanel() {
         fetchInventoryWorkerTasks({ flatId, sync: true }),
       ]);
 
-      setFlatOptions(overview.flats);
-      setTasks(nextTasks);
+      const nextFlats = Array.isArray(overview?.flats) ? overview.flats : [];
+      const safeTasks = Array.isArray(nextTasks) ? nextTasks : [];
+
+      setFlatOptions(nextFlats);
+      setTasks(safeTasks);
       setUpdateForm((current) => ({
         ...current,
-        taskId: nextTasks[0]?.id ?? "",
+        taskId: safeTasks[0]?.id ?? "",
       }));
       setNotice(null);
     } catch (error) {

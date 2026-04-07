@@ -4,8 +4,8 @@ import type { AdminInventoryAlert, AdminMaintenanceIssue } from "@/lib/admin-inv
 import { formatLagosDateTime, getSeverityClassName } from "../admin-inventory-view-model";
 
 interface AdminInventoryAlertsSnapshotViewProps {
-  alerts: AdminInventoryAlert[];
-  maintenanceIssues: AdminMaintenanceIssue[];
+  alerts: AdminInventoryAlert[] | null | undefined;
+  maintenanceIssues: AdminMaintenanceIssue[] | null | undefined;
   isSubmitting: boolean;
   onResolveAlert: (alertId: string) => Promise<void>;
 }
@@ -39,8 +39,10 @@ function findRelatedIssueId(
 }
 
 export function AdminInventoryAlertsSnapshotView(input: AdminInventoryAlertsSnapshotViewProps) {
-  const criticalCount = input.alerts.filter((alert) => alert.severity === "critical").length;
-  const importantCount = input.alerts.filter((alert) => alert.severity === "important").length;
+  const alerts = Array.isArray(input.alerts) ? input.alerts : [];
+  const maintenanceIssues = Array.isArray(input.maintenanceIssues) ? input.maintenanceIssues : [];
+  const criticalCount = alerts.filter((alert) => alert.severity === "critical").length;
+  const importantCount = alerts.filter((alert) => alert.severity === "important").length;
 
   return (
     <section className="admin-bookings-section" aria-labelledby="admin-alerts-heading">
@@ -48,7 +50,7 @@ export function AdminInventoryAlertsSnapshotView(input: AdminInventoryAlertsSnap
         <h2 id="admin-alerts-heading" className="heading-sm" style={{ margin: 0 }}>
           Active Alerts
         </h2>
-        <span className="admin-count-pill">{input.alerts.length} active</span>
+        <span className="admin-count-pill">{alerts.length} active</span>
       </div>
 
       <div className="admin-notifications-meta-grid" style={{ marginBottom: "1rem" }}>
@@ -62,15 +64,16 @@ export function AdminInventoryAlertsSnapshotView(input: AdminInventoryAlertsSnap
         </div>
       </div>
 
-      {input.alerts.length === 0 ? (
+      {alerts.length === 0 ? (
         <p className="text-secondary">No active alerts right now.</p>
       ) : (
         <div className="admin-bookings-list">
-          {input.alerts.map((alert) => {
-            const relatedIssueId = findRelatedIssueId(alert, input.maintenanceIssues);
+          {alerts.map((alert, index) => {
+            const relatedIssueId = findRelatedIssueId(alert, maintenanceIssues);
+            const alertKey = alert.id?.trim() || `alert-${index}`;
 
             return (
-              <article key={alert.id} className="admin-bookings-card">
+              <article key={alertKey} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
                   <p className="admin-card-title">{titleCaseFromSnake(alert.alertType)}</p>
                   <div className="admin-bookings-actions-row">
@@ -79,7 +82,7 @@ export function AdminInventoryAlertsSnapshotView(input: AdminInventoryAlertsSnap
                   </div>
                 </div>
 
-                <p className="admin-notification-summary">{alert.message}</p>
+                <p className="admin-notification-summary">{alert.message || "Alert details unavailable."}</p>
 
                 <div className="admin-notifications-meta-grid">
                   <div>

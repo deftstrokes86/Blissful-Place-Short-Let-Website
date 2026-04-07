@@ -1,9 +1,24 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 function read(relativePath) {
   return readFileSync(resolve(process.cwd(), relativePath), "utf8");
+}
+
+function collectPageFiles(relativeDirectoryPath) {
+  const absoluteDirectoryPath = resolve(process.cwd(), relativeDirectoryPath);
+  const entries = readdirSync(absoluteDirectoryPath, { withFileTypes: true });
+
+  return entries.flatMap((entry) => {
+    const relativeEntryPath = `${relativeDirectoryPath}/${entry.name}`;
+
+    if (entry.isDirectory()) {
+      return collectPageFiles(relativeEntryPath);
+    }
+
+    return entry.isFile() && entry.name === "page.tsx" ? [relativeEntryPath] : [];
+  });
 }
 
 function run() {
@@ -34,8 +49,30 @@ function run() {
   assert.match(authBootstrapCli, /prismaAuthRepository/);
   assert.doesNotMatch(authBootstrapCli, /fileAuthRepository/);
 
+  const protectedRoutePages = [
+    ...collectPageFiles("src/app/(site)/admin"),
+    ...collectPageFiles("src/app/(site)/staff"),
+  ];
+
+  for (const relativePath of protectedRoutePages) {
+    const source = read(relativePath);
+    assert.match(source, /export const dynamic = "force-dynamic"/);
+    assert.doesNotMatch(source, /generateStaticParams\s*\(/);
+  }
+
   const adminAvailabilityPage = read("src/app/(site)/admin/availability/page.tsx");
   assert.match(adminAvailabilityPage, /export const dynamic = "force-dynamic"/);
+  assert.match(adminAvailabilityPage, /backLinkMode="anchor"/);
+
+  const pageIntro = read("src/components/common/PageIntro.tsx");
+  assert.match(pageIntro, /type PageIntroBackLinkMode = "client" \| "anchor"/);
+  assert.match(pageIntro, /backLinkMode\?\s*:\s*PageIntroBackLinkMode/);
+  assert.match(pageIntro, /navigationMode=\{backLinkMode\}/);
+
+  const pageBackLink = read("src/components/common/PageBackLink.tsx");
+  assert.match(pageBackLink, /navigationMode\?\s*:\s*PageBackLinkNavigationMode/);
+  assert.match(pageBackLink, /if \(navigationMode === "anchor"\)/);
+  assert.match(pageBackLink, /<a href=\{href\}/);
 
   const prismaSource = read("src/server/db/prisma.ts");
   assert.match(prismaSource, /export function getPrismaClient/);
@@ -121,5 +158,6 @@ function run() {
 }
 
 run();
+
 
 

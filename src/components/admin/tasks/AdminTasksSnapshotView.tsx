@@ -7,12 +7,14 @@ import {
 } from "../../tasks/worker-task-view-model";
 
 interface AdminTasksSnapshotViewProps {
-  tasks: AdminWorkerTask[];
+  tasks: AdminWorkerTask[] | null | undefined;
   isSubmitting: boolean;
   onQuickStatusUpdate: (task: AdminWorkerTask, status: AdminWorkerTask["status"]) => Promise<void>;
 }
 
-export function AdminTasksSnapshotView({ tasks, isSubmitting, onQuickStatusUpdate }: AdminTasksSnapshotViewProps) {
+export function AdminTasksSnapshotView({ tasks: inputTasks, isSubmitting, onQuickStatusUpdate }: AdminTasksSnapshotViewProps) {
+  const tasks = Array.isArray(inputTasks) ? inputTasks : [];
+
   return (
     <section className="admin-bookings-section" aria-labelledby="admin-operational-task-queue-heading">
       <div className="admin-bookings-section-header">
@@ -26,66 +28,72 @@ export function AdminTasksSnapshotView({ tasks, isSubmitting, onQuickStatusUpdat
         <p className="text-secondary">No tasks available for this flat.</p>
       ) : (
         <div className="admin-bookings-list">
-          {tasks.map((task) => (
-            <article key={task.id} className="admin-bookings-card">
-              <div className="admin-bookings-card-header">
-                <p className="admin-card-title">{task.title}</p>
-                <span className="admin-status-pill">{formatWorkerTaskStatus(task.status)}</span>
-              </div>
+          {tasks.map((task, index) => {
+            const taskKey = task.id?.trim() || `admin-task-${index}`;
+            const taskTitle = task.title?.trim() || `Task ${index + 1}`;
+            const flatLabel = task.flatId?.trim() || "Unassigned";
 
-              <div className="admin-notifications-meta-grid">
-                <div>
-                  <p className="admin-meta-label">Flat</p>
-                  <p>{task.flatId}</p>
+            return (
+              <article key={taskKey} className="admin-bookings-card">
+                <div className="admin-bookings-card-header">
+                  <p className="admin-card-title">{taskTitle}</p>
+                  <span className="admin-status-pill">{formatWorkerTaskStatus(task.status)}</span>
                 </div>
-                <div>
-                  <p className="admin-meta-label">Task Type</p>
-                  <p>{formatWorkerTaskType(task.taskType)}</p>
-                </div>
-                <div>
-                  <p className="admin-meta-label">Urgency</p>
-                  <p>{formatWorkerTaskUrgency(task.priority)}</p>
-                </div>
-                <div>
-                  <p className="admin-meta-label">Status</p>
-                  <p>{formatWorkerTaskStatus(task.status)}</p>
-                </div>
-                <div>
-                  <p className="admin-meta-label">Visibility</p>
-                  <p>{getTaskVisibilityLabel(task)}</p>
-                </div>
-              </div>
 
-              <p className="admin-notification-summary">{task.description?.trim() || "No description."}</p>
+                <div className="admin-notifications-meta-grid">
+                  <div>
+                    <p className="admin-meta-label">Flat</p>
+                    <p>{flatLabel}</p>
+                  </div>
+                  <div>
+                    <p className="admin-meta-label">Task Type</p>
+                    <p>{formatWorkerTaskType(task.taskType)}</p>
+                  </div>
+                  <div>
+                    <p className="admin-meta-label">Urgency</p>
+                    <p>{formatWorkerTaskUrgency(task.priority)}</p>
+                  </div>
+                  <div>
+                    <p className="admin-meta-label">Status</p>
+                    <p>{formatWorkerTaskStatus(task.status)}</p>
+                  </div>
+                  <div>
+                    <p className="admin-meta-label">Visibility</p>
+                    <p>{getTaskVisibilityLabel(task)}</p>
+                  </div>
+                </div>
 
-              <div className="admin-bookings-actions-row">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  disabled={isSubmitting}
-                  onClick={() => void onQuickStatusUpdate(task, "in_progress")}
-                >
-                  Set In Progress
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={isSubmitting}
-                  onClick={() => void onQuickStatusUpdate(task, "completed")}
-                >
-                  Set Completed
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-primary"
-                  disabled={isSubmitting}
-                  onClick={() => void onQuickStatusUpdate(task, "blocked")}
-                >
-                  Set Blocked
-                </button>
-              </div>
-            </article>
-          ))}
+                <p className="admin-notification-summary">{task.description?.trim() || "No description."}</p>
+
+                <div className="admin-bookings-actions-row">
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    disabled={isSubmitting}
+                    onClick={() => void onQuickStatusUpdate(task, "in_progress")}
+                  >
+                    Set In Progress
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={isSubmitting}
+                    onClick={() => void onQuickStatusUpdate(task, "completed")}
+                  >
+                    Set Completed
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    disabled={isSubmitting}
+                    onClick={() => void onQuickStatusUpdate(task, "blocked")}
+                  >
+                    Set Blocked
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

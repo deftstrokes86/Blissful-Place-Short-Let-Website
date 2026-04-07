@@ -52,27 +52,30 @@ export function AdminReadinessPanel() {
 
     try {
       const next = await fetchAdminInventoryOverview();
+      const nextFlats = Array.isArray(next?.flats) ? next.flats : [];
+      const nextIssues = Array.isArray(next?.maintenanceIssues) ? next.maintenanceIssues : [];
+
       setOverview(next);
 
       setCreateForm((current) => {
-        if (next.flats.some((flat) => flat.id === current.flatId)) {
+        if (nextFlats.some((flat) => flat.id === current.flatId)) {
           return current;
         }
 
         return {
           ...current,
-          flatId: next.flats[0]?.id ?? "mayfair",
+          flatId: nextFlats[0]?.id ?? "mayfair",
         };
       });
 
       setUpdateForm((current) => {
-        if (next.maintenanceIssues.some((issue) => issue.id === current.issueId)) {
+        if (nextIssues.some((issue) => issue.id === current.issueId)) {
           return current;
         }
 
         return {
           ...current,
-          issueId: next.maintenanceIssues[0]?.id ?? "",
+          issueId: nextIssues[0]?.id ?? "",
         };
       });
 

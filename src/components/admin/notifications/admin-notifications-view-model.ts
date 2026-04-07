@@ -45,7 +45,7 @@ export function formatChannelLabel(channel: AdminNotificationListItem["channel"]
 }
 
 export function summarizeNotification(item: AdminNotificationListItem): string {
-  const summary = item.summary.trim();
+  const summary = (item.summary ?? "").trim();
   if (summary.length > 0) {
     return summary;
   }
@@ -58,11 +58,16 @@ export function formatLagosDateTime(isoDateTime: string | null): string {
     return "-";
   }
 
+  const date = new Date(isoDateTime);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
   return new Intl.DateTimeFormat("en-NG", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Africa/Lagos",
-  }).format(new Date(isoDateTime));
+  }).format(date);
 }
 
 export function getDeliveryDetail(item: AdminNotificationListItem): string {

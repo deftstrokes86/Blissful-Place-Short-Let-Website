@@ -12,12 +12,14 @@ import {
 } from "./admin-notifications-view-model";
 
 interface AdminNotificationsListProps {
-  notifications: AdminNotificationListItem[];
+  notifications: AdminNotificationListItem[] | null | undefined;
   isLoading: boolean;
   loadError: string | null;
 }
 
 export function AdminNotificationsList(input: AdminNotificationsListProps) {
+  const notifications = Array.isArray(input.notifications) ? input.notifications : [];
+
   if (input.isLoading) {
     return <p className="text-secondary">Loading notifications...</p>;
   }
@@ -28,16 +30,16 @@ export function AdminNotificationsList(input: AdminNotificationsListProps) {
         <h3 id="admin-notifications-heading" className="heading-sm" style={{ margin: 0 }}>
           Internal Notification Log
         </h3>
-        <span className="admin-count-pill">{input.notifications.length} items</span>
+        <span className="admin-count-pill">{notifications.length} items</span>
       </div>
 
       {input.loadError && <div className="booking-inline-note booking-inline-note-muted">{input.loadError}</div>}
 
-      {input.notifications.length === 0 ? (
+      {notifications.length === 0 ? (
         <p className="text-secondary">No internal notifications yet.</p>
       ) : (
         <div className="admin-bookings-list">
-          {input.notifications.map((notification) => {
+          {notifications.map((notification) => {
             const statusLabel = formatNotificationStatusLabel(notification.status);
 
             return (

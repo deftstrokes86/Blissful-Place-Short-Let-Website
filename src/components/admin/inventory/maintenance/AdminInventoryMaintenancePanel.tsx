@@ -33,10 +33,12 @@ export function AdminInventoryMaintenancePanel() {
 
     try {
       const next = await fetchAdminInventoryOverview();
+      const maintenanceIssues = Array.isArray(next?.maintenanceIssues) ? next.maintenanceIssues : [];
+
       setOverview(next);
 
-      setStatusDrafts(Object.fromEntries(next.maintenanceIssues.map((issue) => [issue.id, issue.status])));
-      setNoteDrafts(Object.fromEntries(next.maintenanceIssues.map((issue) => [issue.id, issue.notes ?? ""])));
+      setStatusDrafts(Object.fromEntries(maintenanceIssues.map((issue) => [issue.id, issue.status])));
+      setNoteDrafts(Object.fromEntries(maintenanceIssues.map((issue) => [issue.id, issue.notes ?? ""])));
       setNotice(null);
     } catch (error) {
       setNotice({ tone: "error", message: getErrorMessage(error) });
@@ -106,7 +108,8 @@ export function AdminInventoryMaintenancePanel() {
       return;
     }
 
-    const issue = overview.maintenanceIssues.find((entry) => entry.id === issueId);
+    const maintenanceIssues = Array.isArray(overview.maintenanceIssues) ? overview.maintenanceIssues : [];
+    const issue = maintenanceIssues.find((entry) => entry.id === issueId);
     if (!issue) {
       return;
     }

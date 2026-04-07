@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import type { AdminInventoryOverview } from "@/lib/admin-inventory-api";
+import type { AdminInventoryOverview, AdminWorkerTask } from "@/lib/admin-inventory-api";
 
 interface AdminInventoryHubSnapshotViewProps {
-  overview: AdminInventoryOverview;
+  overview: AdminInventoryOverview | null | undefined;
 }
 
 function formatCountLabel(value: number, singular: string, plural: string): string {
@@ -14,8 +14,8 @@ function formatCountLabel(value: number, singular: string, plural: string): stri
   return `${value} ${plural}`;
 }
 
-function countOpenTasks(overview: AdminInventoryOverview): number {
-  return overview.workerTasks.filter((task) => {
+function countOpenTasks(tasks: readonly AdminWorkerTask[]): number {
+  return tasks.filter((task) => {
     return (
       task.status === "pending" ||
       task.status === "in_progress" ||
@@ -27,18 +27,28 @@ function countOpenTasks(overview: AdminInventoryOverview): number {
 }
 
 export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSnapshotViewProps) {
-  const openAlertCount = overview.activeAlerts.filter((alert) => alert.status === "open").length;
-  const openIssueCount = overview.maintenanceIssues.filter(
+  const inventoryCatalog = Array.isArray(overview?.inventoryCatalog) ? overview.inventoryCatalog : [];
+  const templates = Array.isArray(overview?.templates) ? overview.templates : [];
+  const stockMovements = Array.isArray(overview?.stockMovements) ? overview.stockMovements : [];
+  const flats = Array.isArray(overview?.flats) ? overview.flats : [];
+  const readiness = Array.isArray(overview?.readiness) ? overview.readiness : [];
+  const activeAlerts = Array.isArray(overview?.activeAlerts) ? overview.activeAlerts : [];
+  const maintenanceIssues = Array.isArray(overview?.maintenanceIssues) ? overview.maintenanceIssues : [];
+  const workerTasks = Array.isArray(overview?.workerTasks) ? overview.workerTasks : [];
+  const centralStock = Array.isArray(overview?.centralStock) ? overview.centralStock : [];
+
+  const openAlertCount = activeAlerts.filter((alert) => alert.status === "open").length;
+  const openIssueCount = maintenanceIssues.filter(
     (issue) => issue.status === "open" || issue.status === "in_progress"
   ).length;
-  const openTaskCount = countOpenTasks(overview);
-  const centralStockTrackedCount = (overview.centralStock ?? []).length;
+  const openTaskCount = countOpenTasks(workerTasks);
+  const centralStockTrackedCount = centralStock.length;
 
-  const readyFlats = overview.readiness.filter((entry) => entry.readiness?.readinessStatus === "ready").length;
-  const needsAttentionFlats = overview.readiness.filter(
+  const readyFlats = readiness.filter((entry) => entry.readiness?.readinessStatus === "ready").length;
+  const needsAttentionFlats = readiness.filter(
     (entry) => entry.readiness?.readinessStatus === "needs_attention"
   ).length;
-  const outOfServiceFlats = overview.readiness.filter(
+  const outOfServiceFlats = readiness.filter(
     (entry) => entry.readiness?.readinessStatus === "out_of_service"
   ).length;
 
@@ -56,7 +66,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
           <article className="admin-hub-card">
             <div className="admin-bookings-card-header">
               <p className="admin-card-title">Inventory Catalog</p>
-              <span className="admin-count-pill">{formatCountLabel(overview.inventoryCatalog.length, "total item", "total items")}</span>
+              <span className="admin-count-pill">{formatCountLabel(inventoryCatalog.length, "total item", "total items")}</span>
             </div>
             <p className="text-secondary">Create and maintain item definitions used across templates and flats.</p>
             <div className="admin-hub-actions">
@@ -67,7 +77,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
                 View Snapshot
               </Link>
             </div>
-            {overview.inventoryCatalog.length === 0 ? (
+            {inventoryCatalog.length === 0 ? (
               <p className="admin-hub-note">No inventory catalog items yet. Start by creating your first item.</p>
             ) : null}
           </article>
@@ -75,7 +85,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
           <article className="admin-hub-card">
             <div className="admin-bookings-card-header">
               <p className="admin-card-title">Templates</p>
-              <span className="admin-count-pill">{formatCountLabel(overview.templates.length, "active template", "active templates")}</span>
+              <span className="admin-count-pill">{formatCountLabel(templates.length, "active template", "active templates")}</span>
             </div>
             <p className="text-secondary">Manage baseline setup standards and push expected quantities to flats.</p>
             <div className="admin-hub-actions">
@@ -86,9 +96,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
                 New Template
               </Link>
             </div>
-            {overview.templates.length === 0 ? (
-              <p className="admin-hub-note">No templates configured yet.</p>
-            ) : null}
+            {templates.length === 0 ? <p className="admin-hub-note">No templates configured yet.</p> : null}
           </article>
 
           <article className="admin-hub-card">
@@ -110,7 +118,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
           <article className="admin-hub-card">
             <div className="admin-bookings-card-header">
               <p className="admin-card-title">Stock Movements</p>
-              <span className="admin-count-pill">{formatCountLabel(overview.stockMovements.length, "entry", "entries")}</span>
+              <span className="admin-count-pill">{formatCountLabel(stockMovements.length, "entry", "entries")}</span>
             </div>
             <p className="text-secondary">Review movement history and reconcile transfer/damage/replace actions.</p>
             <div className="admin-hub-actions">
@@ -145,7 +153,7 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
           <article className="admin-hub-card">
             <div className="admin-bookings-card-header">
               <p className="admin-card-title">Readiness and Flats</p>
-              <span className="admin-count-pill">{formatCountLabel(overview.flats.length, "flat", "flats")}</span>
+              <span className="admin-count-pill">{formatCountLabel(flats.length, "flat", "flats")}</span>
             </div>
             <p className="text-secondary">
               Ready: {readyFlats} | Needs Attention: {needsAttentionFlats} | Out of Service: {outOfServiceFlats}
@@ -159,11 +167,15 @@ export function AdminInventoryHubSnapshotView({ overview }: AdminInventoryHubSna
               </Link>
             </div>
             <div className="admin-hub-flat-links">
-              {overview.flats.map((flat) => (
-                <Link key={flat.id} href={`/admin/inventory/flats/${flat.id}`} className="admin-hub-flat-link">
-                  {flat.name}
-                </Link>
-              ))}
+              {flats.length === 0 ? (
+                <p className="admin-hub-note">No flats configured yet.</p>
+              ) : (
+                flats.map((flat, index) => (
+                  <Link key={flat.id || `flat-${index}`} href={`/admin/inventory/flats/${flat.id}`} className="admin-hub-flat-link">
+                    {flat.name || flat.id || `Flat ${index + 1}`}
+                  </Link>
+                ))
+              )}
             </div>
           </article>
         </div>

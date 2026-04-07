@@ -4,6 +4,8 @@ import { AdminInventoryRouteNav } from "@/components/admin/inventory/AdminInvent
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminInventoryAlertsPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/inventory/alerts" });
 

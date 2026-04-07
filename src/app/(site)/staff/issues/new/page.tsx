@@ -1,9 +1,12 @@
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+
 import { PageIntro } from "@/components/common/PageIntro";
 import { StaffIssueFormPanel } from "@/components/staff/StaffIssueFormPanel";
 import { StaffWorkerRouteNav } from "@/components/staff/StaffWorkerRouteNav";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 import type { FlatId } from "@/types/booking";
+
+export const dynamic = "force-dynamic";
 
 interface StaffNewIssuePageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

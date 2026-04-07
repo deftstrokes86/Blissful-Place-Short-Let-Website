@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { resolveRenderableBlogImageUrl } from "@/lib/blog-image";
 import {
   type CmsPageBlock,
   type CmsPageCtaStripBlock,
   type CmsPageDetail,
   type CmsPageFeatureGridBlock,
   type CmsPageHeroBlock,
+  type CmsPageMedia,
   type CmsPageMediaSplitBlock,
   type CmsPageRichTextBlock,
 } from "@/server/cms/cms-page-mappers";
@@ -14,17 +16,50 @@ import {
 import { CmsRichTextBlock } from "./CmsRichTextBlock";
 
 interface CmsPublicPageRendererProps {
-  page: CmsPageDetail;
+  page: CmsPageDetail | null | undefined;
+}
+
+function asNonEmptyString(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function resolveSectionHeading(value: string | null | undefined, fallback: string): string {
+  return asNonEmptyString(value) ?? fallback;
+}
+
+function resolveRenderableCmsMedia(
+  value: CmsPageMedia | null | undefined,
+  fallbackAlt: string
+): { src: string; alt: string } | null {
+  const src = resolveRenderableBlogImageUrl(value?.url);
+  if (!src) {
+    return null;
+  }
+
+  return {
+    src,
+    alt: asNonEmptyString(value?.alt) ?? fallbackAlt,
+  };
 }
 
 function renderHeroBlock(block: CmsPageHeroBlock) {
+  const heading = resolveSectionHeading(block.heading, "Blissful Place Residences");
+  const backgroundImage = resolveRenderableCmsMedia(block.backgroundImage, heading);
+  const primaryActionHref = asNonEmptyString(block.primaryActionHref);
+  const secondaryActionHref = asNonEmptyString(block.secondaryActionHref);
+
   return (
     <section className="cms-page-hero cms-page-section" aria-label="Page introduction">
-      {block.backgroundImage ? (
+      {backgroundImage ? (
         <div className="cms-page-hero-image-wrap" aria-hidden="true">
           <Image
-            src={block.backgroundImage.url}
-            alt={block.backgroundImage.alt || block.heading}
+            src={backgroundImage.src}
+            alt={backgroundImage.alt}
             fill
             sizes="(max-width: 900px) 100vw, 1200px"
           />
@@ -33,20 +68,20 @@ function renderHeroBlock(block: CmsPageHeroBlock) {
       ) : null}
 
       <div className="cms-page-hero-content">
-        {block.eyebrow ? <p className="cms-page-eyebrow">{block.eyebrow}</p> : null}
-        <h1 className="serif cms-page-hero-title">{block.heading}</h1>
-        {block.subheading ? <p className="cms-page-hero-subtitle">{block.subheading}</p> : null}
+        {asNonEmptyString(block.eyebrow) ? <p className="cms-page-eyebrow">{block.eyebrow}</p> : null}
+        <h1 className="serif cms-page-hero-title">{heading}</h1>
+        {asNonEmptyString(block.subheading) ? <p className="cms-page-hero-subtitle">{block.subheading}</p> : null}
 
-        {block.primaryActionHref || block.secondaryActionHref ? (
+        {primaryActionHref || secondaryActionHref ? (
           <div className="cms-page-hero-actions">
-            {block.primaryActionHref ? (
-              <Link href={block.primaryActionHref} className="btn btn-primary">
-                {block.primaryActionLabel || "Get Started"}
+            {primaryActionHref ? (
+              <Link href={primaryActionHref} className="btn btn-primary">
+                {asNonEmptyString(block.primaryActionLabel) ?? "Get Started"}
               </Link>
             ) : null}
-            {block.secondaryActionHref ? (
-              <Link href={block.secondaryActionHref} className="btn btn-outline-white">
-                {block.secondaryActionLabel || "Learn More"}
+            {secondaryActionHref ? (
+              <Link href={secondaryActionHref} className="btn btn-outline-white">
+                {asNonEmptyString(block.secondaryActionLabel) ?? "Learn More"}
               </Link>
             ) : null}
           </div>
@@ -57,32 +92,46 @@ function renderHeroBlock(block: CmsPageHeroBlock) {
 }
 
 function renderFeatureGridBlock(block: CmsPageFeatureGridBlock) {
-  return (
-    <section className="cms-page-section cms-page-feature-grid" aria-label={block.heading || "Key points"}>
-      {block.heading ? <h2 className="serif cms-page-section-heading">{block.heading}</h2> : null}
-      {block.intro ? <p className="cms-page-section-intro">{block.intro}</p> : null}
+  const heading = asNonEmptyString(block.heading);
+  const intro = asNonEmptyString(block.intro);
+  const items = Array.isArray(block.items)
+    ? block.items.filter((item) => asNonEmptyString(item.title) || asNonEmptyString(item.description))
+    : [];
 
-      <div className="cms-page-feature-grid-items">
-        {block.items.map((item, index) => (
-          <article key={`${item.title}-${index}`} className="cms-page-feature-item">
-            <h3 className="cms-page-feature-title">{item.title}</h3>
-            <p>{item.description}</p>
-          </article>
-        ))}
-      </div>
+  if (!heading && !intro && items.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="cms-page-section cms-page-feature-grid" aria-label={heading || "Key points"}>
+      {heading ? <h2 className="serif cms-page-section-heading">{heading}</h2> : null}
+      {intro ? <p className="cms-page-section-intro">{intro}</p> : null}
+
+      {items.length > 0 ? (
+        <div className="cms-page-feature-grid-items">
+          {items.map((item, index) => (
+            <article key={`${item.title || item.description || "feature"}-${index}`} className="cms-page-feature-item">
+              {asNonEmptyString(item.title) ? <h3 className="cms-page-feature-title">{item.title}</h3> : null}
+              {asNonEmptyString(item.description) ? <p>{item.description}</p> : null}
+            </article>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
 
 function renderRichTextBlock(block: CmsPageRichTextBlock) {
+  const heading = asNonEmptyString(block.heading);
+
   if (!block.body) {
-    if (!block.heading) {
+    if (!heading) {
       return null;
     }
 
     return (
-      <section className="cms-page-section cms-page-richtext-empty" aria-label={block.heading}>
-        <h2 className="serif cms-page-section-heading">{block.heading}</h2>
+      <section className="cms-page-section cms-page-richtext-empty" aria-label={heading}>
+        <h2 className="serif cms-page-section-heading">{heading}</h2>
       </section>
     );
   }
@@ -90,7 +139,7 @@ function renderRichTextBlock(block: CmsPageRichTextBlock) {
   return (
     <CmsRichTextBlock
       block={{
-        heading: block.heading,
+        heading,
         body: block.body,
       }}
       className="cms-page-section cms-page-richtext"
@@ -100,34 +149,40 @@ function renderRichTextBlock(block: CmsPageRichTextBlock) {
 }
 
 function renderMediaSplitBlock(block: CmsPageMediaSplitBlock) {
+  const heading = resolveSectionHeading(block.heading, "Page section");
   const textColumn = block.body ? (
     <CmsRichTextBlock
       block={{
-        heading: block.heading,
+        heading,
         body: block.body,
       }}
       className="cms-page-media-richtext"
       headingClassName="cms-page-section-heading"
     />
-  ) : (
+  ) : asNonEmptyString(block.heading) ? (
     <section className="cms-page-media-richtext">
-      <h2 className="serif cms-page-section-heading">{block.heading}</h2>
+      <h2 className="serif cms-page-section-heading">{heading}</h2>
     </section>
-  );
+  ) : null;
 
-  const imageColumn = block.image ? (
+  const image = resolveRenderableCmsMedia(block.image, heading);
+  const imageColumn = image ? (
     <div className="cms-page-media-image-wrap" aria-hidden="true">
       <Image
-        src={block.image.url}
-        alt={block.image.alt || block.heading}
+        src={image.src}
+        alt={image.alt}
         fill
         sizes="(max-width: 900px) 100vw, 560px"
       />
     </div>
   ) : null;
 
+  if (!textColumn && !imageColumn) {
+    return null;
+  }
+
   return (
-    <section className="cms-page-section cms-page-media-split" aria-label={block.heading} data-image-position={block.imagePosition}>
+    <section className="cms-page-section cms-page-media-split" aria-label={heading} data-image-position={block.imagePosition}>
       <div className="cms-page-media-split-grid">
         {block.imagePosition === "left" ? (
           <>
@@ -146,22 +201,32 @@ function renderMediaSplitBlock(block: CmsPageMediaSplitBlock) {
 }
 
 function renderCtaStripBlock(block: CmsPageCtaStripBlock) {
-  return (
-    <section className="cms-page-section cms-page-cta-strip" aria-label={block.heading}>
-      {block.eyebrow ? <p className="cms-page-eyebrow">{block.eyebrow}</p> : null}
-      <h2 className="serif cms-page-section-heading">{block.heading}</h2>
-      {block.body ? <p className="cms-page-section-intro">{block.body}</p> : null}
+  const heading = resolveSectionHeading(block.heading, "Explore more");
+  const primaryActionHref = asNonEmptyString(block.primaryActionHref);
+  const secondaryActionHref = asNonEmptyString(block.secondaryActionHref);
+  const eyebrow = asNonEmptyString(block.eyebrow);
+  const body = asNonEmptyString(block.body);
 
-      <div className="cms-page-cta-actions">
-        <Link href={block.primaryActionHref} className="btn btn-primary">
-          {block.primaryActionLabel}
-        </Link>
-        {block.secondaryActionHref ? (
-          <Link href={block.secondaryActionHref} className="btn btn-outline-white">
-            {block.secondaryActionLabel || "Learn More"}
-          </Link>
-        ) : null}
-      </div>
+  return (
+    <section className="cms-page-section cms-page-cta-strip" aria-label={heading}>
+      {eyebrow ? <p className="cms-page-eyebrow">{eyebrow}</p> : null}
+      <h2 className="serif cms-page-section-heading">{heading}</h2>
+      {body ? <p className="cms-page-section-intro">{body}</p> : null}
+
+      {primaryActionHref || secondaryActionHref ? (
+        <div className="cms-page-cta-actions">
+          {primaryActionHref ? (
+            <Link href={primaryActionHref} className="btn btn-primary">
+              {asNonEmptyString(block.primaryActionLabel) ?? "Get Started"}
+            </Link>
+          ) : null}
+          {secondaryActionHref ? (
+            <Link href={secondaryActionHref} className="btn btn-outline-white">
+              {asNonEmptyString(block.secondaryActionLabel) ?? "Learn More"}
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -184,13 +249,46 @@ function renderBlock(block: CmsPageBlock) {
 }
 
 export function CmsPublicPageRenderer({ page }: CmsPublicPageRendererProps) {
+  const pageTitle = resolveSectionHeading(page?.title, "Page");
+  const pageSlug = asNonEmptyString(page?.slug) ?? "cms-page";
+  const layout = Array.isArray(page?.layout) ? page.layout : [];
+
+  if (!page) {
+    return (
+      <article className="container cms-public-page-shell" data-cms-page-slug={pageSlug}>
+        <section className="cms-page-section cms-page-richtext-empty" aria-label="Page unavailable">
+          <h1 className="serif cms-page-section-heading">Page unavailable</h1>
+          <p className="text-secondary">This page could not be loaded right now.</p>
+        </section>
+      </article>
+    );
+  }
+
+  if (layout.length === 0) {
+    return (
+      <article className="container cms-public-page-shell" data-cms-page-slug={pageSlug}>
+        <section className="cms-page-section cms-page-richtext-empty" aria-label={pageTitle}>
+          <h1 className="serif cms-page-section-heading">{pageTitle}</h1>
+          <p className="text-secondary">This page has no published sections yet.</p>
+        </section>
+      </article>
+    );
+  }
+
   return (
-    <article className="container cms-public-page-shell" data-cms-page-slug={page.slug}>
-      {page.layout.map((block, index) => (
-        <div key={`${block.id}-${index}`} className="cms-page-block-wrap">
-          {renderBlock(block)}
-        </div>
-      ))}
+    <article className="container cms-public-page-shell" data-cms-page-slug={pageSlug}>
+      {layout.map((block, index) => {
+        const renderedBlock = renderBlock(block);
+        if (!renderedBlock) {
+          return null;
+        }
+
+        return (
+          <div key={`${block.id || block.blockType || "block"}-${index}`} className="cms-page-block-wrap">
+            {renderedBlock}
+          </div>
+        );
+      })}
     </article>
   );
 }

@@ -10,14 +10,16 @@ export interface StaffIssueFormState {
 }
 
 interface StaffIssueSnapshotViewProps {
-  flats: Array<{ id: FlatId; name: string }>;
+  flats: Array<{ id: FlatId; name: string }> | null | undefined;
   form: StaffIssueFormState;
   isSubmitting: boolean;
   onFormChange: (next: StaffIssueFormState) => void;
   onSubmit: () => Promise<void>;
 }
 
-export function StaffIssueSnapshotView({ flats, form, isSubmitting, onFormChange, onSubmit }: StaffIssueSnapshotViewProps) {
+export function StaffIssueSnapshotView({ flats: inputFlats, form, isSubmitting, onFormChange, onSubmit }: StaffIssueSnapshotViewProps) {
+  const flats = Array.isArray(inputFlats) ? inputFlats : [];
+
   return (
     <section className="admin-bookings-section" aria-labelledby="staff-issue-form-heading">
       <div className="admin-bookings-section-header">
@@ -38,6 +40,7 @@ export function StaffIssueSnapshotView({ flats, form, isSubmitting, onFormChange
           onChange={(event) => onFormChange({ ...form, flatId: event.target.value as FlatId })}
           disabled={isSubmitting}
         >
+          {flats.length === 0 ? <option value={form.flatId}>{form.flatId}</option> : null}
           {flats.map((flat) => (
             <option key={flat.id} value={flat.id}>
               {flat.name}
@@ -109,4 +112,3 @@ export function StaffIssueSnapshotView({ flats, form, isSubmitting, onFormChange
     </section>
   );
 }
-

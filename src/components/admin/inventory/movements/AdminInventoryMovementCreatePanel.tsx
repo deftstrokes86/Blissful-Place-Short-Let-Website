@@ -70,9 +70,11 @@ export function AdminInventoryMovementCreatePanel() {
 
     try {
       const next = await fetchAdminInventoryOverview();
+      const inventoryCatalog = Array.isArray(next?.inventoryCatalog) ? next.inventoryCatalog : [];
+
       setOverview(next);
 
-      const defaultItemId = next.inventoryCatalog[0]?.id ?? "";
+      const defaultItemId = inventoryCatalog[0]?.id ?? "";
       setMovementForm((current) => ({
         ...current,
         inventoryItemId: current.inventoryItemId || defaultItemId,

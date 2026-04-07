@@ -35,7 +35,8 @@ function getErrorMessage(error: unknown): string {
 }
 
 function toFormState(overview: AdminInventoryOverview, itemId: string): AdminInventoryItemFormState | null {
-  const item = overview.inventoryCatalog.find((entry) => entry.id === itemId);
+  const inventoryCatalog = Array.isArray(overview?.inventoryCatalog) ? overview.inventoryCatalog : [];
+  const item = inventoryCatalog.find((entry) => entry.id === itemId);
   if (!item) {
     return null;
   }
@@ -99,8 +100,11 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
       conditionStatus: string;
     }> = [];
 
-    for (const flat of overview.flatInventory) {
-      const record = flat.records.find((entry) => entry.inventoryItemId === itemId);
+    const flatInventory = Array.isArray(overview.flatInventory) ? overview.flatInventory : [];
+
+    for (const flat of flatInventory) {
+      const records = Array.isArray(flat.records) ? flat.records : [];
+      const record = records.find((entry) => entry.inventoryItemId === itemId);
       if (!record) {
         continue;
       }
@@ -122,7 +126,8 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
       return [];
     }
 
-    return overview.stockMovements.filter((movement) => movement.inventoryItemId === itemId).slice(0, 12);
+    const stockMovements = Array.isArray(overview.stockMovements) ? overview.stockMovements : [];
+    return stockMovements.filter((movement) => movement.inventoryItemId === itemId).slice(0, 12);
   }, [itemId, overview]);
 
   async function handleSave(): Promise<void> {
@@ -232,7 +237,7 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
                         <td>{entry.flatName}</td>
                         <td>{entry.expectedQuantity}</td>
                         <td>{entry.currentQuantity}</td>
-                        <td>{entry.conditionStatus.replaceAll("_", " ")}</td>
+                        <td>{entry.conditionStatus?.replaceAll("_", " ") ?? "-"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -260,7 +265,7 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
                       <span className="admin-status-pill">{movement.quantity}</span>
                     </div>
                     <p className="text-secondary" style={{ fontSize: "0.84rem" }}>
-                      {movement.contextLabel} � {movement.reason}
+                      {movement.contextLabel} - {movement.reason}
                     </p>
                     <p className="text-secondary" style={{ fontSize: "0.78rem" }}>
                       {formatLagosDateTime(movement.createdAt)}
@@ -275,3 +280,5 @@ export function AdminInventoryItemDetailPanel({ itemId }: AdminInventoryItemDeta
     </div>
   );
 }
+
+

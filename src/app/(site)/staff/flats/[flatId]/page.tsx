@@ -1,9 +1,12 @@
-﻿import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+
 import { PageIntro } from "@/components/common/PageIntro";
 import { StaffFlatPanel } from "@/components/staff/StaffFlatPanel";
 import { StaffWorkerRouteNav } from "@/components/staff/StaffWorkerRouteNav";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 import type { FlatId } from "@/types/booking";
+
+export const dynamic = "force-dynamic";
 
 interface StaffFlatDetailPageProps {
   params: Promise<{

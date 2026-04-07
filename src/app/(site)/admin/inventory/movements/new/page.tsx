@@ -4,6 +4,8 @@ import { AdminInventoryMovementCreatePanel } from "@/components/admin/inventory/
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminInventoryNewMovementPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/inventory/movements/new" });
 

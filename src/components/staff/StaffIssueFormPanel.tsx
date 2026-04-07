@@ -32,12 +32,13 @@ export function StaffIssueFormPanel({ initialFlatId }: StaffIssueFormPanelProps)
     async function loadFlats(): Promise<void> {
       try {
         const overview = await fetchAdminInventoryOverview();
+        const nextFlats = Array.isArray(overview?.flats) ? overview.flats : [];
         if (!cancelled) {
-          setFlatOptions(overview.flats);
+          setFlatOptions(nextFlats);
           if (initialFlatId) {
             setForm((current) => ({ ...current, flatId: initialFlatId }));
-          } else if (overview.flats[0]) {
-            setForm((current) => ({ ...current, flatId: overview.flats[0].id }));
+          } else if (nextFlats[0]) {
+            setForm((current) => ({ ...current, flatId: nextFlats[0].id }));
           }
         }
       } catch {

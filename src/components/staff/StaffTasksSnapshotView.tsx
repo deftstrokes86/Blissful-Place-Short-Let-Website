@@ -1,3 +1,5 @@
+"use client";
+
 import type { AdminWorkerTask } from "@/lib/admin-inventory-api";
 import {
   formatWorkerTaskStatus,
@@ -8,20 +10,25 @@ import {
 } from "../tasks/worker-task-view-model";
 
 interface StaffTasksSnapshotViewProps {
-  tasks: AdminWorkerTask[];
-  selectedFlatName: string;
+  tasks: AdminWorkerTask[] | null | undefined;
+  selectedFlatName: string | null | undefined;
   isSubmittingTaskId: string | null;
   onRunPrimaryAction: (task: AdminWorkerTask, status: AdminWorkerTask["status"]) => Promise<void>;
   onMarkBlocked: (task: AdminWorkerTask) => Promise<void>;
 }
 
 export function StaffTasksSnapshotView({
-  tasks,
+  tasks: inputTasks,
   selectedFlatName,
   isSubmittingTaskId,
   onRunPrimaryAction,
   onMarkBlocked,
 }: StaffTasksSnapshotViewProps) {
+  const tasks = Array.isArray(inputTasks) ? inputTasks : [];
+  const flatLabel = typeof selectedFlatName === "string" && selectedFlatName.trim().length > 0
+    ? selectedFlatName.trim()
+    : "Unassigned flat";
+
   return (
     <section className="admin-bookings-section" aria-labelledby="worker-task-home-heading">
       <div className="admin-bookings-section-header">
@@ -39,14 +46,16 @@ export function StaffTasksSnapshotView({
         <p className="text-secondary">No tasks in your queue right now.</p>
       ) : (
         <div className="admin-bookings-list">
-          {tasks.map((task) => {
+          {tasks.map((task, index) => {
             const primaryAction = getPrimaryTaskAction(task.status);
             const normalizedStatus = normalizeWorkerTaskStatus(task.status);
             const canMarkBlocked = normalizedStatus === "pending" || normalizedStatus === "in_progress";
-            const instruction = task.description?.trim() || task.title;
+            const instruction = task.description?.trim() || task.title || "Task instructions pending.";
+            const taskTitle = task.title?.trim() || `Task ${index + 1}`;
+            const taskKey = task.id?.trim() || `worker-task-${index}`;
 
             return (
-              <article key={task.id} className="admin-bookings-card">
+              <article key={taskKey} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
                   <p className="admin-card-title">{formatWorkerTaskType(task.taskType)}</p>
                   <span className="admin-status-pill">{formatWorkerTaskStatus(task.status)}</span>
@@ -55,7 +64,7 @@ export function StaffTasksSnapshotView({
                 <div className="admin-notifications-meta-grid">
                   <div>
                     <p className="admin-meta-label">Flat</p>
-                    <p>{selectedFlatName}</p>
+                    <p>{flatLabel}</p>
                   </div>
                   <div>
                     <p className="admin-meta-label">Task Type</p>
@@ -68,6 +77,9 @@ export function StaffTasksSnapshotView({
                 </div>
 
                 <p className="admin-meta-label">Instruction</p>
+                <p className="admin-card-title" style={{ fontSize: "0.95rem", marginBottom: "0.5rem" }}>
+                  {taskTitle}
+                </p>
                 <p className="admin-notification-summary">{instruction}</p>
 
                 <div className="admin-bookings-actions-row">
@@ -101,4 +113,3 @@ export function StaffTasksSnapshotView({
     </section>
   );
 }
-

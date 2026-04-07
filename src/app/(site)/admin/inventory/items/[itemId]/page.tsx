@@ -4,6 +4,8 @@ import { AdminInventoryItemDetailPanel } from "@/components/admin/inventory/item
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 interface AdminInventoryItemDetailPageProps {
   params: Promise<{
     itemId: string;

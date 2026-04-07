@@ -4,11 +4,11 @@ import { formatWorkerTaskStatus } from "../tasks/worker-task-view-model";
 import { formatReadinessPill, type FlatChecklistDraft } from "./staff-worker-view-model";
 
 interface StaffFlatExecutionSnapshotViewProps {
-  flatLabel: string;
+  flatLabel: string | null | undefined;
   readinessStatus: "ready" | "needs_attention" | "out_of_service" | null;
-  tasks: AdminWorkerTask[];
-  checklistDraft: FlatChecklistDraft;
-  issueNote: string;
+  tasks: AdminWorkerTask[] | null | undefined;
+  checklistDraft: FlatChecklistDraft | null | undefined;
+  issueNote: string | null | undefined;
   isSubmitting: boolean;
   onChecklistToggle: (key: keyof FlatChecklistDraft, checked: boolean) => void;
   onIssueNoteChange: (note: string) => void;
@@ -20,6 +20,17 @@ interface StaffFlatExecutionSnapshotViewProps {
 }
 
 export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshotViewProps) {
+  const tasks = Array.isArray(input.tasks) ? input.tasks : [];
+  const checklistDraft = input.checklistDraft ?? {
+    cleaning: false,
+    linen: false,
+    consumables: false,
+  };
+  const flatLabel = typeof input.flatLabel === "string" && input.flatLabel.trim().length > 0
+    ? input.flatLabel.trim()
+    : "Flat";
+  const issueNote = input.issueNote ?? "";
+
   return (
     <div className="admin-readiness-panel">
       <section className="admin-bookings-section" aria-labelledby="staff-flat-execution-heading">
@@ -27,7 +38,7 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
           <h2 id="staff-flat-execution-heading" className="heading-sm" style={{ margin: 0 }}>
             Flat Execution
           </h2>
-          <span className="admin-count-pill">{input.flatLabel}</span>
+          <span className="admin-count-pill">{flatLabel}</span>
         </div>
 
         <p className="text-secondary" style={{ fontSize: "0.9rem" }}>
@@ -41,7 +52,7 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
               id="staff-check-cleaning"
               type="checkbox"
               style={{ width: "1.2rem", height: "1.2rem" }}
-              checked={input.checklistDraft.cleaning}
+              checked={checklistDraft.cleaning}
               onChange={(event) => input.onChecklistToggle("cleaning", event.target.checked)}
               disabled={input.isSubmitting}
             />
@@ -53,7 +64,7 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
               id="staff-check-linen"
               type="checkbox"
               style={{ width: "1.2rem", height: "1.2rem" }}
-              checked={input.checklistDraft.linen}
+              checked={checklistDraft.linen}
               onChange={(event) => input.onChecklistToggle("linen", event.target.checked)}
               disabled={input.isSubmitting}
             />
@@ -65,7 +76,7 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
               id="staff-check-consumables"
               type="checkbox"
               style={{ width: "1.2rem", height: "1.2rem" }}
-              checked={input.checklistDraft.consumables}
+              checked={checklistDraft.consumables}
               onChange={(event) => input.onChecklistToggle("consumables", event.target.checked)}
               disabled={input.isSubmitting}
             />
@@ -79,7 +90,7 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
           id="staff-flat-issue-note"
           className="standard-input"
           rows={3}
-          value={input.issueNote}
+          value={issueNote}
           onChange={(event) => input.onIssueNoteChange(event.target.value)}
           placeholder="Add details for any problem or shortage"
           disabled={input.isSubmitting}
@@ -144,17 +155,17 @@ export function StaffFlatExecutionSnapshotView(input: StaffFlatExecutionSnapshot
           <h3 id="staff-flat-active-tasks-heading" className="heading-sm" style={{ margin: 0 }}>
             Active Tasks
           </h3>
-          <span className="admin-count-pill">{input.tasks.length}</span>
+          <span className="admin-count-pill">{tasks.length}</span>
         </div>
 
-        {input.tasks.length === 0 ? (
+        {tasks.length === 0 ? (
           <p className="text-secondary">No active flat tasks right now.</p>
         ) : (
           <div className="admin-bookings-list">
-            {input.tasks.map((task) => (
-              <article key={task.id} className="admin-bookings-card">
+            {tasks.map((task, index) => (
+              <article key={task.id || `flat-task-${index}`} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
-                  <p className="admin-card-title">{task.title}</p>
+                  <p className="admin-card-title">{task.title || `Task ${index + 1}`}</p>
                   <span className="admin-status-pill">{formatWorkerTaskStatus(task.status)}</span>
                 </div>
                 <p className="admin-notification-summary">{task.description ?? "No details."}</p>

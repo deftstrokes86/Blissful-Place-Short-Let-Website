@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,6 +10,8 @@ import {
   resolveAuthenticatedSecureAreaRedirect,
 } from "@/server/auth/admin-secure-area";
 import { DEFAULT_AUTH_SESSION_COOKIE_NAME } from "@/server/auth/require-auth";
+
+export const dynamic = "force-dynamic";
 
 interface AdminSecureAreaPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

@@ -2,8 +2,8 @@ import type { AdminMaintenanceIssue } from "@/lib/admin-inventory-api";
 import { formatLagosDateTime } from "../admin/inventory/admin-inventory-view-model";
 
 interface StaffMaintenanceSnapshotViewProps {
-  issues: AdminMaintenanceIssue[];
-  noteDrafts: Record<string, string>;
+  issues: AdminMaintenanceIssue[] | null | undefined;
+  noteDrafts: Record<string, string> | null | undefined;
   isSubmittingIssueId: string | null;
   onNoteDraftChange: (issueId: string, note: string) => void;
   onMarkInProgress: (issueId: string) => Promise<void>;
@@ -20,40 +20,45 @@ function formatIssueStatus(status: AdminMaintenanceIssue["status"]): string {
 }
 
 export function StaffMaintenanceSnapshotView(input: StaffMaintenanceSnapshotViewProps) {
+  const issues = Array.isArray(input.issues) ? input.issues : [];
+  const noteDrafts = input.noteDrafts ?? {};
+
   return (
     <section className="admin-bookings-section" aria-labelledby="staff-maintenance-heading">
       <div className="admin-bookings-section-header">
         <h2 id="staff-maintenance-heading" className="heading-sm" style={{ margin: 0 }}>
           Maintenance Work
         </h2>
-        <span className="admin-count-pill">{input.issues.length} issues</span>
+        <span className="admin-count-pill">{issues.length} issues</span>
       </div>
 
-      {input.issues.length === 0 ? (
+      {issues.length === 0 ? (
         <p className="text-secondary">No maintenance issues assigned right now.</p>
       ) : (
         <div className="admin-bookings-list">
-          {input.issues.map((issue) => {
-            const noteDraft = input.noteDrafts[issue.id] ?? issue.notes ?? "";
+          {issues.map((issue, index) => {
+            const issueKey = issue.id?.trim() || `staff-maintenance-${index}`;
+            const noteDraft = noteDrafts[issue.id] ?? issue.notes ?? "";
             const isSubmitting = input.isSubmittingIssueId === issue.id;
+            const issueTitle = issue.title?.trim() || `Maintenance Issue ${index + 1}`;
 
             return (
-              <article key={issue.id} className="admin-bookings-card">
+              <article key={issueKey} className="admin-bookings-card">
                 <div className="admin-bookings-card-header">
-                  <p className="admin-card-title">{issue.title}</p>
+                  <p className="admin-card-title">{issueTitle}</p>
                   <span className="admin-status-pill">{formatIssueStatus(issue.status)}</span>
                 </div>
 
                 <p className="admin-notification-summary">{issue.notes ?? "No note provided."}</p>
                 <p className="text-secondary" style={{ fontSize: "0.83rem" }}>
-                  Flat {issue.flatId} | Created {formatLagosDateTime(issue.createdAt)}
+                  Flat {issue.flatId || "Unavailable"} | Created {formatLagosDateTime(issue.createdAt)}
                 </p>
 
-                <label className="admin-label" htmlFor={`staff-maintenance-note-${issue.id}`}>
+                <label className="admin-label" htmlFor={`staff-maintenance-note-${issueKey}`}>
                   Add Note
                 </label>
                 <textarea
-                  id={`staff-maintenance-note-${issue.id}`}
+                  id={`staff-maintenance-note-${issueKey}`}
                   className="standard-input"
                   rows={2}
                   value={noteDraft}

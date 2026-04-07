@@ -43,8 +43,11 @@ export function StaffFlatPanel({ flatId }: StaffFlatPanelProps) {
       fetchInventoryWorkerTasks({ flatId, sync: true, openOnly: true }),
     ]);
 
-    const flat = overview.flats.find((entry) => entry.id === flatId);
-    const readiness = overview.readiness.find((entry) => entry.flatId === flatId)?.readiness ?? null;
+    const flats = Array.isArray(overview?.flats) ? overview.flats : [];
+    const readinessEntries = Array.isArray(overview?.readiness) ? overview.readiness : [];
+    const safeTasks = Array.isArray(flatTasks) ? flatTasks : [];
+    const flat = flats.find((entry) => entry.id === flatId);
+    const readiness = readinessEntries.find((entry) => entry.flatId === flatId)?.readiness ?? null;
 
     setFlatLabel(flat?.name ?? flatId);
     setReadinessStatus(readiness?.readinessStatus ?? null);
@@ -53,7 +56,7 @@ export function StaffFlatPanel({ flatId }: StaffFlatPanelProps) {
       linen: readiness?.linenStatus === "ready",
       consumables: readiness?.consumablesStatus === "ready",
     });
-    setTasks(flatTasks);
+    setTasks(safeTasks);
   }, [flatId]);
 
   useEffect(() => {

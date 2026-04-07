@@ -1,7 +1,10 @@
-﻿import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+
 import { AdminInventoryHubPanel } from "@/components/admin/inventory/AdminInventoryHubPanel";
 import { PageIntro } from "@/components/common/PageIntro";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminInventoryPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/inventory" });

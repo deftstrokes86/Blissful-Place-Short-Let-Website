@@ -36,8 +36,10 @@ export function StaffTaskListPanel({ title, description, filterTaskTypes, flatId
           openOnly: true,
         });
 
+        const safeTasks = Array.isArray(loaded) ? loaded : [];
+
         if (!cancelled) {
-          setTasks(loaded.filter((task) => filterTaskTypes.includes(task.taskType)));
+          setTasks(safeTasks.filter((task) => filterTaskTypes.includes(task.taskType)));
           setErrorMessage(null);
         }
       } catch (error) {
