@@ -2,6 +2,8 @@ import { PageIntro } from "@/components/common/PageIntro";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { requireAdminPageAccessOrRedirect } from "@/server/auth/admin-page-guard";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminAvailabilityPage() {
   await requireAdminPageAccessOrRedirect({ requestedPath: "/admin/availability" });
 

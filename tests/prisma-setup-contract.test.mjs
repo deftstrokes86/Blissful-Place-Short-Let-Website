@@ -23,7 +23,11 @@ function run() {
   assert.match(prismaClientSource, /PrismaInitializationError/);
   assert.match(prismaClientSource, /Prisma client initialization failed before the app could access the database/i);
   assert.match(prismaClientSource, /Connection target:/i);
+  assert.match(prismaClientSource, /export function getPrismaClient/);
+  assert.match(prismaClientSource, /new Proxy/);
+  assert.match(prismaClientSource, /created only when a query path touches it/i);
   assert.match(prismaClientSource, /new PrismaClient\(resolvePrismaClientOptions\(env\)\)|new PrismaCtor\(resolvePrismaClientOptions\(env\)\)/);
+  assert.doesNotMatch(prismaClientSource, /export const prisma = globalForPrisma\.prisma \?\? createPrismaClient\(\)/);
 
   const compatDbSource = readFileSync(resolve(process.cwd(), "src", "lib", "db.ts"), "utf8");
   assert.match(compatDbSource, /import \{ prisma \} from "\.\.\/server\/db\/prisma"/);

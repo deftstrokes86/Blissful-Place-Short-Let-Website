@@ -45,7 +45,8 @@
     "test:cms:e2e": "npm run cms:e2e:seed-user && playwright test --config=playwright.cms.config.ts tests/e2e/cms-admin-toolbar.spec.ts",
     "prisma:db:push": "npm run prisma:push",
     "prisma:push": "node scripts/prisma-cli.mjs db push",
-    "prisma:status": "node scripts/prisma-cli.mjs migrate status"
+    "prisma:status": "node scripts/prisma-cli.mjs migrate status",
+    "test:admin-context-safety": "node tests/admin-context-safety.test.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.80.0",

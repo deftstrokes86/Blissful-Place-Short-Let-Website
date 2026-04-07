@@ -34,6 +34,14 @@ function run() {
   assert.match(authBootstrapCli, /prismaAuthRepository/);
   assert.doesNotMatch(authBootstrapCli, /fileAuthRepository/);
 
+  const adminAvailabilityPage = read("src/app/(site)/admin/availability/page.tsx");
+  assert.match(adminAvailabilityPage, /export const dynamic = "force-dynamic"/);
+
+  const prismaSource = read("src/server/db/prisma.ts");
+  assert.match(prismaSource, /export function getPrismaClient/);
+  assert.match(prismaSource, /new Proxy/);
+  assert.match(prismaSource, /created only when a query path touches it/i);
+
   const transferHoldJob = read("src/server/jobs/expire-transfer-holds.ts");
   assert.match(transferHoldJob, /prismaReservationRepository/);
   assert.doesNotMatch(transferHoldJob, /fileReservationRepository/);
@@ -94,7 +102,7 @@ function run() {
   assert.match(databaseMigrationStatusDoc, /legacy-guest-reservation-service\.ts/);
   assert.match(databaseMigrationStatusDoc, /Prisma-backed compatibility adapter/i);
   assert.match(databaseMigrationStatusDoc, /pending future migration/i);
-  assert.match(databaseMigrationStatusDoc, /Prisma fixed” and “Payload fixed” do not mean the entire application is fully migrated|Prisma fixed" and "Payload fixed" do not mean the entire application is fully migrated/i);
+  assert.match(databaseMigrationStatusDoc, /Prisma fixed.*Payload fixed.*do not mean the entire application is fully migrated/i);
 
   const payloadBlogDatabaseDoc = read("docs/payload-blog-database-path.md");
   assert.match(payloadBlogDatabaseDoc, /\/blog/);
