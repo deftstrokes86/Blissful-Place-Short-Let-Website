@@ -116,11 +116,7 @@ export function resolvePrismaClientOptions(
   env: PrismaServerEnv = process.env
 ): Prisma.PrismaClientOptions {
   return {
-    datasources: {
-      db: {
-        url: resolvePrismaDatabaseUrl(env),
-      },
-    },
+    datasourceUrl: resolvePrismaDatabaseUrl(env),
     log: resolvePrismaLogLevels(env),
   };
 }
