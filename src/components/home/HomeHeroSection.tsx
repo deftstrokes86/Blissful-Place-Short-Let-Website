@@ -1,10 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { useRef } from "react";
 
 import { Calendar, User } from "@/lib/lucide-react";
 import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { SITE_LOCATION_LABEL } from "@/lib/site-config";
 
 export function HomeHeroSection() {
+  const checkInRef = useRef<HTMLInputElement>(null);
+  const checkOutRef = useRef<HTMLInputElement>(null);
+
+  function openPicker(ref: React.RefObject<HTMLInputElement | null>) {
+    try {
+      ref.current?.showPicker?.();
+    } catch {
+      ref.current?.focus();
+    }
+  }
+
+  // Prevent default label→focus behaviour and open picker explicitly
+  function handleCheckInLabelClick(e: React.MouseEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    openPicker(checkInRef);
+  }
+
+  function handleCheckOutLabelClick(e: React.MouseEvent<HTMLLabelElement>) {
+    e.preventDefault();
+    openPicker(checkOutRef);
+  }
+
+  // Called synchronously in onChange — still within user activation window
+  function handleCheckInChange() {
+    openPicker(checkOutRef);
+  }
+
   return (
     <section className="hero" style={{ backgroundImage: 'url("/hero-opulence.png")' }}>
       <div className="container hero-content">
@@ -30,22 +60,45 @@ export function HomeHeroSection() {
         </p>
 
         <div className="booking-bar">
-          <div className="booking-field">
+          {/* Check-in */}
+          <label className="booking-field" htmlFor="hero-checkin" onClick={handleCheckInLabelClick}>
             <Calendar className="booking-icon" size={20} />
             <div className="booking-input-group">
-              <span className="booking-label">CHECK-IN / OUT</span>
-              <div className="hero-date-row">
-                <input type="date" className="date-input" aria-label="Check-in date" />
-                <span style={{ color: "var(--text-secondary)" }}>-</span>
-                <input type="date" className="date-input" aria-label="Check-out date" />
-              </div>
+              <span className="booking-label">CHECK-IN</span>
+              <input
+                ref={checkInRef}
+                id="hero-checkin"
+                type="date"
+                className="date-input"
+                aria-label="Check-in date"
+                onChange={handleCheckInChange}
+                onClick={(e) => { e.stopPropagation(); openPicker(checkInRef); }}
+              />
             </div>
-          </div>
-          <div className="booking-field">
+          </label>
+
+          {/* Check-out */}
+          <label className="booking-field" htmlFor="hero-checkout" onClick={handleCheckOutLabelClick}>
+            <Calendar className="booking-icon" size={20} />
+            <div className="booking-input-group">
+              <span className="booking-label">CHECK-OUT</span>
+              <input
+                ref={checkOutRef}
+                id="hero-checkout"
+                type="date"
+                className="date-input"
+                aria-label="Check-out date"
+                onClick={(e) => { e.stopPropagation(); openPicker(checkOutRef); }}
+              />
+            </div>
+          </label>
+
+          {/* Guests */}
+          <label className="booking-field" htmlFor="hero-guests">
             <User className="booking-icon" size={20} />
             <div className="booking-input-group">
               <span className="booking-label">GUESTS</span>
-              <select className="guest-select" aria-label="Select Guests">
+              <select id="hero-guests" className="guest-select" aria-label="Select Guests">
                 <option value="1">1 Guest</option>
                 <option value="2">2 Guests</option>
                 <option value="3">3 Guests</option>
@@ -54,7 +107,8 @@ export function HomeHeroSection() {
                 <option value="6">6 Guests</option>
               </select>
             </div>
-          </div>
+          </label>
+
           <Link href={buildBookingHref()} className="btn btn-primary booking-cta" style={{ padding: "1.25rem 2rem" }}>
             Check Availability
           </Link>

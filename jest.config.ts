@@ -9,8 +9,11 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  // Only run UI component tests — exclude the existing server-side node tests.
-  testMatch: ["<rootDir>/src/app/**/__tests__/**/*.test.tsx"],
+  // UI component tests — app pages and shared components.
+  testMatch: [
+    "<rootDir>/src/app/**/__tests__/**/*.test.tsx",
+    "<rootDir>/src/components/**/__tests__/**/*.test.tsx",
+  ],
   transform: {},
 };
 

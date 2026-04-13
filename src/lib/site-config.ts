@@ -1,5 +1,5 @@
-export const SUPPORT_WHATSAPP_E164 = "2340000000000";
-export const SUPPORT_PHONE_E164 = "+2340000000000";
+export const SUPPORT_WHATSAPP_E164 = "2349013673587";
+export const SUPPORT_PHONE_E164 = "+2349013673587";
 export const SUPPORT_EMAIL = "reservations@blissfulplaceresidences.com";
 
 export const SUPPORT_WHATSAPP_URL = `https://wa.me/${SUPPORT_WHATSAPP_E164}`;

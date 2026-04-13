@@ -1,16 +1,56 @@
+@import "tailwindcss";
+
+/* ─── Tailwind v4 theme — maps design tokens to utility classes ────────────────
+   These generate utilities like bg-primary, text-muted, rounded-md, font-serif.
+   @theme inline references our :root vars so there is a single source of truth.
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  /* Colors */
+  --color-primary:      var(--primary);
+  --color-primary-dark: var(--primary-hover);
+  --color-surface:      var(--bg-dark);
+  --color-panel:        var(--bg-panel);
+  --color-panel-hover:  var(--bg-panel-hover);
+  --color-muted:        var(--text-secondary);
+  --color-subtle:       var(--border-subtle);
+
+  /* Radius — overrides Tailwind defaults to match design */
+  --radius-sm: var(--radius-sm-val);
+  --radius-md: var(--radius-md-val);
+  --radius-lg: var(--radius-lg-val);
+
+  /* Typography */
+  --font-family-sans:  var(--font-sans);
+  --font-family-serif: var(--font-serif);
+}
+
 :root {
-  --primary: #EE1D52;
-  --primary-hover: #D91042;
-  --bg-dark: #0A0A0B;
-  --bg-panel: #111012;
+  /* Brand palette */
+  --primary:        #EE1D52;
+  --primary-hover:  #D91042;
+
+  /* Surfaces */
+  --bg-dark:        #0A0A0B;
+  --bg-panel:       #111012;
   --bg-panel-hover: #161517;
-  --text-primary: #FFFFFF;
+
+  /* Text */
+  --text-primary:   #FFFFFF;
   --text-secondary: #AAA8A9;
-  --border-subtle: rgba(255,255,255,0.06);
-  
+
+  /* Borders */
+  --border-subtle:  rgba(255, 255, 255, 0.06);
+
+  /* Typography */
   --font-serif: var(--font-playfair), "Times New Roman", serif;
-  --font-sans: var(--font-inter), -apple-system, sans-serif;
-  
+  --font-sans:  var(--font-inter), -apple-system, sans-serif;
+
+  /* Radius (aliased so @theme inline can reference without circular loop) */
+  --radius-sm-val: 0.25rem;
+  --radius-md-val: 0.75rem;
+  --radius-lg-val: 1.5rem;
+
+  /* Keep legacy names so existing CSS continues to resolve */
   --radius-sm: 0.25rem;
   --radius-md: 0.75rem;
   --radius-lg: 1.5rem;
@@ -234,26 +274,9 @@ button {
   flex-shrink: 0;
 }
 
-.brand-logo {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.brand-logo-image {
-  display: block;
-  width: 200px;
-  min-width: 200px;
-  height: auto;
-  max-width: 100%;
-  object-fit: contain;
-}
-
+/* .brand-logo* migrated to Tailwind — BrandLogo.tsx */
 .navbar.sticky .brand-logo-image {
-  width: 140px;
-}
-
-.brand-logo-image-footer {
+  /* shrink logo when navbar is sticky — remove when SiteHeader is migrated */
   width: 140px;
 }
 
@@ -381,23 +404,26 @@ button {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 1rem;
-  gap: 1rem;
-  align-items: center;
+  gap: 0;
+  align-items: stretch;
   flex-wrap: wrap;
-  margin: 0 auto;
-  max-width: 700px;
+  width: 70vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   overflow: hidden;
 }
 
 .hero .booking-field {
-  flex: 1 1 220px;
+  flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   border-right: 1px solid var(--border-subtle);
   text-align: left;
+  cursor: pointer;
 }
 
 .hero .booking-field:last-of-type {
@@ -405,6 +431,7 @@ button {
 }
 
 .hero .booking-input-group {
+  flex: 1;
   min-width: 0;
 }
 
@@ -444,8 +471,14 @@ button {
 }
 
 .hero .date-input {
+  width: 100%;
   min-width: 0;
-  width: 8rem;
+  display: block;
+}
+
+.hero .date-input::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
 }
 
 .hero .guest-select {
@@ -461,7 +494,7 @@ button {
 }
 
 .hero .booking-cta {
-  flex: 0 1 auto;
+  flex: 1;
   max-width: 100%;
   white-space: normal;
   text-align: center;
@@ -728,16 +761,20 @@ button {
   }
   .hero .booking-bar {
     flex-direction: column;
+    width: 100%;
+    position: static;
+    transform: none;
+    left: auto;
+    gap: 0;
   }
-  .hero .booking-field {
+  .hero .booking-field,
+  .hero .booking-field--date {
+    flex: none;
     border-right: none;
     border-bottom: 1px solid var(--border-subtle);
     width: 100%;
   }
   .hero .booking-cta {
-    width: 100%;
-  }
-  .hero .date-input {
     width: 100%;
   }
   .gallery-grid {
@@ -1008,14 +1045,8 @@ button {
   .lead-capture-form .btn {
     width: 100%;
   }
-  .brand-logo-image {
-    width: 100px;
-    min-width: 100px;
-  }
   .navbar.sticky .brand-logo-image {
-    width: 100px;
-  }
-  .brand-logo-image-footer {
+    /* keep until SiteHeader is migrated */
     width: 100px;
   }
 }
@@ -5982,11 +6013,7 @@ textarea {
 }
 
 .hero-date-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-  flex-wrap: wrap;
+  display: none;
 }
 
 .hero-content {
@@ -6478,15 +6505,6 @@ textarea {
   .hero {
     min-height: auto;
     padding-top: 8.5rem;
-  }
-
-  .hero-date-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-date-row > span {
-    display: none;
   }
 
   .hero .booking-field {
