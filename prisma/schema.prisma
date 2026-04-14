@@ -2,13 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// DATABASE_URL is the canonical server-side database connection for this app.
-// For this hosted Node runtime, prefer a Supabase direct connection or the
-// Supavisor session pooler. Avoid the transaction pooler here unless you also
-// plan a separate direct or session connection for Prisma CLI workflows.
+// DATABASE_URL is configured via prisma.config.ts (Prisma 7+ requirement).
+// The datasource url is no longer set in schema files — see prisma.config.ts.
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum ReservationStatus {
