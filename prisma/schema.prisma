@@ -2,10 +2,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// DATABASE_URL is configured via prisma.config.ts (Prisma 7+ requirement).
-// The datasource url is no longer set in schema files — see prisma.config.ts.
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum ReservationStatus {
