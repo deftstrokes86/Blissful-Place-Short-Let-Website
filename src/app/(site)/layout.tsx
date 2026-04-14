@@ -1,5 +1,19 @@
+import "./site.css";
+
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Playfair_Display, Inter } from "next/font/google";
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Blissful Place | Residences",
@@ -7,5 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
+      <body suppressHydrationWarning className={inter.className}>
+        {children}
+      </body>
+    </html>
+  );
 }

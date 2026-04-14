@@ -1,7 +1,6 @@
 import path from "node:path";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { sqliteAdapter } from "@payloadcms/db-sqlite";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
@@ -93,21 +92,12 @@ if (
   );
 }
 
-const payloadDatabaseAdapter =
-  payloadDatabase.kind === "sqlite"
-    ? sqliteAdapter({
-        client: {
-          url: payloadDatabase.databaseUrl,
-        },
-        // Local SQLite is an explicit CMS-only sandbox path.
-        push: payloadDatabase.pushSchema,
-      })
-    : postgresAdapter({
-        pool: {
-          connectionString: payloadDatabase.databaseUrl,
-        },
-        push: payloadDatabase.pushSchema,
-      });
+const payloadDatabaseAdapter = postgresAdapter({
+  pool: {
+    connectionString: payloadDatabase.databaseUrl,
+  },
+  push: payloadDatabase.pushSchema,
+});
 const payloadPlugins = payloadMediaStorageEnabled
   ? [
       s3Storage({

@@ -97,7 +97,7 @@ export default function NotFound() {
 
   return (
     <>
-      <style>{`
+      <style href="not-found-styles" precedence="default">{`
         @keyframes shimmer-404 {
           from { background-position: 0%   center; }
           to   { background-position: 200% center; }

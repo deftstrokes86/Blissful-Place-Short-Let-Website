@@ -34,9 +34,7 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
   assert.ok(payloadConfigSource.includes("user: CmsUsersCollection.slug"));
   assert.ok(payloadConfigSource.includes("@payloadcms/db-postgres"));
   assert.ok(payloadConfigSource.includes("postgresAdapter"));
-  assert.ok(payloadConfigSource.includes("sqliteAdapter"));
   assert.ok(payloadConfigSource.includes("resolvePayloadDatabaseConfig"));
-  assert.ok(payloadConfigSource.includes('payloadDatabase.kind === "sqlite"'));
   assert.ok(payloadConfigSource.includes("payloadDatabase.databaseUrl"));
   assert.ok(payloadConfigSource.includes("payloadDatabase.pushSchema"));
   assert.ok(!payloadConfigSource.includes("resolveSqliteFilePath"));
@@ -45,8 +43,6 @@ async function testCmsUsesDedicatedUsersAndDatabaseBoundary(): Promise<void> {
 
   assert.ok(payloadDatabaseSource.includes("PAYLOAD_DATABASE_URL"));
   assert.ok(payloadDatabaseSource.includes("DATABASE_URL"));
-  assert.ok(payloadDatabaseSource.includes('PAYLOAD_LOCAL_SQLITE_URL = "file:./.data/payload.db"'));
-  assert.ok(payloadDatabaseSource.includes("only supported through an explicit PAYLOAD_DATABASE_URL override"));
   assert.ok(payloadDatabaseSource.includes("Public blog routes (/blog and /blog/[slug]) read published content through Payload CMS."));
   assert.ok(payloadDatabaseSource.includes("describePayloadDatabaseDependency"));
   assert.ok(!payloadDatabaseSource.includes("payloadDefaultSqliteUrl"));
@@ -98,7 +94,6 @@ async function testPayloadProductionDatabaseSafety(): Promise<void> {
 
   assert.ok(source.includes("phase-production-build"));
   assert.ok(source.includes("Payload CMS requires a Postgres connection string"));
-  assert.ok(source.includes("configured to use SQLite in production"));
   assert.ok(source.includes("sslmode=require"));
 }
 

@@ -66,7 +66,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
   return (
     <>
-      <style>{`
+      <style href="error-styles" precedence="default">{`
         @keyframes err-bg-breathe {
           0%, 100% { background-color: #0A0A0B; }
           50%       { background-color: #130B0F; }

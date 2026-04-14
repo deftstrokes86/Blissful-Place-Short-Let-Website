@@ -2,6 +2,7 @@ import type { ImportMap } from "payload";
 import { getPayload } from "payload";
 
 import { CollectionCards } from "@payloadcms/next/rsc";
+import { S3ClientUploadHandler } from "@payloadcms/storage-s3/client";
 import {
   AlignFeatureClient,
   BlockquoteFeatureClient,
@@ -35,6 +36,7 @@ import { describePayloadDatabaseDependency } from "./payload-database-config";
 
 export const cmsImportMap: ImportMap = {
   "@payloadcms/next/rsc#CollectionCards": CollectionCards,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler,
   "@payloadcms/richtext-lexical/client#AlignFeatureClient": AlignFeatureClient,
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient,

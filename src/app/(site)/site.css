@@ -1,0 +1,32 @@
+/* ─── site.css ───────────────────────────────────────────────────────────────
+   Imported ONLY by (site)/layout.tsx — never by the root layout.
+   Tailwind's preflight and utilities are scoped to site routes only,
+   keeping the Payload CMS admin routes completely unaffected.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@import "tailwindcss";
+
+/* ─── Tailwind v4 theme — maps design tokens to utility classes ──────────────
+   @theme inline references :root vars (defined in globals.css) so there is a
+   single source of truth for all design tokens.
+   Generates: bg-primary, text-muted, rounded-md, font-serif, etc.
+   ─────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  /* Colors */
+  --color-primary:      var(--primary);
+  --color-primary-dark: var(--primary-hover);
+  --color-surface:      var(--bg-dark);
+  --color-panel:        var(--bg-panel);
+  --color-panel-hover:  var(--bg-panel-hover);
+  --color-muted:        var(--text-secondary);
+  --color-subtle:       var(--border-subtle);
+
+  /* Radius — match design tokens */
+  --radius-sm: var(--radius-sm-val);
+  --radius-md: var(--radius-md-val);
+  --radius-lg: var(--radius-lg-val);
+
+  /* Typography */
+  --font-family-sans:  var(--font-sans);
+  --font-family-serif: var(--font-serif);
+}

@@ -10,8 +10,6 @@ const PAYLOAD_DATABASE_SOURCE_GUIDANCE =
 const PAYLOAD_DATABASE_GUIDANCE =
   `Set DATABASE_URL to your server-side Supabase Postgres connection string. ${PAYLOAD_DATABASE_SOURCE_GUIDANCE} ${PAYLOAD_BLOG_ROUTE_GUIDANCE} Leave PAYLOAD_DATABASE_URL blank unless Payload must intentionally point at a different Postgres database. See docs/production-env-setup.md and docs/payload-blog-database-path.md.`;
 
-export const PAYLOAD_LOCAL_SQLITE_URL = "file:./.data/payload.db";
-
 export type PayloadDatabaseEnv = {
   DATABASE_URL?: string;
   PAYLOAD_DATABASE_URL?: string;
@@ -20,7 +18,7 @@ export type PayloadDatabaseEnv = {
   NEXT_PHASE?: string;
 };
 
-export type PayloadDatabaseKind = "postgres" | "sqlite";
+export type PayloadDatabaseKind = "postgres";
 export type PayloadDatabaseDependencySource = "DATABASE_URL" | "PAYLOAD_DATABASE_URL" | "missing";
 export type PayloadDatabaseDependencyKind = PayloadDatabaseKind | "missing";
 
@@ -31,7 +29,6 @@ export interface ResolvedPayloadDatabaseConfig {
   isProduction: boolean;
   isProductionBuild: boolean;
   usesExplicitOverride: boolean;
-  isLocalSqliteOverride: boolean;
 }
 
 export interface PayloadDatabaseDependencyDescription {
@@ -46,10 +43,6 @@ function hasConfiguredValue(value: unknown): value is string {
 
 function isSupabaseHost(parsed: URL): boolean {
   return parsed.hostname.endsWith(".supabase.co") || parsed.hostname.endsWith(".pooler.supabase.com");
-}
-
-function isSqliteUrl(databaseUrl: string): boolean {
-  return databaseUrl.startsWith("file:") || databaseUrl.startsWith("sqlite:");
 }
 
 function parsePayloadPostgresUrl(databaseUrl: string): URL {
@@ -92,15 +85,6 @@ export function describePayloadDatabaseDependency(
   const payloadPrimaryDatabaseUrl = env.DATABASE_URL?.trim();
 
   if (hasConfiguredValue(payloadDatabaseUrlOverride)) {
-    if (isSqliteUrl(payloadDatabaseUrlOverride)) {
-      return {
-        source: "PAYLOAD_DATABASE_URL",
-        kind: "sqlite",
-        summary:
-          "Payload is explicitly pointed at local SQLite through PAYLOAD_DATABASE_URL. That is only intended for a non-production CMS-only sandbox and is not the normal production blog database path.",
-      };
-    }
-
     return {
       source: "PAYLOAD_DATABASE_URL",
       kind: "postgres",
@@ -110,15 +94,6 @@ export function describePayloadDatabaseDependency(
   }
 
   if (hasConfiguredValue(payloadPrimaryDatabaseUrl)) {
-    if (isSqliteUrl(payloadPrimaryDatabaseUrl)) {
-      return {
-        source: "DATABASE_URL",
-        kind: "sqlite",
-        summary:
-          "DATABASE_URL currently points at SQLite or a file path. That is not a valid normal Payload production path; keep Payload on Supabase Postgres and use PAYLOAD_DATABASE_URL only for an explicit non-production CMS-only SQLite sandbox.",
-      };
-    }
-
     return {
       source: "DATABASE_URL",
       kind: "postgres",
@@ -152,32 +127,8 @@ export function resolvePayloadDatabaseConfig(
 
   if (!hasConfiguredValue(resolvedDatabaseUrl)) {
     throw new Error(
-      `Payload CMS requires a Postgres connection string. ${PAYLOAD_DATABASE_GUIDANCE} For a local CMS-only SQLite sandbox, explicitly set PAYLOAD_DATABASE_URL="${PAYLOAD_LOCAL_SQLITE_URL}" in non-production only.`
+      `Payload CMS requires a Postgres connection string. ${PAYLOAD_DATABASE_GUIDANCE}`
     );
-  }
-
-  if (isSqliteUrl(resolvedDatabaseUrl)) {
-    if (!usesExplicitOverride) {
-      throw new Error(
-        `Payload CMS local SQLite is only supported through an explicit PAYLOAD_DATABASE_URL override. Keep DATABASE_URL pointed at Supabase Postgres because ${PAYLOAD_BLOG_ROUTE_GUIDANCE.toLowerCase()} If you intentionally want a local CMS-only SQLite sandbox, set PAYLOAD_DATABASE_URL="${PAYLOAD_LOCAL_SQLITE_URL}" in non-production only.`
-      );
-    }
-
-    if (isProduction && !isProductionBuild) {
-      throw new Error(
-        `Payload CMS is configured to use SQLite in production. Public blog routes would read from that same local Payload database path. Set PAYLOAD_DATABASE_URL to a Supabase Postgres connection string, or leave it blank so Payload reuses DATABASE_URL. ${PAYLOAD_DATABASE_GUIDANCE}`
-      );
-    }
-
-    return {
-      databaseUrl: resolvedDatabaseUrl,
-      kind: "sqlite",
-      pushSchema,
-      isProduction,
-      isProductionBuild,
-      usesExplicitOverride,
-      isLocalSqliteOverride: true,
-    };
   }
 
   const parsed = parsePayloadPostgresUrl(resolvedDatabaseUrl);
@@ -191,7 +142,5 @@ export function resolvePayloadDatabaseConfig(
     isProduction,
     isProductionBuild,
     usesExplicitOverride,
-    isLocalSqliteOverride: false,
   };
 }
-

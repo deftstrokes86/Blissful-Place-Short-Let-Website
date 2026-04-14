@@ -9,10 +9,11 @@ const config: Config = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  // UI component tests — app pages and shared components.
+  // UI component tests and config/env tests.
   testMatch: [
-    "<rootDir>/src/app/**/__tests__/**/*.test.tsx",
-    "<rootDir>/src/components/**/__tests__/**/*.test.tsx",
+    "<rootDir>/src/app/**/__tests__/**/*.test.{tsx,ts}",
+    "<rootDir>/src/components/**/__tests__/**/*.test.{tsx,ts}",
+    "<rootDir>/src/cms/__tests__/**/*.test.{tsx,ts}",
   ],
   transform: {},
 };

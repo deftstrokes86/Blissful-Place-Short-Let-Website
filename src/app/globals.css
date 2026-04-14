@@ -1,28 +1,8 @@
-@import "tailwindcss";
-
-/* ─── Tailwind v4 theme — maps design tokens to utility classes ────────────────
-   These generate utilities like bg-primary, text-muted, rounded-md, font-serif.
-   @theme inline references our :root vars so there is a single source of truth.
+/* ─── globals.css ────────────────────────────────────────────────────────────
+   Loaded by the ROOT layout — applies to ALL routes including Payload CMS admin.
+   Must NOT contain @import "tailwindcss" — Tailwind's preflight reset destroys
+   Payload's admin UI. Tailwind lives in (site)/site.css instead.
    ─────────────────────────────────────────────────────────────────────────── */
-@theme inline {
-  /* Colors */
-  --color-primary:      var(--primary);
-  --color-primary-dark: var(--primary-hover);
-  --color-surface:      var(--bg-dark);
-  --color-panel:        var(--bg-panel);
-  --color-panel-hover:  var(--bg-panel-hover);
-  --color-muted:        var(--text-secondary);
-  --color-subtle:       var(--border-subtle);
-
-  /* Radius — overrides Tailwind defaults to match design */
-  --radius-sm: var(--radius-sm-val);
-  --radius-md: var(--radius-md-val);
-  --radius-lg: var(--radius-lg-val);
-
-  /* Typography */
-  --font-family-sans:  var(--font-sans);
-  --font-family-serif: var(--font-serif);
-}
 
 :root {
   /* Brand palette */
@@ -6122,6 +6102,11 @@ textarea {
   text-align: center;
 }
 
+.vip-section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
 .vip-section-panel {
   gap: clamp(2rem, 6vw, 4rem);
   align-items: center;
@@ -6134,9 +6119,9 @@ textarea {
 
 .vip-member-card {
   background: linear-gradient(135deg, rgba(22, 21, 23, 0.8) 0%, rgba(10, 10, 11, 1) 100%);
-  height: 320px;
   width: 100%;
   max-width: 380px;
+  padding: 3.5rem 2.5rem;
   border-radius: var(--radius-md);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
@@ -6637,10 +6622,6 @@ textarea {
   .comparison-grid-badge {
     font-size: 0.64rem;
     letter-spacing: 0.07em;
-  }
-
-  .vip-member-card {
-    height: 280px;
   }
 
   .neighborhood-point,

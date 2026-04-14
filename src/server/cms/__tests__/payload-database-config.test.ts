@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 
 import {
-  PAYLOAD_LOCAL_SQLITE_URL,
   describePayloadDatabaseDependency,
   resolvePayloadDatabaseConfig,
 } from "@/cms/payload-database-config";
@@ -34,17 +33,6 @@ async function testPayloadPrefersExplicitOverride(): Promise<void> {
   assert.equal(resolved.usesExplicitOverride, true);
 }
 
-async function testPayloadAllowsExplicitLocalSqliteOnlyInNonProduction(): Promise<void> {
-  const resolved = resolvePayloadDatabaseConfig({
-    DATABASE_URL: "postgresql://postgres:secret@db.example.supabase.co:5432/postgres?sslmode=require",
-    PAYLOAD_DATABASE_URL: PAYLOAD_LOCAL_SQLITE_URL,
-    NODE_ENV: "development",
-  });
-
-  assert.equal(resolved.kind, "sqlite");
-  assert.equal(resolved.isLocalSqliteOverride, true);
-}
-
 async function testPayloadRejectsMissingDatabaseConfig(): Promise<void> {
   assert.throws(
     () => resolvePayloadDatabaseConfig({ NODE_ENV: "development" }),
@@ -52,26 +40,14 @@ async function testPayloadRejectsMissingDatabaseConfig(): Promise<void> {
   );
 }
 
-async function testPayloadRejectsImplicitSqliteCanonicalDatabaseUrl(): Promise<void> {
+async function testPayloadRejectsNonPostgresDatabaseUrl(): Promise<void> {
   assert.throws(
     () =>
       resolvePayloadDatabaseConfig({
-        DATABASE_URL: PAYLOAD_LOCAL_SQLITE_URL,
+        DATABASE_URL: "file:./.data/payload.db",
         NODE_ENV: "development",
       }),
-    /only supported through an explicit PAYLOAD_DATABASE_URL override/i
-  );
-}
-
-async function testPayloadRejectsProductionSqliteOverride(): Promise<void> {
-  assert.throws(
-    () =>
-      resolvePayloadDatabaseConfig({
-        DATABASE_URL: "postgresql://postgres:secret@db.example.supabase.co:5432/postgres?sslmode=require",
-        PAYLOAD_DATABASE_URL: PAYLOAD_LOCAL_SQLITE_URL,
-        NODE_ENV: "production",
-      }),
-    /configured to use SQLite in production/i
+    /must use postgres:\/\/ or postgresql:\/\//i
   );
 }
 
@@ -136,18 +112,6 @@ async function testPayloadDependencyDescriptionDefaultsToSharedDatabaseUrl(): Pr
   assert.match(description.summary, /blog content/i);
 }
 
-async function testPayloadDependencyDescriptionFlagsExplicitSqliteOverride(): Promise<void> {
-  const description = describePayloadDatabaseDependency({
-    DATABASE_URL: "postgresql://postgres:secret@db.example.supabase.co:5432/postgres?sslmode=require",
-    PAYLOAD_DATABASE_URL: PAYLOAD_LOCAL_SQLITE_URL,
-  });
-
-  assert.equal(description.source, "PAYLOAD_DATABASE_URL");
-  assert.equal(description.kind, "sqlite");
-  assert.match(description.summary, /non-production CMS-only sandbox/i);
-  assert.match(description.summary, /not the normal production blog database path/i);
-}
-
 async function testPayloadDependencyDescriptionHandlesMissingEnv(): Promise<void> {
   const description = describePayloadDatabaseDependency({});
 
@@ -159,15 +123,12 @@ async function testPayloadDependencyDescriptionHandlesMissingEnv(): Promise<void
 async function run(): Promise<void> {
   await testPayloadDefaultsToCanonicalDatabaseUrl();
   await testPayloadPrefersExplicitOverride();
-  await testPayloadAllowsExplicitLocalSqliteOnlyInNonProduction();
   await testPayloadRejectsMissingDatabaseConfig();
-  await testPayloadRejectsImplicitSqliteCanonicalDatabaseUrl();
-  await testPayloadRejectsProductionSqliteOverride();
+  await testPayloadRejectsNonPostgresDatabaseUrl();
   await testPayloadRejectsSupabaseWithoutSslModeOnDatabaseUrl();
   await testPayloadRejectsSupabaseWithoutSslModeOnPayloadOverride();
   await testPayloadAutoPushDefaultsStayPredictable();
   await testPayloadDependencyDescriptionDefaultsToSharedDatabaseUrl();
-  await testPayloadDependencyDescriptionFlagsExplicitSqliteOverride();
   await testPayloadDependencyDescriptionHandlesMissingEnv();
 
   console.log("payload-database-config: ok");

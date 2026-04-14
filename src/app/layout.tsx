@@ -1,25 +1,11 @@
 import type { ReactNode } from "react";
-import { Playfair_Display, Inter } from "next/font/google";
 
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
+// Root layout is a bare passthrough — no <html><body> here.
+// (site)/layout.tsx owns the document shell for public routes.
+// (cms)/layout.tsx (via Payload's RootLayout) owns its own document shell.
+// Rendering <html><body> here would create a double-document conflict with Payload.
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
-      <body suppressHydrationWarning className={inter.className}>
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }
