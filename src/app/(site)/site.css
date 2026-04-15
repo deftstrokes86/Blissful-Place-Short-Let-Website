@@ -242,6 +242,30 @@ button {
   color: var(--primary);
 }
 
+/* ── Pill-track nav (desktop) ─────────────────────────────────────── */
+.nav-pill-track {
+  gap: 0.25rem;
+  padding: 0.3rem 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 11, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.nav-pill-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  border-radius: 9999px;
+}
+
+/* Neutralise the global a:hover colour change inside the pill track —
+   colour is controlled per-item via inline style + React state. */
+.nav-pill-track a:hover {
+  color: inherit;
+}
+
 .logo {
   display: flex;
   align-items: center;

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { ChevronDown, Menu, X } from "@/lib/lucide-react";
@@ -46,6 +48,23 @@ export function SiteHeader({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [promoHeight, setPromoHeight] = useState(38);
   const promoBarRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+
+  const isActive = (item: NavItem): boolean => {
+    if (item.href === "/") return pathname === "/";
+    if (item.children) {
+      return (
+        pathname.startsWith("/book") ||
+        pathname.startsWith("/availability") ||
+        pathname.startsWith("/tour")
+      );
+    }
+    return pathname === item.href;
+  };
+
+  const activeHref = NAV_ITEMS.find(isActive)?.href ?? null;
+  const pillTarget = hoveredHref ?? activeHref;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,14 +129,58 @@ export function SiteHeader({
           </Link>
         </div>
 
-        <div className="nav-links hide-on-mobile">
-          {NAV_ITEMS.map((item) =>
-            item.children ? (
-              <div key={item.href} className="nav-item-with-menu">
-                <Link href={item.href} className="nav-parent-link">
+        <div
+          className="nav-links hide-on-mobile nav-pill-track"
+          onMouseLeave={() => setHoveredHref(null)}
+        >
+          {NAV_ITEMS.map((item) => {
+            const active = isActive(item);
+            const hovered = hoveredHref === item.href;
+            const lit = active || hovered;
+            const showPill = pillTarget === item.href;
+
+            return item.children ? (
+              <div
+                key={item.href}
+                className="nav-item-with-menu nav-pill-item"
+                data-active={active ? "true" : "false"}
+                data-hovered={hovered ? "true" : "false"}
+                onMouseEnter={() => setHoveredHref(item.href)}
+                onFocus={() => setHoveredHref(item.href)}
+              >
+                {showPill && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "9999px",
+                      backgroundColor: "rgba(238,29,82,0.14)",
+                      border: "1px solid rgba(238,29,82,0.4)",
+                      zIndex: 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 340, damping: 28 }}
+                  />
+                )}
+                <Link
+                  href={item.href}
+                  className="nav-parent-link"
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    color: lit ? "var(--text-primary)" : "var(--text-secondary)",
+                    transition: "color 0.2s ease",
+                  }}
+                >
                   {item.label}
                 </Link>
-                <ChevronDown size={14} className="nav-dropdown-icon" aria-hidden />
+                <ChevronDown
+                  size={14}
+                  className="nav-dropdown-icon"
+                  aria-hidden
+                  style={{ position: "relative", zIndex: 1 }}
+                />
                 <div className="nav-submenu" role="menu" aria-label={`${item.label} submenu`}>
                   {item.children.map((child) => (
                     <Link key={child.href} href={child.href} role="menuitem">
@@ -127,11 +190,43 @@ export function SiteHeader({
                 </div>
               </div>
             ) : (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            )
-          )}
+              <div
+                key={item.href}
+                className="nav-pill-item"
+                data-active={active ? "true" : "false"}
+                data-hovered={hovered ? "true" : "false"}
+                onMouseEnter={() => setHoveredHref(item.href)}
+                onFocus={() => setHoveredHref(item.href)}
+              >
+                {showPill && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "9999px",
+                      backgroundColor: "rgba(238,29,82,0.14)",
+                      border: "1px solid rgba(238,29,82,0.4)",
+                      zIndex: 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 340, damping: 28 }}
+                  />
+                )}
+                <Link
+                  href={item.href}
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    color: lit ? "var(--text-primary)" : "var(--text-secondary)",
+                    transition: "color 0.2s ease",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              </div>
+            );
+          })}
         </div>
 
         <div className="nav-actions hide-on-mobile">
