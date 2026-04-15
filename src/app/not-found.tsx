@@ -96,8 +96,9 @@ export default function NotFound() {
   }, []);
 
   return (
-    <>
-      <style href="not-found-styles" precedence="default">{`
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <style href="not-found-styles" precedence="default">{`
         @keyframes shimmer-404 {
           from { background-position: 0%   center; }
           to   { background-position: 200% center; }
@@ -154,140 +155,141 @@ export default function NotFound() {
         .nf-btn-secondary:hover .nf-arrow {
           transform: translateX(4px);
         }
-      `}</style>
+        `}</style>
 
-      {/* Full-viewport fixed overlay — escapes any parent layout flow */}
-      <div
-        data-testid="not-found-root"
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "#0A0A0B",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-        }}
-      >
-        <FloatingParticles />
-
-        {/* Content */}
+        {/* Full-viewport fixed overlay — escapes any parent layout flow */}
         <div
+          data-testid="not-found-root"
           style={{
-            position: "relative",
-            zIndex: 10,
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "#0A0A0B",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            textAlign: "center",
-            padding: "0 1.5rem",
-            maxWidth: "36rem",
-            margin: "0 auto",
+            justifyContent: "center",
+            overflow: "hidden",
           }}
         >
-          {/* 404 — shimmer */}
-          <motion.div
-            initial={mounted ? { opacity: 0, scale: 0.9, y: 24 } : false}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1.05, ease }}
+          <FloatingParticles />
+
+          {/* Content */}
+          <div
+            style={{
+              position: "relative",
+              zIndex: 10,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "0 1.5rem",
+              maxWidth: "36rem",
+              margin: "0 auto",
+            }}
           >
-            <span
-              className="nf-shimmer"
+            {/* 404 — shimmer */}
+            <motion.div
+              initial={mounted ? { opacity: 0, scale: 0.9, y: 24 } : false}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 1.05, ease }}
+            >
+              <span
+                className="nf-shimmer"
+                style={{
+                  display: "block",
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  userSelect: "none",
+                  fontSize: "clamp(4.5rem, min(18vw, 18vh), 9rem)",
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                404
+              </span>
+            </motion.div>
+
+            {/* Decorative rule */}
+            <motion.div
+              initial={mounted ? { opacity: 0, scaleX: 0 } : false}
+              animate={{ opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.65, ease: "easeOut", delay: 0.22 }}
               style={{
-                display: "block",
-                fontWeight: 700,
-                lineHeight: 1,
-                userSelect: "none",
-                fontSize: "clamp(4.5rem, min(18vw, 18vh), 9rem)",
-                letterSpacing: "-0.04em",
+                width: "3.5rem",
+                height: "1px",
+                backgroundColor: "rgba(238, 29, 82, 0.5)",
+                marginTop: "0.25rem",
+                marginBottom: "1.75rem",
+                transformOrigin: "center",
+              }}
+            />
+
+            {/* Serif heading */}
+            <motion.h1
+              {...fadeUp(0.3, mounted)}
+              style={{
+                fontFamily: "'Playfair Display', 'Times New Roman', serif",
+                fontStyle: "italic",
+                color: "#ffffff",
+                fontSize: "clamp(1.875rem, 4vw, 2.6rem)",
+                lineHeight: 1.35,
+                letterSpacing: "-0.01em",
+                margin: 0,
               }}
             >
-              404
-            </span>
-          </motion.div>
+              This Room Doesn't Exist
+            </motion.h1>
 
-          {/* Decorative rule */}
-          <motion.div
-            initial={mounted ? { opacity: 0, scaleX: 0 } : false}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ duration: 0.65, ease: "easeOut", delay: 0.22 }}
-            style={{
-              width: "3.5rem",
-              height: "1px",
-              backgroundColor: "rgba(238, 29, 82, 0.5)",
-              marginTop: "0.25rem",
-              marginBottom: "1.75rem",
-              transformOrigin: "center",
-            }}
-          />
-
-          {/* Serif heading */}
-          <motion.h1
-            {...fadeUp(0.3, mounted)}
-            style={{
-              fontFamily: "'Playfair Display', 'Times New Roman', serif",
-              fontStyle: "italic",
-              color: "#ffffff",
-              fontSize: "clamp(1.875rem, 4vw, 2.6rem)",
-              lineHeight: 1.35,
-              letterSpacing: "-0.01em",
-              margin: 0,
-            }}
-          >
-            This Room Doesn't Exist
-          </motion.h1>
-
-          {/* Subtext */}
-          <motion.p
-            {...fadeUp(0.46, mounted)}
-            style={{
-              marginTop: "1.25rem",
-              color: "#AAA8A9",
-              fontSize: "1.0625rem",
-              lineHeight: 1.7,
-              maxWidth: "24rem",
-            }}
-          >
-            The page you're looking for may have been moved
-            {" "}or is no longer available.
-          </motion.p>
-
-          {/* Actions */}
-          <motion.div
-            {...fadeUp(0.62, mounted)}
-            style={{
-              marginTop: "2.5rem",
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "1.25rem",
-            }}
-          >
-            {/* Primary CTA */}
-            <motion.div
-              whileHover={mounted ? { scale: 1.05 } : {}}
-              whileTap={mounted ? { scale: 0.96 } : {}}
-              transition={{ type: "spring", stiffness: 340, damping: 20 }}
+            {/* Subtext */}
+            <motion.p
+              {...fadeUp(0.46, mounted)}
+              style={{
+                marginTop: "1.25rem",
+                color: "#AAA8A9",
+                fontSize: "1.0625rem",
+                lineHeight: 1.7,
+                maxWidth: "24rem",
+              }}
             >
-              <Link href="/" className="nf-btn-primary">
-                Return to Lobby
-              </Link>
-            </motion.div>
+              The page you're looking for may have been moved
+              {" "}or is no longer available.
+            </motion.p>
 
-            {/* Secondary link */}
+            {/* Actions */}
             <motion.div
-              whileHover={mounted ? { x: 4 } : {}}
-              transition={{ type: "spring", stiffness: 420, damping: 22 }}
+              {...fadeUp(0.62, mounted)}
+              style={{
+                marginTop: "2.5rem",
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "1.25rem",
+              }}
             >
-              <Link href="/property" className="nf-btn-secondary">
-                Explore Residences
-                <span className="nf-arrow">→</span>
-              </Link>
+              {/* Primary CTA */}
+              <motion.div
+                whileHover={mounted ? { scale: 1.05 } : {}}
+                whileTap={mounted ? { scale: 0.96 } : {}}
+                transition={{ type: "spring", stiffness: 340, damping: 20 }}
+              >
+                <Link href="/" className="nf-btn-primary">
+                  Return to Lobby
+                </Link>
+              </motion.div>
+
+              {/* Secondary link */}
+              <motion.div
+                whileHover={mounted ? { x: 4 } : {}}
+                transition={{ type: "spring", stiffness: 420, damping: 22 }}
+              >
+                <Link href="/property" className="nf-btn-secondary">
+                  Explore Residences
+                  <span className="nf-arrow">→</span>
+                </Link>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
-      </div>
-    </>
+      </body>
+    </html>
   );
 }
