@@ -117,7 +117,7 @@ function createSeedFlats(now: string): FlatRecord[] {
     {
       id: "windsor",
       name: "Windsor Residence",
-      nightlyRate: 150000,
+      nightlyRate: 120000,
       maxGuests: 6,
       createdAt: now,
       updatedAt: now,
@@ -125,7 +125,7 @@ function createSeedFlats(now: string): FlatRecord[] {
     {
       id: "kensington",
       name: "Kensington Lodge",
-      nightlyRate: 180000,
+      nightlyRate: 120000,
       maxGuests: 6,
       createdAt: now,
       updatedAt: now,
@@ -133,7 +133,7 @@ function createSeedFlats(now: string): FlatRecord[] {
     {
       id: "mayfair",
       name: "Mayfair Suite",
-      nightlyRate: 250000,
+      nightlyRate: 120000,
       maxGuests: 6,
       createdAt: now,
       updatedAt: now,
@@ -143,8 +143,8 @@ function createSeedFlats(now: string): FlatRecord[] {
 
 function createSeedExtras(now: string): ExtraRecord[] {
   return [
-    { id: "airport", title: "Premium Airport Transfer", flatFee: 65000, createdAt: now, updatedAt: now },
-    { id: "pantry", title: "Pantry Pre-Stocking", flatFee: 45000, createdAt: now, updatedAt: now },
+    { id: "airport", title: "Premium Airport Transfer", flatFee: 30000, createdAt: now, updatedAt: now },
+    { id: "pantry", title: "Pantry Pre-Stocking", flatFee: 50000, createdAt: now, updatedAt: now },
     { id: "celebration", title: "Celebration Setup", flatFee: 75000, createdAt: now, updatedAt: now },
   ];
 }

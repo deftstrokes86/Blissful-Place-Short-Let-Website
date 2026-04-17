@@ -22,19 +22,19 @@ export const FLATS: FlatOption[] = [
   {
     id: "windsor",
     name: "Windsor Residence",
-    rate: 150000,
+    rate: 120000,
     blurb: "Elegant premium residence with calming, private interiors.",
   },
   {
     id: "kensington",
     name: "Kensington Lodge",
-    rate: 180000,
+    rate: 120000,
     blurb: "Quiet luxury setup designed for business and extended stays.",
   },
   {
     id: "mayfair",
     name: "Mayfair Suite",
-    rate: 250000,
+    rate: 120000,
     blurb: "Signature suite with elevated finishes and premium comfort.",
   },
 ];
@@ -43,14 +43,14 @@ export const EXTRAS: ExtraOption[] = [
   {
     id: "airport",
     title: "Premium Airport Transfer",
-    price: 65000,
+    price: 30000,
     desc: "Chauffeur pickup from MMA to your residence.",
     icon: Plane,
   },
   {
     id: "pantry",
     title: "Pantry Pre-Stocking",
-    price: 45000,
+    price: 50000,
     desc: "Premium grocery and beverage setup before arrival.",
     icon: ShoppingBag,
   },
