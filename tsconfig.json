@@ -36,6 +36,7 @@
     "node_modules",
     "jest.config.ts",
     "jest.setup.ts",
+    "**/__mocks__/**",
     "**/__tests__/**",
     "**/*.test.ts",
     "**/*.test.tsx",
