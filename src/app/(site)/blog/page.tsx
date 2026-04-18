@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   description:
     "Practical hospitality insights from Blissful Place Residences covering stays, booking preparation, and local living in Ijaiye/Agbado/Kollington.",
 };
+export const dynamic = "force-dynamic";
 
 async function loadBlogPagePosts(): Promise<PublicBlogPostSummary[]> {
   try {
