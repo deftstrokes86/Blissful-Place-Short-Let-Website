@@ -9,9 +9,8 @@ import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
 import type { PublicBlogPostSummary } from "@/server/cms/blog-public-mappers";
 
 export const metadata: Metadata = {
-  title: "Blog | Blissful Place Residences",
-  description:
-    "Practical hospitality insights from Blissful Place Residences covering stays, booking preparation, and local living in Ijaiye/Agbado/Kollington.",
+  title: "Blog — Guides and Practical Notes",
+  description: "Practical articles about staying in Agbado, Lagos — booking tips, local guides, and what to expect at Blissful Place Residences.",
 };
 export const dynamic = "force-dynamic";
 

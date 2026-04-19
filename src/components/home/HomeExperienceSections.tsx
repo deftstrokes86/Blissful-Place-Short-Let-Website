@@ -12,7 +12,7 @@ import {
   Wifi,
   Zap,
 } from "@/lib/lucide-react";
-import { SITE_CITY_NAME, SITE_LOCATION_LABEL } from "@/lib/site-config";
+import { SITE_CITY_NAME } from "@/lib/site-config";
 
 export function HomeExperienceSections() {
   return (
@@ -26,8 +26,7 @@ export function HomeExperienceSections() {
             Promise
           </h2>
           <p className="promise-desc">
-            We don&apos;t just provide a space; we provide an experience defined by uncompromising standards and
-            attention to detail.
+            Every Blissful Place residence runs on the same infrastructure: full solar power, fiber internet, gated security, and professional management. No guesswork, no surprises.
           </p>
 
           <div className="promise-features">
@@ -36,8 +35,8 @@ export function HomeExperienceSections() {
                 <Zap size={24} />
               </div>
               <div>
-                <h4 className="serif">24/7 Guaranteed Power</h4>
-                <p>Dual-grid system with seamless automated industrial backup generators. Zero noise, zero downtime.</p>
+                <h4 className="serif">Silent 24/7 Solar Power</h4>
+                <p>Full solar and battery system — no generator noise, no diesel fumes, no power cuts. Runs silently around the clock, every day of your stay.</p>
               </div>
             </div>
 
@@ -46,8 +45,8 @@ export function HomeExperienceSections() {
                 <Wifi size={24} />
               </div>
               <div>
-                <h4 className="serif">Enterprise Connectivity</h4>
-                <p>Dedicated dual-fiber networks delivering lightning-fast internet for remote work and streaming.</p>
+                <h4 className="serif">Fiber Optic Internet</h4>
+                <p>Dedicated fiber optic connection for reliable remote work, video calls, and streaming. Not shared estate WiFi — a real line to your flat.</p>
               </div>
             </div>
 
@@ -56,8 +55,8 @@ export function HomeExperienceSections() {
                 <Shield size={24} />
               </div>
               <div>
-                <h4 className="serif">Elite Biometric Security</h4>
-                <p>Multi-tier fortified estate access, secure parking, and highly trained 24/7 on-site protection.</p>
+                <h4 className="serif">Gated Compound Security</h4>
+                <p>Secure gated compound with on-site guards and controlled vehicle access. Quiet residential setting on a private road.</p>
               </div>
             </div>
           </div>
@@ -72,8 +71,7 @@ export function HomeExperienceSections() {
         <span className="subtitle-tag">WHY BOOK DIRECT</span>
         <h2 className="heading-lg serif">The Smartest Way to Stay</h2>
         <p className="hero-desc" style={{ marginBottom: "3rem" }}>
-          Skip the middleman. Booking directly on our official platform guarantees the ultimate Blissful Place
-          experience.
+          Skip Airbnb fees. Booking directly saves you up to 15%, gets you priority WhatsApp support, and unlocks extras like airport transfers and pantry pre-stocking.
         </p>
 
         <div className="home-advantages-grid">
@@ -88,7 +86,7 @@ export function HomeExperienceSections() {
           <div className="advantage-card">
             <MessageSquare className="text-primary" size={28} />
             <h4 className="serif">Instant WhatsApp Concierge</h4>
-            <p>Get a direct, priority line to our on-ground hospitality team for immediate assistance, 24 hours a day.</p>
+            <p>Get a direct line to our hospitality team for quick assistance via WhatsApp throughout your stay.</p>
           </div>
           <div className="advantage-card">
             <Sparkles className="text-primary" size={28} />
@@ -102,8 +100,7 @@ export function HomeExperienceSections() {
             <Star className="text-primary" size={28} />
             <h4 className="serif">Welcome & Loyalty Perks</h4>
             <p>
-              Enjoy complimentary premium coffee, dedicated secure parking, and exclusive discounts for your future
-              {SITE_CITY_NAME} visits.
+              Enjoy secure parking, a smooth check-in experience, and special rates for returning guests visiting {SITE_CITY_NAME}.
             </p>
           </div>
         </div>
@@ -138,56 +135,6 @@ export function HomeExperienceSections() {
                 <span>Instant Priority WhatsApp Concierge</span>
                 <span>Priority Early / Late Access</span>
                 <span>15% Off Your Next Stay + Upgrades</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section bg-light-panel" style={{ paddingBottom: "2rem" }}>
-        <div className="container">
-          <div className="vip-section-grid vip-section-panel">
-            <div>
-              <span className="subtitle-tag">VIP GUEST PROGRAM</span>
-              <h2 className="heading-lg serif">Unlock the Inner Circle</h2>
-              <p className="hero-desc" style={{ marginLeft: 0, textAlign: "left", marginTop: "1.5rem", maxWidth: "100%", color: "var(--text-secondary)" }}>
-                Join our exclusive guest list and instantly receive a promo code for <strong>10% off your first direct booking</strong>. Returning guests unlock our Blissful Black tier, gaining complimentary upgrades, 15% off subsequent stays, and private chef access.
-              </p>
-
-              <div className="lead-capture-form" style={{ marginTop: "3rem" }}>
-                <input
-                  type="email"
-                  placeholder="Enter your email for instant VIP access..."
-                  style={{
-                    padding: "1.25rem 1.5rem",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--border-subtle)",
-                    background: "var(--bg-panel)",
-                    color: "white",
-                    outline: "none",
-                    fontSize: "1rem",
-                    fontFamily: "inherit",
-                  }}
-                />
-                <button className="btn btn-primary" style={{ padding: "0 2.5rem" }}>
-                  Unlock Access
-                </button>
-              </div>
-              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "1rem", opacity: 0.7 }}>
-                No spam. Just exclusive luxury offers and priority booking windows for peak seasons in {SITE_CITY_NAME}.
-              </p>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div className="vip-member-card">
-                <div className="vip-member-card-bar" />
-                <Sparkles size={48} className="text-secondary" style={{ marginBottom: "1.5rem" }} />
-                <h3 className="serif heading-sm" style={{ letterSpacing: "0.1em" }}>
-                  BLISSFUL BLACK
-                </h3>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.75rem", textTransform: "uppercase", letterSpacing: "0.3em" }}>
-                  Member Card
-                </span>
               </div>
             </div>
           </div>
@@ -243,30 +190,29 @@ export function HomeExperienceSections() {
 
       <section className="section container neighborhood-split">
         <div className="promise-image-wrapper" style={{ height: "500px" }}>
-          <Image src="/hero-opulence.png" alt={`${SITE_CITY_NAME} Skyline`} fill style={{ objectFit: "cover" }} />
+          <Image src="/hero-opulence.png" alt="Lagos-Abeokuta expressway access near Blissful Place Residences" fill style={{ objectFit: "cover" }} />
         </div>
         <div>
-          <span className="subtitle-tag">PRIME LOCATIONS</span>
-          <h2 className="heading-lg serif">Positioned for Prestige</h2>
+          <span className="subtitle-tag">LOCATION & ACCESS</span>
+          <h2 className="heading-lg serif">Quiet Base, Easy Access</h2>
           <p className="promise-desc" style={{ marginTop: "1rem", marginBottom: "2rem" }}>
-            Our residences are strictly embedded within the safest, high-value corridors of {SITE_LOCATION_LABEL}. You are never
-            more than a 10-minute drive from your next important meeting or exclusive reservation.
+            Blissful Place Residences is located in Agbado, a quiet residential area on the Lagos-Abeokuta expressway. Close enough to mainland Lagos for easy access, far enough for genuine peace and quiet.
           </p>
           <div className="neighborhood-points">
             <div className="neighborhood-point">
               <MapPin className="text-primary" size={24} />
               <div>
                 <span style={{ fontSize: "0.95rem", color: "var(--text-secondary)" }}>
-                  Seamless access to key business districts and corporate HQs. Less time in traffic, more time executing.
+                  Minutes from Ikeja, Abule Egba, Meiran, and Egbeda via the Lagos-Abeokuta expressway. Easy access to business districts, markets, and transport links across mainland Lagos.
                 </span>
               </div>
             </div>
             <div className="neighborhood-point">
               <Coffee className="text-primary" size={24} />
               <div>
-                <strong style={{ display: "block", fontSize: "1.1rem" }}>Elite Lifestyle Corridors</strong>
+                <strong style={{ display: "block", fontSize: "1.1rem" }}>A Calmer Alternative</strong>
                 <span style={{ fontSize: "0.95rem", color: "var(--text-secondary)" }}>
-                  Steps away from {SITE_CITY_NAME}&apos;s premier award-winning culinary scene, high-end shopping, and private lounges.
+                  If you&apos;re finding limited availability or noisy generators in Ikeja or Abule Egba, Agbado offers a quieter option with better infrastructure — silent solar power, fiber internet, and a secure gated compound.
                 </span>
               </div>
             </div>
@@ -276,58 +222,24 @@ export function HomeExperienceSections() {
 
       <section className="section bg-light-panel text-center">
         <div className="container">
-          <span className="subtitle-tag">VERIFIED EXCELLENCE</span>
-          <h2 className="heading-lg serif" style={{ marginBottom: "4rem" }}>
-            Don&apos;t Just Take Our Word For It
-          </h2>
+          <span className="subtitle-tag">YOUR STAY</span>
+          <h2 className="heading-lg serif" style={{ marginBottom: "4rem" }}>What to Expect</h2>
 
           <div className="testimonial-grid">
             <div className="testimonial-card">
-              <div className="stars">
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-              </div>
-              <p className="testimonial-text">
-                &ldquo;As a returning diaspora Nigerian, power and security are non-negotiable. Blissful Place delivered
-                flawlessly. Zero generator noise, perfectly stable lightning-fast internet, and the aesthetics are stunning. I book direct
-                every time I fly in now.&rdquo;
-              </p>
-              <div className="testimonial-author">Dr. Chuka O.</div>
-              <div className="testimonial-type">Diaspora Executive / 2 Week Stay</div>
+              <CheckCircle2 className="text-primary" size={32} style={{ marginBottom: "1rem" }} />
+              <h4 className="serif">Consistent Standard, Every Unit</h4>
+              <p className="testimonial-text">All three apartments share the same layout, the same solar power system, the same fiber internet, and the same level of professional care. No matter which you book, the experience is identical.</p>
             </div>
             <div className="testimonial-card">
-              <div className="stars">
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-              </div>
-              <p className="testimonial-text">
-                &ldquo;The smartest booking decision we made for our team. The space was pristine, quiet, and highly
-                corporate-friendly. The concierge arranging our airport pickup directly to the door at 2 AM was 5-star
-                standard.&rdquo;
-              </p>
-              <div className="testimonial-author">Sarah &amp; Mark T.</div>
-              <div className="testimonial-type">Corporate Team / 1 Month Stay</div>
+              <Zap className="text-primary" size={32} style={{ marginBottom: "1rem" }} />
+              <h4 className="serif">Silent Power, Day and Night</h4>
+              <p className="testimonial-text">Our full solar and battery system runs without noise, fumes, or interruptions. No generators, no diesel, no 2am engine startups. Just clean, quiet, continuous power.</p>
             </div>
             <div className="testimonial-card">
-              <div className="stars">
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-                <Star fill="currentColor" size={16} />
-              </div>
-              <p className="testimonial-text">
-                &ldquo;The biometric security and 24/7 staff presence made me feel completely at ease traveling alone. The team
-                is invisible when you want peace, but instantly responsive on WhatsApp when needed.&rdquo;
-              </p>
-              <div className="testimonial-author">Amina B.</div>
-              <div className="testimonial-type">Solo Premium Traveler / 5 Night Stay</div>
+              <MessageSquare className="text-primary" size={32} style={{ marginBottom: "1rem" }} />
+              <h4 className="serif">Real Support, Not a Call Centre</h4>
+              <p className="testimonial-text">Reach our team directly on WhatsApp for anything you need — check-in coordination, local tips, or help during your stay. No ticketing systems, no hold music.</p>
             </div>
           </div>
         </div>

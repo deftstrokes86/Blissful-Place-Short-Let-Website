@@ -6,20 +6,20 @@ import { buildBookingHref } from "@/lib/booking-flat-preselection";
 export function HomeFeaturedResidencesSection() {
   return (
     <section id="residences" className="section container text-center">
-      <span className="subtitle-tag">CURATED LIVING</span>
+      <span className="subtitle-tag">OUR RESIDENCES</span>
       <h2 className="heading-lg serif">Featured Residences</h2>
 
       <div className="residence-grid text-left">
         <div className="residence-card">
           <div className="residence-img">
-            <span className="residence-tag">PREMIUM</span>
+            <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image src="/windsor.png" alt="Windsor Residence" fill style={{ objectFit: "cover" }} />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Windsor Residence</h3>
             </Link>
-            <p>A masterpiece of classic elegance combined with cutting-edge smart home technology.</p>
+            <p>Warm, restful interiors with silent solar power and fiber internet. Ideal for unwinding after a long journey.</p>
             <Link href={buildBookingHref("windsor")} className="btn btn-primary btn-full" style={{ display: "block", textAlign: "center", boxSizing: "border-box" }}>
               Book Now
             </Link>
@@ -28,14 +28,14 @@ export function HomeFeaturedResidencesSection() {
 
         <div className="residence-card">
           <div className="residence-img">
-            <span className="residence-tag">EXCLUSIVE</span>
+            <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image src="/kensington.png" alt="Kensington Lodge" fill style={{ objectFit: "cover" }} />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Kensington Lodge</h3>
             </Link>
-            <p>A sanctuary of peace and prestige, featuring private terraces and bespoke designer finishes.</p>
+            <p>Clean, orderly layout suited for focused remote work and quiet extended stays.</p>
             <Link href={buildBookingHref("kensington")} className="btn btn-primary btn-full" style={{ display: "block", textAlign: "center", boxSizing: "border-box" }}>
               Book Now
             </Link>
@@ -44,14 +44,14 @@ export function HomeFeaturedResidencesSection() {
 
         <div className="residence-card">
           <div className="residence-img">
-            <span className="residence-tag">PENTHOUSE</span>
+            <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image src="/mayfair.png" alt="Mayfair Suite" fill style={{ objectFit: "cover" }} />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Mayfair Suite</h3>
             </Link>
-            <p>The pinnacle of luxury living with 360-degree panoramic city views and 24-hour private service.</p>
+            <p>Bold finishing touches for guests who appreciate a space with personality and character.</p>
             <Link href={buildBookingHref("mayfair")} className="btn btn-primary btn-full" style={{ display: "block", textAlign: "center", boxSizing: "border-box" }}>
               Book Now
             </Link>

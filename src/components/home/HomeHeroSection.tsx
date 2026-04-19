@@ -40,7 +40,7 @@ export function HomeHeroSection() {
       <div className="container hero-content">
         <div className="hero-meta-strip">
           <span className="subtitle-tag" style={{ margin: 0 }}>
-            5-STAR GUEST RATING 4.9/5
+            PREMIUM SHORT-LET RESIDENCES
           </span>
           <span className="subtitle-tag hero-meta-separator" style={{ margin: 0 }}>
             /
@@ -50,13 +50,12 @@ export function HomeHeroSection() {
           </span>
         </div>
         <h1 className="heading-xl">
-          <span className="serif">Elevate Your Stay.</span>
+          <span className="serif">Your Private Residence.</span>
           <br />
-          <span className="serif text-primary">Uncompromised Luxury.</span>
+          <span className="serif text-primary">Silent Power. Real Comfort.</span>
         </h1>
         <p className="hero-desc" style={{ fontSize: "1.25rem", color: "#fff" }}>
-          Experience Lagos&apos; most refined, secure, and seamlessly managed premium short-let residences. Discerning
-          guests book direct.
+          Three professionally managed apartments in a secure gated compound in Agbado, Lagos — minutes from Ikeja, Abule Egba, Meiran, and Egbeda. Full solar power, fiber internet, and direct booking with no middleman fees.
         </p>
 
         <div className="booking-bar">

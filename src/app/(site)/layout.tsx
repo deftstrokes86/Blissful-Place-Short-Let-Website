@@ -17,8 +17,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Blissful Place | Residences",
-  description: "Experience the pinnacle of urban luxury living.",
+  title: {
+    default: "Blissful Place Residences | Premium Short-Let Apartments in Agbado, Lagos",
+    template: "%s | Blissful Place Residences",
+  },
+  description: "Three professionally managed short-let apartments in Agbado, Lagos — minutes from Ikeja, Abule Egba, Meiran & Egbeda. Silent solar power, fiber internet, gated security. Book direct and save.",
 };
 
 export default function SiteLayout({ children }: { children: ReactNode }) {

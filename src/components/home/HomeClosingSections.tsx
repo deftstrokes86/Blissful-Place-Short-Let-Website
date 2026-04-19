@@ -47,9 +47,7 @@ export function HomeClosingSections() {
               How reliable is the power and internet in your properties? <ChevronDown size={20} className="text-primary" />
             </summary>
             <p>
-              We guarantee 24/7 uninterrupted power through a dual-grid system with industrial backup generators. Our
-              internet setup delivers lightning-fast internet through dedicated fiber optics, making it perfectly suited for remote
-              work and heavy streaming.
+              Every flat runs on a full solar and battery power system — silent, clean, and uninterrupted 24/7. No generators, no diesel, no noise. Internet is a dedicated fiber optic connection, strong enough for video calls and heavy streaming.
             </p>
           </details>
           <details className="faq-item">
@@ -67,9 +65,7 @@ export function HomeClosingSections() {
               What is the difference between booking here and on Airbnb? <ChevronDown size={20} className="text-primary" />
             </summary>
             <p>
-              Booking directly on our website eliminates high third-party service fees (saving you up to 15%), grants
-              you priority support via WhatsApp, offers more flexible check-in times upon request, and unlocks exclusive
-              add-ons like airport transfers.
+              Booking directly eliminates Airbnb&apos;s service fees (saving you up to 15%), gives you priority WhatsApp support from our team, and unlocks add-on services like airport transfers and pantry pre-stocking that aren&apos;t available through third-party platforms.
             </p>
           </details>
           <details className="faq-item">
@@ -113,8 +109,7 @@ export function HomeClosingSections() {
             <span className="serif text-primary">Book Direct & Experience More.</span>
           </h2>
           <p style={{ fontSize: "1.1rem" }}>
-            Secure your dates now to lock in our guaranteed lowest rates and unlock exclusive complimentary perks.
-            Seamless payment, zero extra fees.
+            Book directly for the best rate — no Airbnb fees, no hidden charges. Three apartments, same premium standard, available now.
           </p>
           <div className="cta-actions">
             <Link href="/availability" className="btn btn-primary" style={{ padding: "1.25rem 3rem", fontSize: "1.1rem" }}>

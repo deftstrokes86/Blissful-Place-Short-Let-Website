@@ -9,7 +9,6 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import {
   CheckCircle2,
   Clock,
-  MapPin,
   MessageSquare,
   Shield,
   Sparkles,
@@ -144,7 +143,7 @@ export default function AboutPage() {
                 </li>
                 <li data-reveal="" data-reveal-delay="210">
                   <CheckCircle2 size={15} className="text-primary" />
-                  <span>Serving Ijaiye, Agbado, and Kollington with care.</span>
+                  <span>Located in Agbado, Lagos, with easy access to Ikeja, Abule Egba, Meiran, and Egbeda.</span>
                 </li>
               </ul>
             </aside>
@@ -248,9 +247,9 @@ export default function AboutPage() {
                 <div className="about-card-icon">
                   <Shield size={20} />
                 </div>
-                <h3 className="serif">Elite Security Focus</h3>
+                <h3 className="serif">Gated Compound Security</h3>
                 <p className="text-secondary">
-                  Secure access and disciplined operations that prioritize guest peace of mind.
+                  Secure gated compound with on-site guards and controlled access that prioritize guest peace of mind.
                 </p>
               </article>
             </div>
@@ -322,39 +321,23 @@ export default function AboutPage() {
 
           <AboutSection
             id="about-location-lifestyle"
-            subtitle="LOCATION AND LIFESTYLE"
-            title="Balanced for movement, work, and rest"
+            subtitle="LOCATION & ACCESS"
+            title="Getting Here"
             revealDelay={80}
           >
-            <div className="about-location-layout">
-              <div className="about-copy-stack">
-                <p className="text-secondary">
-                  Our location focus across Ijaiye, Agbado, and Kollington is practical for guests who need
-                  to move through the city while still returning to a quieter neighborhood environment.
-                </p>
-                <div className="about-location-points">
-                  <div className="about-location-point" data-reveal="" data-reveal-delay="120">
-                    <MapPin size={16} className="text-primary" />
-                    <span>Convenient positioning for daily commutes and scheduled meetings.</span>
-                  </div>
-                  <div className="about-location-point" data-reveal="" data-reveal-delay="150">
-                    <Sparkles size={16} className="text-primary" />
-                    <span>Quiet residential tone suited to focused work and recovery time.</span>
-                  </div>
-                </div>
-              </div>
-              <aside className="about-location-card" data-reveal="" data-reveal-delay="120">
-                <p className="about-mini-kicker">Neighborhood Context</p>
-                <h3 className="serif">{SITE_LOCATION_LABEL}</h3>
-                <p className="text-secondary">
-                  A grounded location strategy for guests who want practical access without giving up calm.
-                </p>
-                <div className="about-location-tags">
-                  <span>Quiet streets</span>
-                  <span>Work-ready stays</span>
-                  <span>Reliable support</span>
-                </div>
-              </aside>
+            <div className="about-copy-stack">
+              <p className="text-secondary">
+                Blissful Place Residences is located at 16 Tebun Fagbemi Street in Agbado, a quiet residential
+                area with direct access to the Lagos-Abeokuta expressway. We&apos;re a short drive from Ikeja,
+                Abule Egba, Meiran, and Egbeda — close enough for easy access to mainland Lagos, far enough for
+                genuine peace and quiet.
+              </p>
+              <p className="text-secondary">
+                If you&apos;re looking for a short-let in Ikeja, Abule Egba, Meiran, or Egbeda and finding
+                limited availability or noisy options, Agbado offers a calmer alternative with better
+                infrastructure — silent solar power, fiber internet, and none of the generator noise that comes
+                with most mainland short-lets.
+              </p>
             </div>
           </AboutSection>
 
