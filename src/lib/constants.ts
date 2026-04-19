@@ -23,19 +23,19 @@ export const FLATS: FlatOption[] = [
     id: "windsor",
     name: "Windsor Residence",
     rate: 120000,
-    blurb: "Elegant premium residence with calming, private interiors.",
+    blurb: "Warm, restful interiors designed for unwinding after a long journey.",
   },
   {
     id: "kensington",
     name: "Kensington Lodge",
     rate: 120000,
-    blurb: "Quiet luxury setup designed for business and extended stays.",
+    blurb: "Clean, orderly layout suited for focused work and quiet stays.",
   },
   {
     id: "mayfair",
     name: "Mayfair Suite",
     rate: 120000,
-    blurb: "Signature suite with elevated finishes and premium comfort.",
+    blurb: "Bold finishing touches for guests who appreciate a statement setting.",
   },
 ];
 

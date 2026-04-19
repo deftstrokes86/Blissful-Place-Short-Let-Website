@@ -1,5 +1,6 @@
 import "./site.css";
 
+import { StructuredData } from "@/components/site/StructuredData";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Playfair_Display, Inter } from "next/font/google";
@@ -24,6 +25,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${inter.variable}`}>
       <body suppressHydrationWarning className={inter.className}>
+        <StructuredData />
         {children}
       </body>
     </html>
