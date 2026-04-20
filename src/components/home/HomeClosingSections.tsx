@@ -15,22 +15,22 @@ export function HomeClosingSections() {
 
         <div className="gallery-grid">
           <div className="gallery-item">
-            <Image src="/windsor.png" alt="Gallery 1" fill />
+            <Image src="/photo-living-room.jpg" alt="Spacious living room with smart TV and chandelier" fill />
           </div>
           <div className="gallery-item">
-            <Image src="/mayfair.png" alt="Gallery 2" fill />
+            <Image src="/photo-bathroom.jpg" alt="Marble-tiled bathroom with glass shower enclosure" fill />
           </div>
           <div className="gallery-item">
-            <Image src="/promise.png" alt="Gallery 3" fill />
+            <Image src="/photo-bedroom-2.jpg" alt="Bedroom with black king bed and purple ceiling lights" fill />
           </div>
           <div className="gallery-item">
-            <Image src="/kensington.png" alt="Gallery 4" fill />
+            <Image src="/photo-corridor.jpg" alt="Marble-floored corridor with pendant lighting" fill />
           </div>
           <div className="gallery-item">
-            <Image src="/hero-opulence.png" alt="Gallery 5" fill />
+            <Image src="/photo-bedroom-5.jpg" alt="Bedroom with wooden wardrobe and blue ceiling accent lights" fill />
           </div>
           <div className="gallery-item">
-            <Image src="/pool.png" alt="Gallery 6" fill />
+            <Image src="/photo-bedroom-1.jpg" alt="Bedroom with dark headboard and coloured ceiling lights" fill />
           </div>
         </div>
       </section>
