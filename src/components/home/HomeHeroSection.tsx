@@ -36,7 +36,7 @@ export function HomeHeroSection() {
   }
 
   return (
-    <section className="hero" style={{ backgroundImage: 'url("/hero-opulence.png")' }}>
+    <section className="hero" style={{ backgroundImage: 'url("/photo-hero.jpg")' }}>
       <div className="container hero-content">
         <div className="hero-meta-strip">
           <span className="subtitle-tag" style={{ margin: 0 }}>
