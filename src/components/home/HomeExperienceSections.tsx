@@ -190,7 +190,7 @@ export function HomeExperienceSections() {
 
       <section className="section container neighborhood-split">
         <div className="promise-image-wrapper" style={{ height: "500px" }}>
-          <Image src="/hero-opulence.png" alt="Lagos-Abeokuta expressway access near Blissful Place Residences" fill style={{ objectFit: "cover" }} />
+          <Image src="/living-room-b1.jpeg" alt="Lagos-Abeokuta expressway access near Blissful Place Residences" fill style={{ objectFit: "cover" }} />
         </div>
         <div>
           <span className="subtitle-tag">LOCATION & ACCESS</span>
