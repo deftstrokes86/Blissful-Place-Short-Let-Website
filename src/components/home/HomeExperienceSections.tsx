@@ -63,7 +63,7 @@ export function HomeExperienceSections() {
         </div>
 
         <div className="promise-image-wrapper">
-          <Image src="/promise.png" alt="Luxurious Interior Detail" fill style={{ objectFit: "cover" }} />
+          <Image src="/Image-collage.png" alt="Blissful Place Residences interior collage" fill style={{ objectFit: "cover" }} />
         </div>
       </section>
 
