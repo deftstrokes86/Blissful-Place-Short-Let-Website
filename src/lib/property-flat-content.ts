@@ -40,8 +40,8 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Windsor Residence is a warm, restful space designed for guests who value comfort, quiet, and a smooth stay from check-in to checkout.",
     heroImage: {
-      src: "/windsor.png",
-      alt: "Windsor Residence interior view",
+      src: "/living-room-downstairs-1.png",
+      alt: "Windsor Residence living room",
     },
     galleryImages: [
       {
@@ -168,8 +168,8 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Mayfair Suite brings bold finishing touches to the same trusted layout — for guests who appreciate a space with personality.",
     heroImage: {
-      src: "/mayfair.png",
-      alt: "Mayfair Suite penthouse interior",
+      src: "/living-room-upstairs-landscape-1.png",
+      alt: "Mayfair Suite living room",
     },
     galleryImages: [
       {
