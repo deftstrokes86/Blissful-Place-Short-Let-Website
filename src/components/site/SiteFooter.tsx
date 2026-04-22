@@ -156,12 +156,39 @@ export function SiteFooter() {
             <div style={{ color: "var(--text-secondary)", fontSize: "0.8rem" }}>
               &copy; {new Date().getFullYear()} Blissful Place Residences. All rights reserved.
             </div>
-            <div className="footer-bottom-note">
-              <span className="serif" style={{ fontStyle: "italic" }}>
-                Uncompromised Luxury.
+            <div className="footer-bottom-note" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+              made with{" "}
+              <span
+                aria-label="love"
+                style={{
+                  display: "inline-block",
+                  color: "var(--primary)",
+                  animation: "heartbeat 1.2s ease-in-out infinite",
+                }}
+              >
+                ♥
               </span>
+              {" "}by{" "}
+              <a
+                href="http://www.steveigwebuike.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--text-secondary)", textDecoration: "underline", textDecorationColor: "rgba(255,255,255,0.2)", transition: "color 0.2s" }}
+                className="hover-white"
+              >
+                Steve
+              </a>
             </div>
           </div>
+          <style>{`
+            @keyframes heartbeat {
+              0%, 100% { transform: scale(1); }
+              14% { transform: scale(1.3); }
+              28% { transform: scale(1); }
+              42% { transform: scale(1.3); }
+              56% { transform: scale(1); }
+            }
+          `}</style>
         </div>
       </footer>
 
