@@ -104,7 +104,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Kensington Lodge is a clean, orderly space suited for professionals, remote workers, and guests who value structure and quiet.",
     heroImage: {
-      src: "/living-room-downstairs-landscape-landscape-2.png",
+      src: "/living-room-downstairs-landscape-2.png",
       alt: "Kensington Lodge living area",
     },
     galleryImages: [
