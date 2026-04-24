@@ -1,15 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { Calendar, User } from "@/lib/lucide-react";
 import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { SITE_LOCATION_LABEL } from "@/lib/site-config";
 
 export function HomeHeroSection() {
+  const heroRef = useRef<HTMLElement>(null);
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let rafId: number;
+
+    function onScroll() {
+      rafId = requestAnimationFrame(() => {
+        if (heroRef.current) {
+          const offset = window.scrollY * 0.35;
+          heroRef.current.style.backgroundPositionY = `calc(50% + ${offset}px)`;
+        }
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   function openPicker(ref: React.RefObject<HTMLInputElement | null>) {
     try {
@@ -36,7 +56,7 @@ export function HomeHeroSection() {
   }
 
   return (
-    <section className="hero" style={{ backgroundImage: 'url("/Hero-Image.png")' }}>
+    <section ref={heroRef} className="hero" style={{ backgroundImage: 'url("/Hero-Image.png")', backgroundPositionY: "50%" }}>
       <div className="container hero-content">
         <div className="hero-meta-strip">
           <span className="subtitle-tag" style={{ margin: 0 }}>
