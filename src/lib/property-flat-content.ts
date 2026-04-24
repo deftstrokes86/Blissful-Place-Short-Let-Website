@@ -109,12 +109,12 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     },
     galleryImages: [
       {
-        src: "/hero-opulence.png",
-        alt: "Kensington premium design detail",
+        src: "/kensington-lodge-collage-1.png",
+        alt: "Kensington Lodge interior",
       },
       {
-        src: "/bedroom.png",
-        alt: "Kensington bedroom comfort",
+        src: "/kensington-lodge-collage-2.png",
+        alt: "Kensington Lodge interior",
       },
     ],
     overview: [
