@@ -173,7 +173,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     },
     galleryImages: [
       {
-        src: "/mayfair-suite-collage.1.png",
+        src: "/mayfair-suite-collage-1.png",
         alt: "Mayfair Suite interior",
       },
       {
