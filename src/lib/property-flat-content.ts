@@ -45,12 +45,12 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     },
     galleryImages: [
       {
-        src: "/bedroom.png",
-        alt: "Windsor bedroom setting",
+        src: "/windsor-suite-collage-1.png",
+        alt: "Windsor Residence interior",
       },
       {
-        src: "/pool.png",
-        alt: "Windsor leisure amenity",
+        src: "/windsor-suite-collage-2.png",
+        alt: "Windsor Residence interior",
       },
     ],
     overview: [
