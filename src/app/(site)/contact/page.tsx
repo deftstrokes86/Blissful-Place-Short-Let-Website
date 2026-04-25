@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { LocationMap } from "@/components/site/LocationMap";
 import { Calendar, CheckCircle2, Clock, MapPin, MessageSquare, Phone, Shield, Sparkles } from "@/lib/lucide-react";
 import {
   SITE_ADDRESS_LINE_1,
@@ -546,6 +547,14 @@ export default function ContactPage() {
                     <Sparkles size={14} /> <a href={SUPPORT_EMAIL_URL}>{SUPPORT_EMAIL}</a>
                   </span>
                 </div>
+              </article>
+              <article className="contact-location-card" data-contact-reveal="" data-contact-reveal-delay="200" style={{ gridColumn: "1 / -1" }}>
+                <p className="contact-mini-kicker">Find Us</p>
+                <h3 className="serif">Agbado, Lagos</h3>
+                <p className="text-secondary" style={{ marginBottom: "1rem" }}>
+                  16 Tebun Fagbemi Street, Agbado — accessible via the Lagos-Abeokuta expressway. Short drive from Ikeja, Abule Egba, Meiran, and Egbeda.
+                </p>
+                <LocationMap height="280px" />
               </article>
             </div>
           </ContactSection>

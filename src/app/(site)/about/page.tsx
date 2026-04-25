@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { LocationMap } from "@/components/site/LocationMap";
 import {
   CheckCircle2,
   Clock,
@@ -339,6 +340,7 @@ export default function AboutPage() {
                 with most mainland short-lets.
               </p>
             </div>
+            <LocationMap height="380px" />
           </AboutSection>
 
           <AboutSection

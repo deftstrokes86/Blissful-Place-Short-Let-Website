@@ -16,8 +16,8 @@ export function StructuredData() {
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 6.6667,
-      "longitude": 3.3167
+      "latitude": 6.677627599999997,
+      "longitude": 3.279664971163975
     },
     "priceRange": "₦120,000/night",
     "currenciesAccepted": "NGN",

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { ChevronDown, MessageSquare } from "@/lib/lucide-react";
 import { SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
+import { LocationMap } from "@/components/site/LocationMap";
 
 export function HomeClosingSections() {
   return (
@@ -87,6 +88,19 @@ export function HomeClosingSections() {
               rate.
             </p>
           </details>
+        </div>
+      </section>
+
+      <section className="section" style={{ paddingTop: "2rem", paddingBottom: "3rem" }}>
+        <div className="content-wrapper text-center" style={{ marginBottom: "2rem" }}>
+          <span className="subtitle-tag">FIND US</span>
+          <h2 className="heading-lg serif">Our Location</h2>
+          <p className="text-secondary" style={{ maxWidth: "600px", margin: "1rem auto 0" }}>
+            16 Tebun Fagbemi Street, Agbado, Lagos — on the Lagos-Abeokuta expressway, minutes from Ikeja, Abule Egba, Meiran, and Egbeda.
+          </p>
+        </div>
+        <div className="content-wrapper">
+          <LocationMap height="400px" />
         </div>
       </section>
 
