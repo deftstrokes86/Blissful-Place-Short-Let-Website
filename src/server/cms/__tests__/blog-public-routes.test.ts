@@ -510,14 +510,13 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     metaDescription: "Custom Meta Description",
     ogImageUrl: "/media/og-image.jpg",
     featuredImageUrl: "/media/featured.jpg",
-    canonicalUrl: "https://www.blissfulplaceresidences.com/blog/custom-canonical",
     slug: "sample-post",
   });
 
   assert.equal(metadata.title, "Custom Meta Title");
   assert.equal(metadata.description, "Custom Meta Description");
   assert.equal(getFirstImageUrl(metadata.openGraph?.images), "/media/og-image.jpg");
-  assert.equal(metadata.alternates?.canonical, "https://www.blissfulplaceresidences.com/blog/custom-canonical");
+  assert.equal(metadata.alternates?.canonical, "/blog/sample-post");
 
   const fallbackMetadata = buildPublicBlogPostMetadata({
     title: "Fallback Post",
@@ -526,7 +525,6 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     metaDescription: "",
     ogImageUrl: null,
     featuredImageUrl: "/media/fallback-featured.jpg",
-    canonicalUrl: null,
     slug: "fallback-post",
   });
 
@@ -542,7 +540,6 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     metaDescription: "",
     ogImageUrl: "https://example.com/tracking-pixel.jpg",
     featuredImageUrl: "javascript:alert(1)",
-    canonicalUrl: null,
     slug: "unsafe-image-post",
   });
 
@@ -556,7 +553,6 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     metaDescription: "",
     ogImageUrl: null,
     featuredImageUrl: null,
-    canonicalUrl: null,
     slug: "minimal-post",
   });
 

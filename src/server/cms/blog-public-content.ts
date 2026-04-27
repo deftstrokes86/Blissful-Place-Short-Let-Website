@@ -11,7 +11,6 @@ export interface PublicBlogPostMetadataInput {
   metaDescription: string;
   ogImageUrl: string | null;
   featuredImageUrl: string | null;
-  canonicalUrl: string | null;
 }
 
 function asNonEmptyString(value: string | null | undefined): string | null {
@@ -99,7 +98,7 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
     "Read this article on Blissful Place Residences.";
   const socialImage =
     resolveRenderableBlogImageUrl(input.ogImageUrl) ?? resolveRenderableBlogImageUrl(input.featuredImageUrl);
-  const canonical = asNonEmptyString(input.canonicalUrl) ?? `/blog/${input.slug}`;
+  const canonical = `/blog/${input.slug}`;
 
   return {
     title,

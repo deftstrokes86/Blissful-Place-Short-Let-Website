@@ -1,8 +1,9 @@
 import "@payloadcms/next/css";
 
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
+import type { Metadata } from "next";
 
-import { RootLayout } from "@payloadcms/next/layouts";
+import { metadata as payloadMetadata, RootLayout } from "@payloadcms/next/layouts";
 
 import { cmsImportMap } from "@/cms/payload";
 import payloadConfig from "@/cms/payload.config";
@@ -12,7 +13,13 @@ interface CmsRootLayoutProps {
   children: ReactNode;
 }
 
-export { metadata } from "@payloadcms/next/layouts";
+export const metadata: Metadata = {
+  ...payloadMetadata,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface HydrationSafeElementProps {
   children?: ReactNode;

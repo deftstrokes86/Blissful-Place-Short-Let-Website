@@ -55,7 +55,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     metaDescription: post.metaDescription,
     ogImageUrl: post.ogImageUrl,
     featuredImageUrl: post.featuredImageUrl,
-    canonicalUrl: post.canonicalUrl,
   });
 }
 
