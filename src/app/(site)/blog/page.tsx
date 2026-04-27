@@ -9,6 +9,9 @@ import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
 import type { PublicBlogPostSummary } from "@/server/cms/blog-public-mappers";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/blog",
+  },
   title: "Blog — Guides and Practical Notes",
   description: "Practical articles about staying in Agbado, Lagos — booking tips, local guides, and what to expect at Blissful Place Residences.",
 };

@@ -5,6 +5,9 @@ import { CheckCircle2, Clock, MapPin, MessageSquare, Phone, Shield, Sparkles, Wi
 import { SUPPORT_PHONE_URL, SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/guide",
+  },
   title: "Guest Guide — What to Know Before Your Stay",
   description: "Everything you need for a smooth stay at Blissful Place Residences. Check-in details, house rules, local tips, and how to reach us in Agbado, Lagos.",
 };

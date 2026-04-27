@@ -4,6 +4,9 @@ import { PropertyFlatExperience } from "@/components/property/PropertyFlatExperi
 import { resolvePropertyFlatId } from "@/lib/property-flat-content";
 
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/property",
+  },
   title: "Our Residences — 3-Bedroom Short-Let Apartments Near Ikeja & Abule Egba",
   description: "Three professionally managed 3-bedroom, 3-bathroom apartments in a secure gated compound in Agbado, Lagos. Silent solar power, fiber internet, and easy access to Ikeja, Abule Egba, Meiran & Egbeda.",
 };
@@ -18,4 +21,3 @@ export default async function PropertyPage({ searchParams }: PropertyPageProps) 
 
   return <PropertyFlatExperience key={selectedFlatId} initialFlatId={selectedFlatId} />;
 }
-
