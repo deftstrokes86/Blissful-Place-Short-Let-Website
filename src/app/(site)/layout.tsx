@@ -17,6 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.blissfulplaceresidences.com"),
   title: {
     default: "Blissful Place Residences | Premium Short-Let Apartments in Agbado, Lagos",
     template: "%s | Blissful Place Residences",
