@@ -14,7 +14,7 @@ export function HomeFeaturedResidencesSection() {
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image
-              src="/downstairs-sitting-room-landscape-1.png"
+              src="/downstairs-sitting-room-landscape-1.webp"
               alt="Windsor Residence"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -36,7 +36,7 @@ export function HomeFeaturedResidencesSection() {
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image
-              src="/living-room-bungalow-portrait-1.png"
+              src="/living-room-bungalow-portrait-1.webp"
               alt="Kensington Lodge"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -58,7 +58,7 @@ export function HomeFeaturedResidencesSection() {
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
             <Image
-              src="/living-room-upstairs-portrait-1.png"
+              src="/living-room-upstairs-portrait-1.webp"
               alt="Mayfair Suite"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

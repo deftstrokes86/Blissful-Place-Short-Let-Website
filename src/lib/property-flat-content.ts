@@ -40,16 +40,16 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Windsor Residence is a warm, restful space designed for guests who value comfort, quiet, and a smooth stay from check-in to checkout.",
     heroImage: {
-      src: "/living-room-downstairs-1.png",
+      src: "/living-room-downstairs-1.webp",
       alt: "Windsor Residence living room",
     },
     galleryImages: [
       {
-        src: "/windsor-suite-collage-1.png",
+        src: "/windsor-suite-collage-1.webp",
         alt: "Windsor Residence interior",
       },
       {
-        src: "/windsor-suite-collage-2.png",
+        src: "/windsor-suite-collage-2.webp",
         alt: "Windsor Residence interior",
       },
     ],
@@ -107,16 +107,16 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Kensington Lodge is a clean, orderly space suited for professionals, remote workers, and guests who value structure and quiet.",
     heroImage: {
-      src: "/living-room-downstairs-landscape-2.png",
+      src: "/living-room-downstairs-landscape-2.webp",
       alt: "Kensington Lodge living area",
     },
     galleryImages: [
       {
-        src: "/kensington-lodge-collage-1.png",
+        src: "/kensington-lodge-collage-1.webp",
         alt: "Kensington Lodge interior",
       },
       {
-        src: "/kensington-lodge-collage-2.png",
+        src: "/kensington-lodge-collage-2.webp",
         alt: "Kensington Lodge interior",
       },
     ],
@@ -174,16 +174,16 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     positioningLine:
       "Mayfair Suite brings bold finishing touches to the same trusted layout — for guests who appreciate a space with personality.",
     heroImage: {
-      src: "/living-room-upstairs-landscape-1.png",
+      src: "/living-room-upstairs-landscape-1.webp",
       alt: "Mayfair Suite living room",
     },
     galleryImages: [
       {
-        src: "/mayfair-suites-collage1.png",
+        src: "/mayfair-suites-collage1.webp",
         alt: "Mayfair Suite interior",
       },
       {
-        src: "/mayfair-suite-collage-2.png",
+        src: "/mayfair-suite-collage-2.webp",
         alt: "Mayfair Suite interior",
       },
     ],
@@ -252,4 +252,3 @@ export function resolvePropertyFlatId(value: string | string[] | null | undefine
 
   return resolved ?? "mayfair";
 }
-

@@ -65,7 +65,7 @@ export function HomeHeroSection() {
         style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
       >
         <Image
-          src="/Hero-Image.png"
+          src="/Hero-Image.webp"
           alt="Luxury short-let apartment interior at Blissful Place Residences in Agbado, Lagos"
           fill
           priority

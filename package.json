@@ -7,6 +7,7 @@
     "build": "cross-env NODE_ENV=production prisma generate && cross-env NODE_ENV=production next build",
     "start": "next start",
     "postinstall": "prisma generate",
+    "optimize:images": "node scripts/optimize-public-images.mjs",
     "lint": "eslint",
     "test:backend-foundation": "node tests/booking-schema-contract.test.mjs && node tests/booking-schema-alignment.test.mjs",
     "test:prisma-setup": "node -e \"require('fs').rmSync('.tmp-prisma-test-build',{recursive:true,force:true})\" && tsc -p tsconfig.prisma-tests.json && node .tmp-prisma-test-build/server/db/__tests__/prisma-config.test.js && node .tmp-prisma-test-build/server/db/__tests__/prisma-bootstrap.test.js && node tests/prisma-setup-contract.test.mjs && node tests/prisma-cli-env.test.mjs",

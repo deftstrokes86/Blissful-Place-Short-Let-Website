@@ -63,7 +63,7 @@ export function HomeClosingSections() {
         <div className="gallery-grid">
           <div className="gallery-item">
             <Image
-              src="/photo-living-room.jpeg"
+              src="/photo-living-room.webp"
               alt="Spacious living room with smart TV and chandelier"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -71,7 +71,7 @@ export function HomeClosingSections() {
           </div>
           <div className="gallery-item">
             <Image
-              src="/photo-bathroom.jpeg"
+              src="/photo-bathroom.webp"
               alt="Marble-tiled bathroom with glass shower enclosure"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -79,7 +79,7 @@ export function HomeClosingSections() {
           </div>
           <div className="gallery-item">
             <Image
-              src="/photo-bedroom-2.jpeg"
+              src="/photo-bedroom-2.webp"
               alt="Bedroom with black king bed and purple ceiling lights"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -87,7 +87,7 @@ export function HomeClosingSections() {
           </div>
           <div className="gallery-item">
             <Image
-              src="/photo-corridor.jpeg"
+              src="/photo-corridor.webp"
               alt="Marble-floored corridor with pendant lighting"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -95,7 +95,7 @@ export function HomeClosingSections() {
           </div>
           <div className="gallery-item">
             <Image
-              src="/photo-bedroom-5.jpeg"
+              src="/photo-bedroom-5.webp"
               alt="Bedroom with wooden wardrobe and blue ceiling accent lights"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -103,7 +103,7 @@ export function HomeClosingSections() {
           </div>
           <div className="gallery-item">
             <Image
-              src="/photo-bedroom-1.jpeg"
+              src="/photo-bedroom-1.webp"
               alt="Bedroom with dark headboard and coloured ceiling lights"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"

@@ -64,7 +64,7 @@ export function HomeExperienceSections() {
 
         <div className="promise-image-wrapper">
           <Image
-            src="/living-room-collage.png"
+            src="/living-room-collage.webp"
             alt="Blissful Place Residences interior collage"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -197,7 +197,7 @@ export function HomeExperienceSections() {
       <section className="section container neighborhood-split">
         <div className="promise-image-wrapper" style={{ height: "500px" }}>
           <Image
-            src="/bedroom-plus-extras.png"
+            src="/bedroom-plus-extras.webp"
             alt="Bedroom and guest amenities at Blissful Place Residences"
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
