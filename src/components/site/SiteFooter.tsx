@@ -28,15 +28,33 @@ export function SiteFooter() {
                 Expect clear communication, steady essentials, and a calm hospitality experience from inquiry to checkout.
               </p>
               <div className="footer-socials" style={{ marginTop: "0.5rem" }}>
-                <a href={SOCIAL_LINKS.instagram} className="social-circle" aria-label="Instagram">
+                <a
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-circle"
+                  aria-label="Instagram"
+                >
                   <Instagram size={16} />
                 </a>
-                <a href={SOCIAL_LINKS.linkedin} className="social-circle" aria-label="LinkedIn">
+                <span
+                  className="social-circle"
+                  aria-label="LinkedIn coming soon"
+                  aria-disabled="true"
+                  title="LinkedIn coming soon"
+                  style={{ opacity: 0.55, cursor: "not-allowed" }}
+                >
                   <Linkedin size={16} />
-                </a>
-                <a href={SOCIAL_LINKS.twitter} className="social-circle" aria-label="Twitter">
+                </span>
+                <span
+                  className="social-circle"
+                  aria-label="Twitter coming soon"
+                  aria-disabled="true"
+                  title="Twitter coming soon"
+                  style={{ opacity: 0.55, cursor: "not-allowed" }}
+                >
                   <Twitter size={16} />
-                </a>
+                </span>
               </div>
             </div>
 
@@ -100,13 +118,28 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                  <Link href="/privacy-policy" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                  <Link href="/terms-of-service" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cancellation-policy" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Cancellation Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/house-rules" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    House Rules
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/payment-policy" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Payment Policy
                   </Link>
                 </li>
               </ul>

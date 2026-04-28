@@ -17,8 +17,7 @@ export const SITE_LOCATION_TAGLINE = "Agbado, Lagos — minutes from Ikeja, Abul
 export const PLACEHOLDER_PHONE_INPUT = "+234...";
 
 export const SOCIAL_LINKS = {
-  instagram: "#",
-  linkedin: "#",
-  twitter: "#",
+  instagram: "https://www.instagram.com/blissful.place.residences",
+  linkedin: "",
+  twitter: "",
 } as const;
-

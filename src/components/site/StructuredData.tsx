@@ -38,8 +38,8 @@ export function StructuredData() {
       { "@type": "Place", "name": "Meiran, Lagos" },
       { "@type": "Place", "name": "Egbeda, Lagos" }
     ],
-    "checkinTime": "14:00",
-    "checkoutTime": "11:00"
+    "checkinTime": "13:00",
+    "checkoutTime": "12:00"
   };
 
   return (

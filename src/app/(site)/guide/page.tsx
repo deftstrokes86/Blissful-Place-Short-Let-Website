@@ -28,7 +28,7 @@ export default function GuestGuide() {
             <Clock className="text-primary" size={24} /> Check-in & Check-out
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Standard check-in is from <strong style={{ color: "var(--text-primary)" }}>1:00 PM</strong> and check-out is by <strong style={{ color: "var(--text-primary)" }}>12:00 PM (noon)</strong>. Early check-in may be available only when the apartment is ready before the standard check-in time. Late checkout may be available only when there is no immediate incoming booking.
+            Standard check-in is from <strong style={{ color: "var(--text-primary)" }}>1:00 PM WAT</strong> and check-out is by <strong style={{ color: "var(--text-primary)" }}>12:00 PM noon WAT</strong>. Early check-in may be available only when the apartment is ready before the standard check-in time. Late checkout may be available only when there is no immediate incoming booking.
           </p>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
             Where available, late checkout allows up to 2 extra hours at no charge. Longer extensions attract a ₦50,000 flat fee and cannot exceed 6 hours.

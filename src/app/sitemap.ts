@@ -49,6 +49,36 @@ const staticRoutes: MetadataRoute.Sitemap = [
     changeFrequency: "weekly",
     priority: 0.8,
   },
+  {
+    url: `${siteUrl}/privacy-policy`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${siteUrl}/terms-of-service`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${siteUrl}/cancellation-policy`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${siteUrl}/house-rules`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
+  {
+    url: `${siteUrl}/payment-policy`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: 0.3,
+  },
 ];
 
 const excludedRootPaths = new Set([
