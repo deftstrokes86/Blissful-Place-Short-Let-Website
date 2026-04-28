@@ -3,13 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { PageIntro } from "@/components/common/PageIntro";
 import { formatCurrency } from "@/lib/booking-utils";
 import { buildBookingHref } from "@/lib/booking-flat-preselection";
 import { FLATS } from "@/lib/constants";
-import { PROPERTY_FLAT_CONTENT } from "@/lib/property-flat-content";
+import { getPropertyFlatRoute, PROPERTY_FLAT_CONTENT } from "@/lib/property-flat-content";
 import { SITE_CITY_NAME, SITE_DISTRICT_NAME } from "@/lib/site-config";
 import { Bath, BedDouble, Car, Check, CheckCircle2, Shield, Users, Wifi, Zap } from "@/lib/lucide-react";
 import type { FlatId } from "@/types/booking";
@@ -32,7 +31,6 @@ const FEATURE_ICON_BY_KEY = {
 } as const;
 
 export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperienceProps) {
-  const router = useRouter();
   const [isSwitchPending, startTransition] = useTransition();
   const [selectedFlatId, setSelectedFlatId] = useState<FlatId>(initialFlatId);
   const [contentAnimationKey, setContentAnimationKey] = useState(0);
@@ -53,11 +51,9 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
       return;
     }
 
-    setSelectedFlatId(flatId);
-    setContentAnimationKey((value) => value + 1);
-
     startTransition(() => {
-      router.replace(`/property?flat=${flatId}`, { scroll: false });
+      setSelectedFlatId(flatId);
+      setContentAnimationKey((value) => value + 1);
     });
   }
 
@@ -77,18 +73,20 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
             const isActive = flat.id === selectedFlat.id;
 
             return (
-              <button
+              <Link
                 key={flat.id}
-                type="button"
+                href={getPropertyFlatRoute(flat.id)}
+                scroll={false}
                 role="tab"
                 aria-selected={isActive}
                 aria-current={isActive ? "page" : undefined}
                 className={`property-flat-pill${isActive ? " is-active" : ""}${isSwitchPending ? " is-pending" : ""}`}
+                style={{ textDecoration: "none" }}
                 onClick={() => handleFlatSelect(flat.id)}
               >
                 <span className="property-flat-pill-name">{flat.name}</span>
                 <span className="property-flat-pill-rate">{formatCurrency(flat.rate)} / night</span>
-              </button>
+              </Link>
             );
           })}
         </div>

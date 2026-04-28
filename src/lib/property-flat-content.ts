@@ -21,6 +21,8 @@ export interface PropertyFeatureItem {
 }
 
 export interface PropertyFlatContent {
+  routeSlug: PropertyFlatRouteSlug;
+  metaDescription: string;
   subtitle: string;
   positioningLine: string;
   heroImage: PropertyImageItem;
@@ -34,8 +36,29 @@ export interface PropertyFlatContent {
   includedInRate: string[];
 }
 
+export const DEFAULT_PROPERTY_FLAT_ID: FlatId = "windsor";
+
+export const PROPERTY_FLAT_ROUTE_SLUG_BY_ID = {
+  windsor: "windsor-residence",
+  kensington: "kensington-lodge",
+  mayfair: "mayfair-suite",
+} as const satisfies Record<FlatId, string>;
+
+export type PropertyFlatRouteSlug = (typeof PROPERTY_FLAT_ROUTE_SLUG_BY_ID)[FlatId];
+
+export const PROPERTY_FLAT_ID_BY_ROUTE_SLUG = {
+  "windsor-residence": "windsor",
+  "kensington-lodge": "kensington",
+  "mayfair-suite": "mayfair",
+} as const satisfies Record<PropertyFlatRouteSlug, FlatId>;
+
+export const PROPERTY_FLAT_IDS = ["windsor", "kensington", "mayfair"] as const satisfies readonly FlatId[];
+
 export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
   windsor: {
+    routeSlug: PROPERTY_FLAT_ROUTE_SLUG_BY_ID.windsor,
+    metaDescription:
+      "Explore Windsor Residence, a furnished 3-bedroom short-let apartment at Blissful Place Residences in Agbado, Lagos with equipped kitchen, fiber internet, solar-backed power, and guest support.",
     subtitle: "THE CALM CLASSIC",
     positioningLine:
       "Windsor Residence is a warm, restful space designed for guests who value comfort, quiet, and a smooth stay from check-in to checkout.",
@@ -103,6 +126,9 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     ],
   },
   kensington: {
+    routeSlug: PROPERTY_FLAT_ROUTE_SLUG_BY_ID.kensington,
+    metaDescription:
+      "Explore Kensington Lodge, a furnished 3-bedroom short-let apartment at Blissful Place Residences in Agbado, Lagos with comfortable living spaces, equipped kitchen, fiber internet, and gated access.",
     subtitle: "THE FOCUSED RETREAT",
     positioningLine:
       "Kensington Lodge is a clean, orderly space suited for professionals, remote workers, and guests who value structure and quiet.",
@@ -170,6 +196,9 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     ],
   },
   mayfair: {
+    routeSlug: PROPERTY_FLAT_ROUTE_SLUG_BY_ID.mayfair,
+    metaDescription:
+      "Explore Mayfair Suite, a furnished 3-bedroom short-let apartment at Blissful Place Residences in Agbado, Lagos with calm interiors, equipped kitchen, solar-backed power, and guest support.",
     subtitle: "THE STATEMENT STAY",
     positioningLine:
       "Mayfair Suite brings bold finishing touches to the same trusted layout — for guests who appreciate a space with personality.",
@@ -250,5 +279,26 @@ export function resolvePropertyFlatId(value: string | string[] | null | undefine
   const token = pickFirstValue(value);
   const resolved = resolveFlatQueryParam(token);
 
-  return resolved ?? "mayfair";
+  return resolved ?? DEFAULT_PROPERTY_FLAT_ID;
+}
+
+export function resolvePropertyFlatIdFromRouteSlug(value: string | string[] | null | undefined): FlatId | null {
+  const token = pickFirstValue(value);
+
+  if (!token) {
+    return null;
+  }
+
+  return PROPERTY_FLAT_ID_BY_ROUTE_SLUG[token as PropertyFlatRouteSlug] ?? null;
+}
+
+export function getPropertyFlatRoute(flatId: FlatId): `/property/${PropertyFlatRouteSlug}` {
+  return `/property/${PROPERTY_FLAT_ROUTE_SLUG_BY_ID[flatId]}`;
+}
+
+export function resolveLegacyPropertyFlatRoute(value: string | string[] | null | undefined): `/property/${PropertyFlatRouteSlug}` | null {
+  const token = pickFirstValue(value);
+  const resolved = resolveFlatQueryParam(token);
+
+  return resolved ? getPropertyFlatRoute(resolved) : null;
 }

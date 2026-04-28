@@ -53,6 +53,7 @@ export function SiteHeader({
 
   const isActive = (item: NavItem): boolean => {
     if (item.href === "/") return pathname === "/";
+    if (item.href === "/property") return pathname === "/property" || pathname.startsWith("/property/");
     if (item.children) {
       return (
         pathname.startsWith("/book") ||

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { getPropertyFlatRoute } from "@/lib/property-flat-content";
 import { Instagram, Linkedin, MapPin, MessageSquare, Twitter } from "@/lib/lucide-react";
 import {
   SITE_ADDRESS_LINE_1,
@@ -62,17 +63,17 @@ export function SiteFooter() {
               <h4 className="serif footer-column-title">Residences</h4>
               <ul className="footer-links-list">
                 <li>
-                  <Link href="/property" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                  <Link href={getPropertyFlatRoute("windsor")} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Windsor Residence
                   </Link>
                 </li>
                 <li>
-                  <Link href="/property" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                  <Link href={getPropertyFlatRoute("kensington")} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Kensington Lodge
                   </Link>
                 </li>
                 <li>
-                  <Link href="/property" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                  <Link href={getPropertyFlatRoute("mayfair")} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Mayfair Suite
                   </Link>
                 </li>

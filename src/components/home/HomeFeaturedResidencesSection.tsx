@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { buildBookingHref } from "@/lib/booking-flat-preselection";
+import { getPropertyFlatRoute } from "@/lib/property-flat-content";
 
 export function HomeFeaturedResidencesSection() {
   return (
@@ -22,7 +23,7 @@ export function HomeFeaturedResidencesSection() {
             />
           </div>
           <div className="residence-content">
-            <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
+            <Link href={getPropertyFlatRoute("windsor")} style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Windsor Residence</h3>
             </Link>
             <p>Warm, restful interiors with silent solar power and fiber internet. Ideal for unwinding after a long journey.</p>
@@ -44,7 +45,7 @@ export function HomeFeaturedResidencesSection() {
             />
           </div>
           <div className="residence-content">
-            <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
+            <Link href={getPropertyFlatRoute("kensington")} style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Kensington Lodge</h3>
             </Link>
             <p>Clean, orderly layout suited for focused remote work and quiet extended stays.</p>
@@ -66,7 +67,7 @@ export function HomeFeaturedResidencesSection() {
             />
           </div>
           <div className="residence-content">
-            <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
+            <Link href={getPropertyFlatRoute("mayfair")} style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
               <h3 className="heading-sm serif">Mayfair Suite</h3>
             </Link>
             <p>Bold finishing touches for guests who appreciate a space with personality and character.</p>

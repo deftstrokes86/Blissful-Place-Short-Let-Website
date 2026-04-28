@@ -3,9 +3,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  getPropertyFlatRoute,
   PROPERTY_FLAT_CONTENT,
+  PROPERTY_FLAT_ID_BY_ROUTE_SLUG,
+  PROPERTY_FLAT_ROUTE_SLUG_BY_ID,
   type PropertyFlatContent,
+  resolveLegacyPropertyFlatRoute,
   resolvePropertyFlatId,
+  resolvePropertyFlatIdFromRouteSlug,
 } from "../../../lib/property-flat-content";
 
 function readSource(relativePath: string): string {
@@ -16,20 +21,46 @@ async function testPropertyFlatResolverHandlesValidAliasAndFallback(): Promise<v
   assert.equal(resolvePropertyFlatId("windsor"), "windsor");
   assert.equal(resolvePropertyFlatId("kensington-lodge"), "kensington");
   assert.equal(resolvePropertyFlatId("mayfair-suite"), "mayfair");
-  assert.equal(resolvePropertyFlatId("unknown-flat"), "mayfair");
+  assert.equal(resolvePropertyFlatId("unknown-flat"), "windsor");
   assert.equal(resolvePropertyFlatId(["kensington", "mayfair"]), "kensington");
 }
 
+async function testPropertyFlatRouteMappingIsStable(): Promise<void> {
+  assert.deepEqual(PROPERTY_FLAT_ROUTE_SLUG_BY_ID, {
+    windsor: "windsor-residence",
+    kensington: "kensington-lodge",
+    mayfair: "mayfair-suite",
+  });
+  assert.deepEqual(PROPERTY_FLAT_ID_BY_ROUTE_SLUG, {
+    "windsor-residence": "windsor",
+    "kensington-lodge": "kensington",
+    "mayfair-suite": "mayfair",
+  });
+  assert.equal(resolvePropertyFlatIdFromRouteSlug("windsor-residence"), "windsor");
+  assert.equal(resolvePropertyFlatIdFromRouteSlug("kensington-lodge"), "kensington");
+  assert.equal(resolvePropertyFlatIdFromRouteSlug("mayfair-suite"), "mayfair");
+  assert.equal(resolvePropertyFlatIdFromRouteSlug("unknown-flat"), null);
+  assert.equal(getPropertyFlatRoute("windsor"), "/property/windsor-residence");
+  assert.equal(resolveLegacyPropertyFlatRoute("mayfair"), "/property/mayfair-suite");
+}
+
 async function testPropertyPageRendersSelectorAndUsesSelectedFlatData(): Promise<void> {
-  const pageSource = readSource("src/app/property/page.tsx");
+  const pageSource = readSource("src/app/(site)/property/page.tsx");
+  const flatPageSource = readSource("src/app/(site)/property/[slug]/page.tsx");
   const componentSource = readSource("src/components/property/PropertyFlatExperience.tsx");
 
   assert.ok(pageSource.includes("searchParams"));
-  assert.ok(pageSource.includes("resolvePropertyFlatId"));
+  assert.ok(pageSource.includes("resolveLegacyPropertyFlatRoute"));
+  assert.ok(pageSource.includes("redirect(legacyFlatRoute)"));
   assert.ok(pageSource.includes("PropertyFlatExperience"));
+  assert.ok(flatPageSource.includes("generateStaticParams"));
+  assert.ok(flatPageSource.includes("generateMetadata"));
+  assert.ok(flatPageSource.includes("buildFlatSchema"));
   assert.ok(componentSource.includes("PROPERTY_FLAT_CONTENT"));
   assert.ok(componentSource.includes("property-flat-selector"));
   assert.ok(componentSource.includes("flat.id === selectedFlat.id"));
+  assert.ok(componentSource.includes("getPropertyFlatRoute(flat.id)"));
+  assert.equal(componentSource.includes("`/property?flat=${flatId}`"), false);
 }
 
 async function testPropertyPageUpdatesCtasWithSelectedFlatContext(): Promise<void> {
@@ -86,6 +117,7 @@ async function testEveryFlatHasCompletePropertyContentAndNoStarlinkCopy(): Promi
 
 async function run(): Promise<void> {
   await testPropertyFlatResolverHandlesValidAliasAndFallback();
+  await testPropertyFlatRouteMappingIsStable();
   await testPropertyPageRendersSelectorAndUsesSelectedFlatData();
   await testPropertyPageUpdatesCtasWithSelectedFlatContext();
   await testFlatSwitchingStateModelIsStable();

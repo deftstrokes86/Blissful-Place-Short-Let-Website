@@ -25,7 +25,7 @@ async function testFeaturedResidenceCardsUseFlatSpecificBookingUrls(): Promise<v
 }
 
 async function testAvailabilityHandoffUsesSelectedFlatContext(): Promise<void> {
-  const source = readSource("src/app/availability/page.tsx");
+  const source = readSource("src/app/(site)/availability/page.tsx");
 
   assert.ok(source.includes("buildBookingHref(selectedFlat, selectedStayRange)"));
 }
@@ -37,19 +37,20 @@ async function testGenericHeroBookingCtaRemainsGeneric(): Promise<void> {
 }
 
 async function testPropertyPageCtasUseCurrentlySelectedFlatContext(): Promise<void> {
-  const pageSource = readSource("src/app/property/page.tsx");
+  const pageSource = readSource("src/app/(site)/property/page.tsx");
   const componentSource = readSource("src/components/property/PropertyFlatExperience.tsx");
 
   assert.ok(componentSource.includes("buildBookingHref(selectedFlat.id)"));
   assert.ok(componentSource.includes("availabilityHref"));
   assert.ok(componentSource.includes("tourHref"));
-  assert.ok(componentSource.includes("`/property?flat=${flatId}`"));
+  assert.ok(componentSource.includes("getPropertyFlatRoute(flat.id)"));
+  assert.equal(componentSource.includes("`/property?flat=${flatId}`"), false);
   assert.ok(pageSource.includes("PropertyFlatExperience"));
 }
 
 async function testAboutAndContactBookingLinksRemainGeneric(): Promise<void> {
-  const aboutSource = readSource("src/app/about/page.tsx");
-  const contactSource = readSource("src/app/contact/page.tsx");
+  const aboutSource = readSource("src/app/(site)/about/page.tsx");
+  const contactSource = readSource("src/app/(site)/contact/page.tsx");
 
   assert.ok(aboutSource.includes('href="/book"'));
   assert.equal(aboutSource.includes('/book?flat='), false);

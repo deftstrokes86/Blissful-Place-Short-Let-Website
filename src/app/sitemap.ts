@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getCmsPayload } from "@/cms/payload";
+import { getPropertyFlatRoute, PROPERTY_FLAT_IDS } from "@/lib/property-flat-content";
 import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
 
 const siteUrl = "https://www.blissfulplaceresidences.com";
@@ -80,6 +81,13 @@ const staticRoutes: MetadataRoute.Sitemap = [
     priority: 0.3,
   },
 ];
+
+const propertyFlatRoutes: MetadataRoute.Sitemap = PROPERTY_FLAT_IDS.map((flatId) => ({
+  url: `${siteUrl}${getPropertyFlatRoute(flatId)}`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+}));
 
 const excludedRootPaths = new Set([
   "/admin",
@@ -224,5 +232,5 @@ async function buildCmsPageRoutes(): Promise<MetadataRoute.Sitemap> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [blogRoutes, cmsPageRoutes] = await Promise.all([buildBlogRoutes(), buildCmsPageRoutes()]);
-  return [...staticRoutes, ...blogRoutes, ...cmsPageRoutes];
+  return [...staticRoutes, ...propertyFlatRoutes, ...blogRoutes, ...cmsPageRoutes];
 }

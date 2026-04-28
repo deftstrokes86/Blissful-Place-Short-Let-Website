@@ -131,6 +131,13 @@ describe("SiteHeader desktop nav (pill style)", () => {
     expect(item).toHaveAttribute("data-active", "true");
   });
 
+  it("7b. when pathname is a flat detail route, the Flats item is marked active", () => {
+    renderHeader("/property/windsor-residence");
+    const track = document.querySelector(".nav-pill-track") as HTMLElement;
+    const item = within(track).getByText("Flats").closest(".nav-pill-item") as HTMLElement;
+    expect(item).toHaveAttribute("data-active", "true");
+  });
+
   it("8. when pathname is '/about', the About item is marked active", () => {
     renderHeader("/about");
     const track = document.querySelector(".nav-pill-track") as HTMLElement;

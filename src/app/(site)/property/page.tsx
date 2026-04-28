@@ -1,8 +1,14 @@
 import { PropertyFlatExperience } from "@/components/property/PropertyFlatExperience";
 import { FLATS } from "@/lib/constants";
-import { PROPERTY_FLAT_CONTENT, resolvePropertyFlatId } from "@/lib/property-flat-content";
+import {
+  DEFAULT_PROPERTY_FLAT_ID,
+  getPropertyFlatRoute,
+  PROPERTY_FLAT_CONTENT,
+  resolveLegacyPropertyFlatRoute,
+} from "@/lib/property-flat-content";
 import { buildSeoMetadata } from "@/lib/seo";
 import type { FlatId } from "@/types/booking";
+import { redirect } from "next/navigation";
 
 const siteUrl = "https://www.blissfulplaceresidences.com";
 const propertyPageUrl = `${siteUrl}/property`;
@@ -80,7 +86,7 @@ const propertySchema = {
       "@type": "Accommodation",
       name: flat.name,
       description: getFlatDescription(flat.id),
-      url: propertyPageUrl,
+      url: `${siteUrl}${getPropertyFlatRoute(flat.id)}`,
       image: getFlatImage(flat.id),
       occupancy: {
         "@type": "QuantitativeValue",
@@ -106,7 +112,11 @@ interface PropertyPageProps {
 
 export default async function PropertyPage({ searchParams }: PropertyPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const selectedFlatId = resolvePropertyFlatId(resolvedSearchParams.flat);
+  const legacyFlatRoute = resolveLegacyPropertyFlatRoute(resolvedSearchParams.flat);
+
+  if (legacyFlatRoute) {
+    redirect(legacyFlatRoute);
+  }
 
   return (
     <>
@@ -116,7 +126,7 @@ export default async function PropertyPage({ searchParams }: PropertyPageProps) 
           __html: JSON.stringify(propertySchema),
         }}
       />
-      <PropertyFlatExperience key={selectedFlatId} initialFlatId={selectedFlatId} />
+      <PropertyFlatExperience key={DEFAULT_PROPERTY_FLAT_ID} initialFlatId={DEFAULT_PROPERTY_FLAT_ID} />
     </>
   );
 }
