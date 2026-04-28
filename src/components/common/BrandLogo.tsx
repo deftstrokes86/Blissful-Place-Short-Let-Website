@@ -24,7 +24,6 @@ export function BrandLogo({ variant = "nav" }: BrandLogoProps) {
             ? "w-[140px] max-[900px]:w-[100px]"
             : "w-[200px] min-w-[200px] max-[900px]:w-[100px] max-[900px]:min-w-[100px]"
         )}
-        priority={!isFooter}
       />
     </span>
   );

@@ -114,7 +114,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               src={post.featuredImageUrl}
               alt={post.featuredImageAlt || post.title}
               sizes="(max-width: 900px) 100vw, 900px"
-              priority
             />
           </div>
         ) : null}

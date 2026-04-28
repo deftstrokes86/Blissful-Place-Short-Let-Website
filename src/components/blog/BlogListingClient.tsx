@@ -92,7 +92,6 @@ export function BlogListingClient({ posts }: BlogListingClientProps) {
                   src={featuredPost.featuredImageUrl}
                   alt={featuredPost.featuredImageAlt || featuredPost.title}
                   sizes="(max-width: 960px) 100vw, 48vw"
-                  priority
                 />
               </Link>
 

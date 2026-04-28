@@ -33,9 +33,8 @@ describe("BrandLogo", () => {
     expect(wrapper).toHaveClass("inline-flex", "items-center", "shrink-0");
   });
 
-  it("nav variant passes priority prop (eager loading)", () => {
+  it("nav variant renders normally", () => {
     render(<BrandLogo variant="nav" />);
-    // Image should be in the document — priority loading is handled by next/image internally
     expect(screen.getByAltText("Blissful Place Residences")).toBeInTheDocument();
   });
 });

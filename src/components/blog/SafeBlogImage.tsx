@@ -6,7 +6,6 @@ import { resolveRenderableBlogImageUrl } from "@/lib/blog-image";
 interface SafeBlogImageProps {
   alt: string;
   fallbackClassName?: string;
-  priority?: boolean;
   sizes: string;
   src: string | null | undefined;
 }
@@ -14,7 +13,6 @@ interface SafeBlogImageProps {
 export function SafeBlogImage({
   alt,
   fallbackClassName = "blog-image-fallback",
-  priority = false,
   sizes,
   src,
 }: SafeBlogImageProps) {
@@ -24,6 +22,6 @@ export function SafeBlogImage({
     return <span className={fallbackClassName} aria-hidden="true" />;
   }
 
-  return <Image src={safeSrc} alt={alt} fill sizes={sizes} priority={priority} />;
+  return <Image src={safeSrc} alt={alt} fill sizes={sizes} />;
 }
 
