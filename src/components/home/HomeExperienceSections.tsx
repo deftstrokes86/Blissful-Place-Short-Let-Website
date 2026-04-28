@@ -63,7 +63,13 @@ export function HomeExperienceSections() {
         </div>
 
         <div className="promise-image-wrapper">
-          <Image src="/living-room-collage.png" alt="Blissful Place Residences interior collage" fill style={{ objectFit: "cover" }} />
+          <Image
+            src="/living-room-collage.png"
+            alt="Blissful Place Residences interior collage"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            style={{ objectFit: "cover" }}
+          />
         </div>
       </section>
 
@@ -190,7 +196,13 @@ export function HomeExperienceSections() {
 
       <section className="section container neighborhood-split">
         <div className="promise-image-wrapper" style={{ height: "500px" }}>
-          <Image src="/bedroom-plus-extras.png" alt="Bedroom and guest amenities at Blissful Place Residences" fill style={{ objectFit: "cover" }} />
+          <Image
+            src="/bedroom-plus-extras.png"
+            alt="Bedroom and guest amenities at Blissful Place Residences"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            style={{ objectFit: "cover" }}
+          />
         </div>
         <div>
           <span className="subtitle-tag">LOCATION & ACCESS</span>

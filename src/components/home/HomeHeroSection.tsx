@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
@@ -9,6 +10,7 @@ import { SITE_LOCATION_LABEL } from "@/lib/site-config";
 
 export function HomeHeroSection() {
   const heroRef = useRef<HTMLElement>(null);
+  const heroImageLayerRef = useRef<HTMLDivElement>(null);
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
 
@@ -17,9 +19,9 @@ export function HomeHeroSection() {
 
     function onScroll() {
       rafId = requestAnimationFrame(() => {
-        if (heroRef.current) {
+        if (heroImageLayerRef.current) {
           const offset = window.scrollY * 0.35;
-          heroRef.current.style.backgroundPositionY = `calc(50% + ${offset}px)`;
+          heroImageLayerRef.current.style.setProperty("--hero-image-position-y", `calc(50% + ${offset}px)`);
         }
       });
     }
@@ -56,7 +58,24 @@ export function HomeHeroSection() {
   }
 
   return (
-    <section ref={heroRef} className="hero" style={{ backgroundImage: 'url("/Hero-Image.png")', backgroundPositionY: "50%" }}>
+    <section ref={heroRef} className="hero">
+      <div
+        ref={heroImageLayerRef}
+        aria-hidden="true"
+        style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
+      >
+        <Image
+          src="/Hero-Image.png"
+          alt="Luxury short-let apartment interior at Blissful Place Residences in Agbado, Lagos"
+          fill
+          priority
+          sizes="100vw"
+          style={{
+            objectFit: "cover",
+            objectPosition: "center var(--hero-image-position-y, 50%)",
+          }}
+        />
+      </div>
       <div className="container hero-content">
         <div className="hero-meta-strip">
           <span className="subtitle-tag" style={{ margin: 0 }}>

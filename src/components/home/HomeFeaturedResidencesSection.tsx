@@ -13,7 +13,13 @@ export function HomeFeaturedResidencesSection() {
         <div className="residence-card">
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
-            <Image src="/downstairs-sitting-room-landscape-1.png" alt="Windsor Residence" fill style={{ objectFit: "cover" }} />
+            <Image
+              src="/downstairs-sitting-room-landscape-1.png"
+              alt="Windsor Residence"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ objectFit: "cover" }}
+            />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
@@ -29,7 +35,13 @@ export function HomeFeaturedResidencesSection() {
         <div className="residence-card">
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
-            <Image src="/living-room-bungalow-portrait-1.png" alt="Kensington Lodge" fill style={{ objectFit: "cover" }} />
+            <Image
+              src="/living-room-bungalow-portrait-1.png"
+              alt="Kensington Lodge"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ objectFit: "cover" }}
+            />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">
@@ -45,7 +57,13 @@ export function HomeFeaturedResidencesSection() {
         <div className="residence-card">
           <div className="residence-img">
             <span className="residence-tag">3BR · 3BA · 6 GUESTS</span>
-            <Image src="/living-room-upstairs-portrait-1.png" alt="Mayfair Suite" fill style={{ objectFit: "cover" }} />
+            <Image
+              src="/living-room-upstairs-portrait-1.png"
+              alt="Mayfair Suite"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ objectFit: "cover" }}
+            />
           </div>
           <div className="residence-content">
             <Link href="/property" style={{ color: "inherit", textDecoration: "none" }} className="hover-primary">

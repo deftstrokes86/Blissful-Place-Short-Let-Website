@@ -100,7 +100,13 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
           className={`property-content-column property-content-swap${isSwitchPending ? " is-pending" : ""}`}
         >
           <div className="property-hero-frame">
-            <Image src={selectedContent.heroImage.src} alt={selectedContent.heroImage.alt} fill style={{ objectFit: "cover" }} />
+            <Image
+              src={selectedContent.heroImage.src}
+              alt={selectedContent.heroImage.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              style={{ objectFit: "cover" }}
+            />
           </div>
 
           <div
@@ -109,7 +115,13 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
           >
             {selectedContent.galleryImages.map((image) => (
               <div key={image.src} className="property-gallery-card">
-                <Image src={image.src} alt={image.alt} fill style={{ objectFit: "cover" }} />
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: "cover" }}
+                />
               </div>
             ))}
           </div>
