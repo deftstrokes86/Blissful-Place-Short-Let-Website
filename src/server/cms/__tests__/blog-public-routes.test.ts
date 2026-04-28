@@ -479,23 +479,25 @@ async function testPublicBlogServiceUsesExplicitPublishedServerQuery(): Promise<
 }
 
 async function testBlogIndexEditorialLayoutStructure(): Promise<void> {
-  const source = readSource("src/app/(site)/blog/page.tsx");
+  const pageSource = readSource("src/app/(site)/blog/page.tsx");
+  const clientSource = readSource("src/components/blog/BlogListingClient.tsx");
   const helperSource = readSource("src/lib/blog-page.ts");
 
-  assert.ok(source.includes("const [featuredPost, ...remainingPosts] = visiblePosts"));
-  assert.ok(source.includes("const topicNavigation = posts.length > 0 ? ("));
-  assert.ok(source.includes('className="blog-featured"'));
-  assert.ok(source.includes('className="blog-category-row"'));
-  assert.ok(source.includes('className="blog-post-grid"'));
-  assert.ok(source.includes('className="blog-card-meta-row"'));
-  assert.ok(source.includes('className="blog-card-category-chip"'));
-  assert.ok(source.includes('className="blog-card-date"'));
-  assert.ok(source.includes('className="blog-post-card-excerpt"'));
-  assert.ok(source.includes("blog-grid-heading"));
-  assert.ok(source.includes("loadBlogPagePosts"));
-  assert.ok(source.includes("resolveBlogPageSearchParams"));
-  assert.ok(source.includes("resolvedSearchParams?.topic ?? resolvedSearchParams?.category"));
-  assert.ok(source.includes("<SafeBlogImage"));
+  assert.ok(pageSource.includes("loadBlogPagePosts"));
+  assert.ok(pageSource.includes("<BlogListingClient posts={posts} />"));
+  assert.ok(clientSource.includes("const [featuredPost, ...remainingPosts] = visiblePosts"));
+  assert.ok(clientSource.includes("const topicNavigation ="));
+  assert.ok(clientSource.includes("useSearchParams"));
+  assert.ok(clientSource.includes("searchParams.get(\"topic\") ?? searchParams.get(\"category\")"));
+  assert.ok(clientSource.includes('className="blog-featured"'));
+  assert.ok(clientSource.includes('className="blog-category-row"'));
+  assert.ok(clientSource.includes('className="blog-post-grid"'));
+  assert.ok(clientSource.includes('className="blog-card-meta-row"'));
+  assert.ok(clientSource.includes('className="blog-card-category-chip"'));
+  assert.ok(clientSource.includes('className="blog-card-date"'));
+  assert.ok(clientSource.includes('className="blog-post-card-excerpt"'));
+  assert.ok(clientSource.includes("blog-grid-heading"));
+  assert.ok(clientSource.includes("<SafeBlogImage"));
   assert.ok(helperSource.includes("All Posts"));
   assert.ok(helperSource.includes("Short-Let Guides"));
   assert.ok(helperSource.includes("Lagos Area Guides"));
@@ -516,6 +518,8 @@ async function testMetadataAndContentHelpers(): Promise<void> {
 
   assert.equal(metadata.title, "Custom Meta Title");
   assert.equal(metadata.description, "Custom Meta Description");
+  assert.equal(metadata.openGraph?.url, "https://www.blissfulplaceresidences.com/blog/sample-post");
+  assert.equal(metadata.openGraph?.siteName, "Blissful Place Residences");
   assert.equal(getFirstImageUrl(metadata.openGraph?.images), "/media/og-image.jpg");
   assert.equal(metadata.alternates?.canonical, "/blog/sample-post");
 
@@ -544,8 +548,8 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     slug: "unsafe-image-post",
   });
 
-  assert.equal(getFirstImageUrl(unsafeMetadata.openGraph?.images), null);
-  assert.equal((unsafeMetadata.twitter as { card?: string } | undefined)?.card, "summary");
+  assert.equal(getFirstImageUrl(unsafeMetadata.openGraph?.images), "https://www.blissfulplaceresidences.com/Hero-Image.png");
+  assert.equal((unsafeMetadata.twitter as { card?: string } | undefined)?.card, "summary_large_image");
 
   const minimalMetadata = buildPublicBlogPostMetadata({
     title: "Minimal Post",
@@ -576,6 +580,7 @@ async function testMetadataAndContentHelpers(): Promise<void> {
     blogPostingSchema.mainEntityOfPage["@id"],
     "https://www.blissfulplaceresidences.com/blog/sample-post"
   );
+  assert.equal(blogPostingSchema.url, "https://www.blissfulplaceresidences.com/blog/sample-post");
   assert.equal(blogPostingSchema.headline, "Sample Post");
   assert.equal(blogPostingSchema.description, "Schema excerpt");
   assert.equal(blogPostingSchema.image, "https://www.blissfulplaceresidences.com/media/schema-og.jpg");

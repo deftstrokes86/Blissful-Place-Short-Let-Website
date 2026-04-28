@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { resolveRenderableBlogImageUrl } from "@/lib/blog-image";
 
 const siteUrl = "https://www.blissfulplaceresidences.com";
+const siteName = "Blissful Place Residences";
 const defaultBlogPostingImage = `${siteUrl}/Hero-Image.png`;
 
 export interface PublicBlogPostMetadataInput {
@@ -129,8 +130,9 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
     asNonEmptyString(input.excerpt) ??
     "Read this article on Blissful Place Residences.";
   const socialImage =
-    resolveRenderableBlogImageUrl(input.ogImageUrl) ?? resolveRenderableBlogImageUrl(input.featuredImageUrl);
+    resolveRenderableBlogImageUrl(input.ogImageUrl) ?? resolveRenderableBlogImageUrl(input.featuredImageUrl) ?? defaultBlogPostingImage;
   const canonical = `/blog/${input.slug}`;
+  const canonicalUrl = `${siteUrl}${canonical}`;
 
   return {
     title,
@@ -142,13 +144,15 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
       type: "article",
       title,
       description,
-      images: socialImage ? [{ url: socialImage, alt: title }] : undefined,
+      url: canonicalUrl,
+      siteName,
+      images: [{ url: socialImage, alt: title }],
     },
     twitter: {
-      card: socialImage ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: socialImage ? [socialImage] : undefined,
+      images: [socialImage],
     },
   };
 }
@@ -172,6 +176,7 @@ export function buildPublicBlogPostingSchema(input: PublicBlogPostingSchemaInput
       "@type": "WebPage",
       "@id": canonicalUrl,
     },
+    url: canonicalUrl,
     headline: input.title,
     description,
     image,
