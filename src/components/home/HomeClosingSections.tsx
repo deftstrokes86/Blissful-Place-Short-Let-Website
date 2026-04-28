@@ -5,6 +5,52 @@ import { ChevronDown, MessageSquare } from "@/lib/lucide-react";
 import { SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 import { LocationMap } from "@/components/site/LocationMap";
 
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+const homepageFaqItems: FaqItem[] = [
+  {
+    question: "How reliable is the power and internet in your properties?",
+    answer:
+      "Every flat runs on a full solar and battery power system, silent, clean, and uninterrupted 24/7. No generators, no diesel, no noise. Internet is a dedicated fiber optic connection, strong enough for video calls and heavy streaming.",
+  },
+  {
+    question: "Are the photos a true representation of the properties?",
+    answer:
+      "Absolutely. We operate a strict authenticity policy. What you see is exactly what you get. We manage all properties exclusively to ensure they are maintained to the exact premium standard showcased in our galleries.",
+  },
+  {
+    question: "What is the difference between booking here and on Airbnb?",
+    answer:
+      "Booking directly eliminates Airbnb's service fees, can save you up to 15%, gives you priority WhatsApp support from our team, and gives you access to optional add-ons like airport transfers and pantry pre-stocking, subject to availability and confirmation.",
+  },
+  {
+    question: "Do you require a security deposit?",
+    answer:
+      "Booking payments are non-refundable once confirmed. A caution deposit may be required before check-in and is handled separately. It may be applied toward damages, missing items, excessive cleaning, rule violations, unpaid charges, or late checkout charges.",
+  },
+  {
+    question: "Can I host a party or professional photoshoot?",
+    answer:
+      "To preserve the pristine condition of our luxury units and respect our neighbors, parties and large events are strictly prohibited. Photoshoots require written pre-approval and may attract a specific commercial rate.",
+  },
+];
+
+const homepageFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: homepageFaqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+
 export function HomeClosingSections() {
   return (
     <>
@@ -42,51 +88,26 @@ export function HomeClosingSections() {
           <h2 className="heading-lg serif">Frequently Asked Questions</h2>
         </div>
 
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(homepageFaqSchema),
+          }}
+        />
+
         <div className="faq-container">
-          <details className="faq-item">
-            <summary className="serif">
-              How reliable is the power and internet in your properties? <ChevronDown size={20} className="text-primary" />
-            </summary>
-            <p>
-              Every flat runs on a full solar and battery power system — silent, clean, and uninterrupted 24/7. No generators, no diesel, no noise. Internet is a dedicated fiber optic connection, strong enough for video calls and heavy streaming.
-            </p>
-          </details>
-          <details className="faq-item">
-            <summary className="serif">
-              Are the photos a true representation of the properties? <ChevronDown size={20} className="text-primary" />
-            </summary>
-            <p>
-              Absolutely. We operate a strict authenticity policy. What you see is exactly what you get. We manage all
-              properties exclusively to ensure they are maintained to the exact premium standard showcased in our
-              galleries.
-            </p>
-          </details>
-          <details className="faq-item">
-            <summary className="serif">
-              What is the difference between booking here and on Airbnb? <ChevronDown size={20} className="text-primary" />
-            </summary>
-            <p>
-              Booking directly eliminates Airbnb&apos;s service fees, can save you up to 15%, gives you priority WhatsApp support from our team, and gives you access to optional add-ons like airport transfers and pantry pre-stocking.
-            </p>
-          </details>
-          <details className="faq-item">
-            <summary className="serif">
-              Do you require a security deposit? <ChevronDown size={20} className="text-primary" />
-            </summary>
-            <p>
-              Yes, a caution deposit is required prior to check-in to protect against damages. Booking payments are non-refundable once confirmed. The caution deposit is handled separately after checkout inspection and may be used to cover damages, missing items, or rule violations.
-            </p>
-          </details>
-          <details className="faq-item" style={{ borderBottom: "none" }}>
-            <summary className="serif">
-              Can I host a party or professional photoshoot? <ChevronDown size={20} className="text-primary" />
-            </summary>
-            <p>
-              To preserve the pristine condition of our luxury units and respect our neighbors, parties and large events
-              are strictly prohibited. Photoshoots require written pre-approval and may attract a specific commercial
-              rate.
-            </p>
-          </details>
+          {homepageFaqItems.map((item, index) => (
+            <details
+              key={item.question}
+              className="faq-item"
+              style={index === homepageFaqItems.length - 1 ? { borderBottom: "none" } : undefined}
+            >
+              <summary className="serif">
+                {item.question} <ChevronDown size={20} className="text-primary" />
+              </summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
         </div>
       </section>
 
