@@ -71,6 +71,8 @@ export interface PublicBlogPostDetail extends PublicBlogPostSummary {
   metaDescription: string;
   ogImageUrl: string | null;
   canonicalUrl: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
 }
 
 export function mapBlogCategorySummary(value: unknown): BlogCategorySummary | null {
@@ -188,5 +190,7 @@ export function mapPublicBlogPostDetail(value: unknown): PublicBlogPostDetail | 
     metaDescription: asString(record.metaDescription),
     ogImageUrl: ogImage?.url ?? null,
     canonicalUrl: asNullableString(record.canonicalUrl),
+    createdAt: asNullableString(record.createdAt),
+    updatedAt: asNullableString(record.updatedAt),
   };
 }

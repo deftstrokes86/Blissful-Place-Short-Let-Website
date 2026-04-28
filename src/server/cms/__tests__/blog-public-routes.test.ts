@@ -29,6 +29,7 @@ import {
   normalizePublicBlogSlugInput,
 } from "../blog-public-query";
 import {
+  buildPublicBlogPostingSchema,
   buildPublicBlogPostMetadata,
   extractLexicalParagraphs,
   resolvePublicLexicalContentState,
@@ -558,6 +559,55 @@ async function testMetadataAndContentHelpers(): Promise<void> {
 
   assert.equal(minimalMetadata.description, "Read this article on Blissful Place Residences.");
 
+  const blogPostingSchema = buildPublicBlogPostingSchema({
+    title: "Sample Post",
+    slug: "sample-post",
+    excerpt: "Schema excerpt",
+    metaDescription: "Schema meta description",
+    ogImageUrl: "/media/schema-og.jpg",
+    featuredImageUrl: "/media/schema-featured.jpg",
+    publishedAt: "2026-04-01T10:00:00.000Z",
+    createdAt: "2026-03-30T09:00:00.000Z",
+    updatedAt: "2026-04-03T08:30:00.000Z",
+  });
+
+  assert.equal(blogPostingSchema["@type"], "BlogPosting");
+  assert.equal(
+    blogPostingSchema.mainEntityOfPage["@id"],
+    "https://www.blissfulplaceresidences.com/blog/sample-post"
+  );
+  assert.equal(blogPostingSchema.headline, "Sample Post");
+  assert.equal(blogPostingSchema.description, "Schema excerpt");
+  assert.equal(blogPostingSchema.image, "https://www.blissfulplaceresidences.com/media/schema-og.jpg");
+  assert.equal(blogPostingSchema.datePublished, "2026-04-01T10:00:00.000Z");
+  assert.equal(blogPostingSchema.dateModified, "2026-04-03T08:30:00.000Z");
+  assert.equal(blogPostingSchema.author.name, "Blissful Place Residences");
+  assert.equal(blogPostingSchema.publisher.name, "Blissful Place Residences");
+  assert.equal(blogPostingSchema.publisher.logo.url, "https://www.blissfulplaceresidences.com/Hero-Image.png");
+
+  const fallbackBlogPostingSchema = buildPublicBlogPostingSchema({
+    title: "Fallback Post",
+    slug: "fallback-post",
+    excerpt: "",
+    metaDescription: "",
+    ogImageUrl: null,
+    featuredImageUrl: null,
+    publishedAt: null,
+    createdAt: null,
+    updatedAt: null,
+  });
+
+  assert.equal(
+    fallbackBlogPostingSchema.mainEntityOfPage["@id"],
+    "https://www.blissfulplaceresidences.com/blog/fallback-post"
+  );
+  assert.equal(
+    fallbackBlogPostingSchema.image,
+    "https://www.blissfulplaceresidences.com/Hero-Image.png"
+  );
+  assert.ok(!Number.isNaN(Date.parse(fallbackBlogPostingSchema.datePublished)));
+  assert.ok(!Number.isNaN(Date.parse(fallbackBlogPostingSchema.dateModified)));
+
   const paragraphs = extractLexicalParagraphs({
     root: {
       children: [
@@ -587,6 +637,9 @@ async function testBlogPostPageUsesRichTextRenderer(): Promise<void> {
 
   assert.ok(source.includes('from "@payloadcms/richtext-lexical/react"'));
   assert.ok(source.includes("resolvePublicLexicalContentState"));
+  assert.ok(source.includes("buildPublicBlogPostingSchema"));
+  assert.ok(source.includes('type="application/ld+json"'));
+  assert.ok(source.includes("JSON.stringify(blogPostingSchema)"));
   assert.ok(source.includes("<RichText"));
   assert.ok(source.includes("<SafeBlogImage"));
   assert.ok(source.includes("hasRenderableBlogImageCandidate"));

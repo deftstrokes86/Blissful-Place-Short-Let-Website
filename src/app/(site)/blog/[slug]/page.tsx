@@ -9,6 +9,7 @@ import { hasRenderableBlogImageCandidate } from "@/lib/blog-image";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import {
+  buildPublicBlogPostingSchema,
   buildPublicBlogPostMetadata,
   extractLexicalParagraphs,
   resolvePublicLexicalContentState,
@@ -69,10 +70,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const lexicalContent = resolvePublicLexicalContentState(post.content);
   const paragraphs = extractLexicalParagraphs(lexicalContent);
   const intro = resolvePublicBlogIntro(post.excerpt, paragraphs);
+  const blogPostingSchema = buildPublicBlogPostingSchema({
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt,
+    metaDescription: post.metaDescription,
+    ogImageUrl: post.ogImageUrl,
+    featuredImageUrl: post.featuredImageUrl,
+    publishedAt: post.publishedAt,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  });
 
   return (
     <main className="blog-page">
       <SiteHeader />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(blogPostingSchema),
+        }}
+      />
 
       <article className="container blog-post-shell">
         <Link href="/blog" className="blog-read-link">

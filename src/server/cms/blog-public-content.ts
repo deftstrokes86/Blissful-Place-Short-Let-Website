@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 
 import { resolveRenderableBlogImageUrl } from "@/lib/blog-image";
 
+const siteUrl = "https://www.blissfulplaceresidences.com";
+const defaultBlogPostingImage = `${siteUrl}/Hero-Image.png`;
+
 export interface PublicBlogPostMetadataInput {
   title: string;
   slug: string;
@@ -11,6 +14,18 @@ export interface PublicBlogPostMetadataInput {
   metaDescription: string;
   ogImageUrl: string | null;
   featuredImageUrl: string | null;
+}
+
+export interface PublicBlogPostingSchemaInput {
+  title: string;
+  slug: string;
+  excerpt: string;
+  metaDescription: string;
+  ogImageUrl: string | null;
+  featuredImageUrl: string | null;
+  publishedAt: string | Date | null;
+  createdAt: string | Date | null;
+  updatedAt: string | Date | null;
 }
 
 function asNonEmptyString(value: string | null | undefined): string | null {
@@ -90,6 +105,23 @@ export function resolvePublicBlogIntro(excerpt: string, paragraphs: string[]): s
   return asNonEmptyString(excerpt) ?? paragraphs[0] ?? "";
 }
 
+function toAbsoluteUrl(pathOrUrl: string): string {
+  if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
+    return pathOrUrl;
+  }
+
+  return `${siteUrl}${pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`}`;
+}
+
+function toIsoDate(value: string | Date | null | undefined): string {
+  if (!value) {
+    return new Date().toISOString();
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+}
+
 export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput): Metadata {
   const title = asNonEmptyString(input.metaTitle) ?? input.title;
   const description =
@@ -117,6 +149,45 @@ export function buildPublicBlogPostMetadata(input: PublicBlogPostMetadataInput):
       title,
       description,
       images: socialImage ? [socialImage] : undefined,
+    },
+  };
+}
+
+export function buildPublicBlogPostingSchema(input: PublicBlogPostingSchemaInput) {
+  const canonicalUrl = `${siteUrl}/blog/${input.slug}`;
+  const description =
+    asNonEmptyString(input.excerpt) ??
+    asNonEmptyString(input.metaDescription) ??
+    "Read this article on Blissful Place Residences.";
+  const imageCandidate =
+    resolveRenderableBlogImageUrl(input.ogImageUrl) ?? resolveRenderableBlogImageUrl(input.featuredImageUrl);
+  const image = imageCandidate ? toAbsoluteUrl(imageCandidate) : defaultBlogPostingImage;
+  const datePublished = toIsoDate(input.publishedAt ?? input.createdAt ?? input.updatedAt);
+  const dateModified = toIsoDate(input.updatedAt ?? input.publishedAt ?? input.createdAt);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+    },
+    headline: input.title,
+    description,
+    image,
+    datePublished,
+    dateModified,
+    author: {
+      "@type": "Organization",
+      name: "Blissful Place Residences",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Blissful Place Residences",
+      logo: {
+        "@type": "ImageObject",
+        url: defaultBlogPostingImage,
+      },
     },
   };
 }
