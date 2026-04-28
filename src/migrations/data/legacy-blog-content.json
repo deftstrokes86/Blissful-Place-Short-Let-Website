@@ -2287,6 +2287,128 @@
                   "format": 0,
                   "mode": "normal",
                   "style": "",
+                  "text": "Start by ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "comparing the available apartments",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/property"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000101",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " and confirming which layout fits your group. Review the ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "guest guide",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/guide"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000102",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " before arrival so check-in, checkout, kitchen, laundry, and security details are clear. Once you are comfortable with the stay details, ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "check availability",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/book"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000103",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " and complete your booking.",
+                  "type": "text",
+                  "version": 1
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "paragraph",
+              "version": 1,
+              "textFormat": 0,
+              "textStyle": ""
+            },
+            {
+              "children": [
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
                   "text": "Final thought",
                   "type": "text",
                   "version": 1
@@ -4284,6 +4406,128 @@
                   "format": 0,
                   "mode": "normal",
                   "style": "",
+                  "text": "For travelers who want more room than a hotel room, the ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "available short-let apartments",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/property"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000201",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " show how each flat is arranged. If your travel dates are fixed, ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "check availability",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/book"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000202",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " before comparing final costs. For questions about distance, arrival plans, or guest support, ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "contact the reservations team",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/contact"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000203",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": ".",
+                  "type": "text",
+                  "version": 1
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "paragraph",
+              "version": 1,
+              "textFormat": 0,
+              "textStyle": ""
+            },
+            {
+              "children": [
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
                   "text": "Ready to book the better stay?",
                   "type": "text",
                   "version": 1
@@ -6230,6 +6474,128 @@
               "listType": "bullet",
               "start": 1,
               "tag": "ul"
+            },
+            {
+              "children": [
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Guests comparing options can ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "view the available apartments",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/property"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000301",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " before choosing a stay. Before booking, it also helps to ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "read the guest guide",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/guide"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000302",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " so check-in, house rules, kitchen use, laundry, and support expectations are clear. When dates are firm, guests can ",
+                  "type": "text",
+                  "version": 1
+                },
+                {
+                  "children": [
+                    {
+                      "detail": 0,
+                      "format": 0,
+                      "mode": "normal",
+                      "style": "",
+                      "text": "check availability",
+                      "type": "text",
+                      "version": 1
+                    }
+                  ],
+                  "direction": null,
+                  "fields": {
+                    "doc": null,
+                    "linkType": "custom",
+                    "newTab": false,
+                    "url": "/book"
+                  },
+                  "format": "",
+                  "id": "65f000000000000000000303",
+                  "indent": 0,
+                  "type": "link",
+                  "version": 3
+                },
+                {
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": " and book directly.",
+                  "type": "text",
+                  "version": 1
+                }
+              ],
+              "direction": null,
+              "format": "",
+              "indent": 0,
+              "type": "paragraph",
+              "version": 1,
+              "textFormat": 0,
+              "textStyle": ""
             },
             {
               "children": [

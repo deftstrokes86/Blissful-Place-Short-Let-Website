@@ -648,7 +648,23 @@ async function testBlogPostPageUsesRichTextRenderer(): Promise<void> {
   assert.ok(source.includes("<RichText"));
   assert.ok(source.includes("<SafeBlogImage"));
   assert.ok(source.includes("hasRenderableBlogImageCandidate"));
+  assert.ok(source.includes("getBlogInternalLinks"));
+  assert.ok(source.includes("Helpful links for planning your stay"));
+  assert.ok(source.includes('!value.includes("?flat=")'));
   assert.ok(!source.includes("paragraphs.map((paragraph"));
+}
+
+async function testLegacyBlogContentIncludesContextualInternalLinks(): Promise<void> {
+  const source = readSource("src/migrations/data/legacy-blog-content.json");
+
+  assert.ok(source.includes('"type": "link"'));
+  assert.ok(source.includes('"url": "/property"'));
+  assert.ok(source.includes('"url": "/guide"'));
+  assert.ok(source.includes('"url": "/book"'));
+  assert.ok(source.includes('"url": "/contact"'));
+  assert.ok(source.includes("view the available apartments"));
+  assert.ok(source.includes("available short-let apartments"));
+  assert.ok(!source.includes("/property?flat="));
 }
 
 async function run(): Promise<void> {
@@ -662,6 +678,7 @@ async function run(): Promise<void> {
   await testBlogIndexEditorialLayoutStructure();
   await testMetadataAndContentHelpers();
   await testBlogPostPageUsesRichTextRenderer();
+  await testLegacyBlogContentIncludesContextualInternalLinks();
 
   console.log("blog-public-routes: ok");
 }

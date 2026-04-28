@@ -21,9 +21,69 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
+type BlogInternalLink = {
+  href: string;
+  label: string;
+};
+
+const enoughInternalLinksCount = 3;
+
+const blogInternalLinksBySlug: Record<string, BlogInternalLink[]> = {
+  "best-short-let-in-ijaiye-lagos": [
+    { href: "/property", label: "View available apartments" },
+    { href: "/guide", label: "Read the guest guide" },
+    { href: "/book", label: "Check availability" },
+  ],
+  "hotel-vs-short-let-in-ikeja": [
+    { href: "/property", label: "Compare the short-let apartments" },
+    { href: "/book", label: "Check availability" },
+    { href: "/contact", label: "Contact the reservations team" },
+  ],
+  "blog-how-to-choose-the-right-short-let-in-lagos": [
+    { href: "/property", label: "Compare available apartments" },
+    { href: "/guide", label: "Review the guest guide" },
+    { href: "/book", label: "Check availability" },
+  ],
+  "how-to-choose-the-right-short-let-in-lagos": [
+    { href: "/property", label: "Compare available apartments" },
+    { href: "/guide", label: "Review the guest guide" },
+    { href: "/book", label: "Check availability" },
+  ],
+};
+
 const getPublishedPostBySlug = cache(async (slug: string) => {
   return findPublishedBlogPostBySlug(slug);
 });
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isCleanInternalHref(value: string): boolean {
+  return value.startsWith("/") && !value.startsWith("//") && !value.includes("?flat=");
+}
+
+function countInternalContentLinks(value: unknown): number {
+  if (!isRecord(value)) {
+    return 0;
+  }
+
+  const fields = isRecord(value.fields) ? value.fields : null;
+  const url = typeof fields?.url === "string" ? fields.url : "";
+  const ownLinkCount = value.type === "link" && isCleanInternalHref(url) ? 1 : 0;
+  const rootLinkCount = isRecord(value.root) ? countInternalContentLinks(value.root) : 0;
+  const children = Array.isArray(value.children) ? value.children : [];
+
+  return ownLinkCount + rootLinkCount + children.reduce((total, child) => total + countInternalContentLinks(child), 0);
+}
+
+function getBlogInternalLinks(slug: string, content: unknown): BlogInternalLink[] {
+  if (countInternalContentLinks(content) >= enoughInternalLinksCount) {
+    return [];
+  }
+
+  return blogInternalLinksBySlug[slug] ?? [];
+}
 
 function formatPublishedDate(value: string | null): string {
   if (!value) {
@@ -70,6 +130,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const lexicalContent = resolvePublicLexicalContentState(post.content);
   const paragraphs = extractLexicalParagraphs(lexicalContent);
   const intro = resolvePublicBlogIntro(post.excerpt, paragraphs);
+  const internalLinks = getBlogInternalLinks(post.slug, lexicalContent);
   const blogPostingSchema = buildPublicBlogPostingSchema({
     title: post.title,
     slug: post.slug,
@@ -128,6 +189,21 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </p>
           )}
         </section>
+
+        {internalLinks.length > 0 ? (
+          <section className="blog-post-content" aria-labelledby="blog-helpful-links-heading">
+            <div className="blog-post-richtext">
+              <h2 id="blog-helpful-links-heading">Helpful links for planning your stay</h2>
+              <ul>
+                {internalLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ) : null}
 
         <section className="blog-post-cta">
           <h2 className="serif">Need tailored support for your stay?</h2>
