@@ -26,7 +26,7 @@ export function HomeExperienceSections() {
             Promise
           </h2>
           <p className="promise-desc">
-            Every Blissful Place residence runs on the same infrastructure: full solar power, fiber internet, gated security, and professional management. No guesswork, no surprises.
+            Every Blissful Place residence runs on the same infrastructure: full solar power, fiber internet, gated security with CCTV coverage, and professional management. No guesswork, no surprises.
           </p>
 
           <div className="promise-features">
@@ -56,7 +56,7 @@ export function HomeExperienceSections() {
               </div>
               <div>
                 <h4 className="serif">Gated Compound Security</h4>
-                <p>Secure gated compound with on-site guards and controlled vehicle access. Quiet residential setting on a private road.</p>
+                <p>Secure gated compound with on-site guards, CCTV coverage, and controlled vehicle access. Quiet residential setting on a private road.</p>
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export function HomeExperienceSections() {
         <span className="subtitle-tag">WHY BOOK DIRECT</span>
         <h2 className="heading-lg serif">The Smartest Way to Stay</h2>
         <p className="hero-desc" style={{ marginBottom: "3rem" }}>
-          Skip Airbnb fees. Booking directly saves you up to 15%, gets you priority WhatsApp support, and unlocks extras like airport transfers and pantry pre-stocking.
+          Skip Airbnb fees. Booking directly can save you up to 15%, gets you priority WhatsApp support, and gives you access to optional extras like airport transfers and pantry pre-stocking.
         </p>
 
         <div className="home-advantages-grid">
@@ -92,8 +92,8 @@ export function HomeExperienceSections() {
             <Sparkles className="text-primary" size={28} />
             <h4 className="serif">Early Check-in Priority</h4>
             <p>
-              Direct bookings automatically get placed at the top of the list for complimentary early arrivals and late
-              departures.
+              Direct bookings get priority for early check-in and late checkout requests. Early check-in depends on
+              apartment readiness, while late checkout is available only when there is no immediate incoming booking.
             </p>
           </div>
           <div className="advantage-card">
@@ -133,7 +133,7 @@ export function HomeExperienceSections() {
               <div className="comparison-grid-stack is-featured">
                 <span>0% Hidden Fees (Best Rate Guaranteed)</span>
                 <span>Instant Priority WhatsApp Concierge</span>
-                <span>Priority Early / Late Access</span>
+                <span>Priority Early / Late Requests</span>
                 <span>15% Off Your Next Stay + Upgrades</span>
               </div>
             </div>
@@ -180,7 +180,7 @@ export function HomeExperienceSections() {
                   Celebration Setup
                 </h4>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                  Custom decor, roses, champagne, and curated lighting settings to celebrate birthdays or anniversaries.
+                  Custom decor, roses, and curated lighting settings to celebrate birthdays, anniversaries, or welcome surprises.
                 </p>
               </div>
             </div>
@@ -190,7 +190,7 @@ export function HomeExperienceSections() {
 
       <section className="section container neighborhood-split">
         <div className="promise-image-wrapper" style={{ height: "500px" }}>
-          <Image src="/bedroom-plus-extras.png" alt="Lagos-Abeokuta expressway access near Blissful Place Residences" fill style={{ objectFit: "cover" }} />
+          <Image src="/bedroom-plus-extras.png" alt="Bedroom and guest amenities at Blissful Place Residences" fill style={{ objectFit: "cover" }} />
         </div>
         <div>
           <span className="subtitle-tag">LOCATION & ACCESS</span>
@@ -229,7 +229,7 @@ export function HomeExperienceSections() {
             <div className="testimonial-card">
               <CheckCircle2 className="text-primary" size={32} style={{ marginBottom: "1rem" }} />
               <h4 className="serif">Consistent Standard, Every Unit</h4>
-              <p className="testimonial-text">All three apartments share the same layout, the same solar power system, the same fiber internet, and the same level of professional care. No matter which you book, the experience is identical.</p>
+              <p className="testimonial-text">All three apartments share the same layout, solar power system, fiber internet, equipped kitchen, AI-powered washing machine access, and professional care. No matter which you book, the core experience is consistent.</p>
             </div>
             <div className="testimonial-card">
               <Zap className="text-primary" size={32} style={{ marginBottom: "1rem" }} />
@@ -247,4 +247,3 @@ export function HomeExperienceSections() {
     </>
   );
 }
-

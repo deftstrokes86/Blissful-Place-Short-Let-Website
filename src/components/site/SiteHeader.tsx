@@ -42,7 +42,7 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({
-  promoText = "BOOK DIRECT: 15% OFF YOUR STAY, PRIORITY LATE CHECK-OUT & COMPLIMENTARY WELCOME PERKS",
+  promoText = "BOOK DIRECT: 15% OFF ELIGIBLE STAYS, PRIORITY LATE CHECK-OUT & COMPLIMENTARY WELCOME PERKS",
 }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -300,4 +300,3 @@ export function SiteHeader({
     </>
   );
 }
-

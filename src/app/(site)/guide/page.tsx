@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageIntro } from "@/components/common/PageIntro";
-import { CheckCircle2, Clock, MapPin, MessageSquare, Phone, Shield, Sparkles, Wifi, Zap } from "@/lib/lucide-react";
+import { CheckCircle2, Clock, Coffee, MapPin, MessageSquare, Phone, Shield, Sparkles, Wifi, Zap } from "@/lib/lucide-react";
 import { SUPPORT_PHONE_URL, SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -28,7 +28,10 @@ export default function GuestGuide() {
             <Clock className="text-primary" size={24} /> Check-in & Check-out
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Standard check-in is from <strong style={{ color: "var(--text-primary)" }}>2:00 PM</strong> and check-out is by <strong style={{ color: "var(--text-primary)" }}>12:00 PM (noon)</strong>. If you need an early arrival or late departure, let us know in advance and we will do our best to accommodate.
+            Standard check-in is from <strong style={{ color: "var(--text-primary)" }}>1:00 PM</strong> and check-out is by <strong style={{ color: "var(--text-primary)" }}>12:00 PM (noon)</strong>. Early check-in may be available only when the apartment is ready before the standard check-in time. Late checkout may be available only when there is no immediate incoming booking.
+          </p>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
+            Where available, late checkout allows up to 2 extra hours at no charge. Longer extensions attract a ₦50,000 flat fee and cannot exceed 6 hours.
           </p>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
             Keys and orientation details are provided on arrival. We recommend messaging us on WhatsApp at least one hour before you arrive so someone is ready to receive you.
@@ -72,13 +75,26 @@ export default function GuestGuide() {
           </ul>
         </section>
 
+        {/* Kitchen & Laundry */}
+        <section className="booking-section">
+          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+            <Coffee className="text-primary" size={24} /> Kitchen & Laundry
+          </h2>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
+            Each flat includes an equipped kitchen with an induction cooker, microwave, blender, and cooking utensils so guests can prepare their own meals.
+          </p>
+          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
+            Guests also have access to an AI-powered washing machine for self-laundry. Laundry support can be arranged for a fee if you prefer assistance.
+          </p>
+        </section>
+
         {/* Security & Access */}
         <section className="booking-section">
           <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
             <Shield className="text-primary" size={24} /> Security & Access
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            The property is a secure gated compound with on-site security guards and controlled vehicle access. Entry is via physical keys provided at check-in. The compound sits on a quiet residential road with a single staffed gate.
+            The property is a secure gated compound with on-site security guards, CCTV coverage, and controlled vehicle access. Entry is via physical keys provided at check-in. The compound sits on a quiet residential road with a single staffed gate.
           </p>
           <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
             <li>Keep your keys safe — report any loss immediately so we can assist.</li>
@@ -102,7 +118,7 @@ export default function GuestGuide() {
             <li>Smoking is not permitted indoors.</li>
             <li>Pets are not allowed inside the flat.</li>
             <li>Please treat the property with care. Any damage beyond normal wear will be deducted from the security deposit.</li>
-            <li>Checkout must be by 12:00 PM unless a late checkout has been agreed in advance.</li>
+            <li>Checkout must be by 12:00 PM unless late checkout has been agreed in advance. Free late checkout is limited to 2 extra hours when available; longer extensions attract a ₦50,000 flat fee and cannot exceed 6 hours.</li>
           </ul>
         </section>
 

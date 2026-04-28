@@ -168,7 +168,7 @@ export function PropertyFlatExperience({ initialFlatId }: PropertyFlatExperience
                 </li>
               ))}
               <li>
-                <Check size={16} className="text-primary" /> Refundable {formatCurrency(selectedContent.securityDeposit)} security deposit required before check-in.
+                <Check size={16} className="text-primary" /> {formatCurrency(selectedContent.securityDeposit)} caution deposit required before check-in. Booking payments are non-refundable once confirmed.
               </li>
             </ul>
           </section>

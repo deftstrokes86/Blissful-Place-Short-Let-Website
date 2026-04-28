@@ -56,6 +56,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     overview: [
       "Windsor Residence is set up for calm day-to-day living. The interiors are warm and understated, with practical comforts that suit both short visits and extended stays.",
       "From reliable solar power to fiber internet and responsive support, every essential is handled so you can focus on rest or work without friction.",
+      "The apartment also includes an equipped kitchen with an induction cooker, microwave, blender, and cooking utensils, plus access to an AI-powered washing machine for self-laundry or paid laundry support.",
     ],
     stats: [
       { icon: "users", label: "Max 6 Guests" },
@@ -80,7 +81,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
         icon: "shield",
         title: "Gated Security",
         description:
-          "Secure gated compound with on-site guards and controlled vehicle access for your peace of mind.",
+          "Secure gated compound with on-site guards, CCTV coverage, and controlled vehicle access for your peace of mind.",
       },
     ],
     houseRules: [
@@ -95,6 +96,8 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     includedInRate: [
       "Silent 24/7 solar power",
       "Fiber optic internet",
+      "Equipped kitchen with induction cooker, microwave, blender, and utensils",
+      "AI-powered washing machine access",
       "Scheduled housekeeping",
       "Responsive WhatsApp support",
     ],
@@ -120,6 +123,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     overview: [
       "Kensington Lodge is ideal for guests who want a well-organised base with minimal distractions. The layout is practical and the environment is kept quiet.",
       "Fiber internet, solar power, and professional management mean the essentials just work — so your stay runs smoothly whether you're here for two nights or two weeks.",
+      "The apartment also includes an equipped kitchen with an induction cooker, microwave, blender, and cooking utensils, plus access to an AI-powered washing machine for self-laundry or paid laundry support.",
     ],
     stats: [
       { icon: "users", label: "Max 6 Guests" },
@@ -144,7 +148,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
         icon: "shield",
         title: "Gated Security",
         description:
-          "Secure gated compound with on-site guards and controlled vehicle access for your peace of mind.",
+          "Secure gated compound with on-site guards, CCTV coverage, and controlled vehicle access for your peace of mind.",
       },
     ],
     houseRules: [
@@ -159,6 +163,8 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     includedInRate: [
       "Silent 24/7 solar power",
       "Fiber optic internet",
+      "Equipped kitchen with induction cooker, microwave, blender, and utensils",
+      "AI-powered washing machine access",
       "Scheduled housekeeping",
       "Responsive WhatsApp support",
     ],
@@ -184,6 +190,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     overview: [
       "Mayfair Suite has the same reliable infrastructure as every Blissful Place residence, with bolder decor choices that give the space a distinctive character.",
       "It's a strong choice for guests hosting small get-togethers, marking an occasion, or simply preferring a setting with more visual energy.",
+      "The apartment also includes an equipped kitchen with an induction cooker, microwave, blender, and cooking utensils, plus access to an AI-powered washing machine for self-laundry or paid laundry support.",
     ],
     stats: [
       { icon: "users", label: "Max 6 Guests" },
@@ -208,7 +215,7 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
         icon: "shield",
         title: "Gated Security",
         description:
-          "Secure gated compound with on-site guards and controlled vehicle access for your peace of mind.",
+          "Secure gated compound with on-site guards, CCTV coverage, and controlled vehicle access for your peace of mind.",
       },
     ],
     houseRules: [
@@ -223,6 +230,8 @@ export const PROPERTY_FLAT_CONTENT: Record<FlatId, PropertyFlatContent> = {
     includedInRate: [
       "Silent 24/7 solar power",
       "Fiber optic internet",
+      "Equipped kitchen with induction cooker, microwave, blender, and utensils",
+      "AI-powered washing machine access",
       "Scheduled housekeeping",
       "Responsive WhatsApp support",
     ],
@@ -243,5 +252,4 @@ export function resolvePropertyFlatId(value: string | string[] | null | undefine
 
   return resolved ?? "mayfair";
 }
-
 

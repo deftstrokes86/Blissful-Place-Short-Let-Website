@@ -66,7 +66,7 @@ export function HomeClosingSections() {
               What is the difference between booking here and on Airbnb? <ChevronDown size={20} className="text-primary" />
             </summary>
             <p>
-              Booking directly eliminates Airbnb&apos;s service fees (saving you up to 15%), gives you priority WhatsApp support from our team, and unlocks add-on services like airport transfers and pantry pre-stocking that aren&apos;t available through third-party platforms.
+              Booking directly eliminates Airbnb&apos;s service fees, can save you up to 15%, gives you priority WhatsApp support from our team, and gives you access to optional add-ons like airport transfers and pantry pre-stocking.
             </p>
           </details>
           <details className="faq-item">
@@ -74,8 +74,7 @@ export function HomeClosingSections() {
               Do you require a security deposit? <ChevronDown size={20} className="text-primary" />
             </summary>
             <p>
-              Yes, a standard refundable caution deposit is required prior to check-in to protect against damages. It is
-              fully refunded within 24 hours of checkout following a satisfactory property inspection.
+              Yes, a caution deposit is required prior to check-in to protect against damages. Booking payments are non-refundable once confirmed. The caution deposit is handled separately after checkout inspection and may be used to cover damages, missing items, or rule violations.
             </p>
           </details>
           <details className="faq-item" style={{ borderBottom: "none" }}>
@@ -149,4 +148,3 @@ export function HomeClosingSections() {
     </>
   );
 }
-
