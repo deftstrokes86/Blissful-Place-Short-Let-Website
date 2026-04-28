@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildSeoMetadata({
   title: "Cancellation Policy",
   description: "Cancellation, no-show, date-change, and non-refundable booking terms for Blissful Place Residences.",
-  alternates: {
-    canonical: "/cancellation-policy",
-  },
-};
+  path: "/cancellation-policy",
+});
 
 export default function CancellationPolicyPage() {
   return (

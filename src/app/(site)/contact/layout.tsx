@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/contact",
-  },
-  title: "Contact Us — Short-Let Apartments in Agbado, Lagos",
-  description: "Get in touch with Blissful Place Residences via WhatsApp, phone, or email. Located in Agbado, Lagos — short drive from Ikeja, Abule Egba, Meiran & Egbeda.",
-};
+import { buildSeoMetadata } from "@/lib/seo";
+
+export const metadata = buildSeoMetadata({
+  title: "Contact Blissful Place Residences",
+  description:
+    "Contact Blissful Place Residences for bookings, enquiries, apartment availability, tours, and guest support in Agbado, Lagos.",
+  path: "/contact",
+});
 
 export default function ContactLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
+

@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildSeoMetadata({
   title: "House Rules",
   description: "Guest conduct, check-in, checkout, visitor, security, kitchen, laundry, and property care rules for Blissful Place Residences.",
-  alternates: {
-    canonical: "/house-rules",
-  },
-};
+  path: "/house-rules",
+});
 
 export default function HouseRulesPage() {
   return (

@@ -1,16 +1,14 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
 import { CheckCircle2, Clock, Coffee, MapPin, MessageSquare, Phone, Shield, Sparkles, Wifi, Zap } from "@/lib/lucide-react";
+import { buildSeoMetadata } from "@/lib/seo";
 import { SUPPORT_PHONE_URL, SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/guide",
-  },
-  title: "Guest Guide — What to Know Before Your Stay",
-  description: "Everything you need for a smooth stay at Blissful Place Residences. Check-in details, house rules, local tips, and how to reach us in Agbado, Lagos.",
-};
+export const metadata = buildSeoMetadata({
+  title: "Guest Guide",
+  description:
+    "Review check-in, checkout, house rules, amenities, security, kitchen, laundry, and guest support information for Blissful Place Residences.",
+  path: "/guide",
+});
 
 export default function GuestGuide() {
   return (

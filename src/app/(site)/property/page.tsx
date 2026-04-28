@@ -1,15 +1,13 @@
-import type { Metadata } from "next";
-
 import { PropertyFlatExperience } from "@/components/property/PropertyFlatExperience";
 import { resolvePropertyFlatId } from "@/lib/property-flat-content";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/property",
-  },
-  title: "Our Residences — 3-Bedroom Short-Let Apartments Near Ikeja & Abule Egba",
-  description: "Three professionally managed 3-bedroom, 3-bathroom apartments in a secure gated compound in Agbado, Lagos. Silent solar power, fiber internet, and easy access to Ikeja, Abule Egba, Meiran & Egbeda.",
-};
+export const metadata = buildSeoMetadata({
+  title: "Short-Let Apartments in Agbado, Lagos",
+  description:
+    "Explore the furnished flats at Blissful Place Residences, each with comfortable bedrooms, equipped kitchen, fiber internet, solar-backed power, and gated access.",
+  path: "/property",
+});
 
 interface PropertyPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -21,3 +19,4 @@ export default async function PropertyPage({ searchParams }: PropertyPageProps) 
 
   return <PropertyFlatExperience key={selectedFlatId} initialFlatId={selectedFlatId} />;
 }
+

@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildSeoMetadata({
   title: "Terms of Service",
   description: "Terms governing bookings, stays, payments, guest responsibilities, and use of Blissful Place Residences.",
-  alternates: {
-    canonical: "/terms-of-service",
-  },
-};
+  path: "/terms-of-service",
+});
 
 export default function TermsOfServicePage() {
   return (

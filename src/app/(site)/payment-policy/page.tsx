@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildSeoMetadata({
   title: "Payment Policy",
   description: "Accepted payment methods, booking confirmation, transfer verification, POS payments, caution deposits, and non-refundable payment terms.",
-  alternates: {
-    canonical: "/payment-policy",
-  },
-};
+  path: "/payment-policy",
+});
 
 export default function PaymentPolicyPage() {
   return (

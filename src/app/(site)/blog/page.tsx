@@ -1,20 +1,19 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { BlogListingClient } from "@/components/blog/BlogListingClient";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { sanitizeBlogPagePosts } from "@/lib/blog-page";
+import { buildSeoMetadata } from "@/lib/seo";
 import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
 import type { PublicBlogPostSummary } from "@/server/cms/blog-public-mappers";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/blog",
-  },
-  title: "Blog — Guides and Practical Notes",
-  description: "Practical articles about staying in Agbado, Lagos — booking tips, local guides, and what to expect at Blissful Place Residences.",
-};
+export const metadata = buildSeoMetadata({
+  title: "Short-Let Apartment Blog",
+  description:
+    "Read practical guides on short-let apartments, Lagos mainland stays, travel planning, guest comfort, and booking tips from Blissful Place Residences.",
+  path: "/blog",
+});
 export const dynamic = "force-dynamic";
 
 async function loadBlogPagePosts(): Promise<PublicBlogPostSummary[]> {
@@ -60,3 +59,4 @@ export default async function BlogPage() {
     </main>
   );
 }
+

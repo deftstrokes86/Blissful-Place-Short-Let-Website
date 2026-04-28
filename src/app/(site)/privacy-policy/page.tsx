@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
-
 import { PageIntro } from "@/components/common/PageIntro";
+import { buildSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildSeoMetadata({
   title: "Privacy Policy",
   description: "How Blissful Place Residences collects, uses, protects, and retains guest and website visitor information.",
-  alternates: {
-    canonical: "/privacy-policy",
-  },
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (
