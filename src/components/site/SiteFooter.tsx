@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { locationLandingPages } from "@/lib/location-landing-pages";
 import { getPropertyFlatRoute } from "@/lib/property-flat-content";
 import { Instagram, Linkedin, MapPin, MessageSquare, Twitter } from "@/lib/lucide-react";
 import {
@@ -90,6 +91,31 @@ export function SiteFooter() {
                 <li>
                   <Link href="/tour" style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
                     Private Tour
+                  </Link>
+                </li>
+              </ul>
+              <h4 className="serif footer-column-title" style={{ marginTop: "1.5rem" }}>
+                Popular Stay Locations
+              </h4>
+              <ul className="footer-links-list">
+                <li>
+                  <Link href={locationLandingPages.ikeja.path} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Short-let near Ikeja
+                  </Link>
+                </li>
+                <li>
+                  <Link href={locationLandingPages.abuleEgba.path} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Short-let near Abule Egba
+                  </Link>
+                </li>
+                <li>
+                  <Link href={locationLandingPages.agbado.path} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Short-let in Agbado
+                  </Link>
+                </li>
+                <li>
+                  <Link href={locationLandingPages.lagosAirport.path} style={{ color: "var(--text-secondary)", transition: "color 0.2s" }} className="hover-primary">
+                    Short-let near Lagos Airport
                   </Link>
                 </li>
               </ul>

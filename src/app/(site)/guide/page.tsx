@@ -126,15 +126,15 @@ export default function GuestGuide() {
             <MapPin className="text-primary" size={24} /> Getting Here
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            We are located in Agbado, Lagos — a quiet residential area with good road access. The compound is approximately 15–25 minutes from Ikeja, Abule Egba, Meiran, and Egbeda depending on traffic.
+            We are located in Agbado, Lagos, a quiet residential area with practical road access toward Ikeja, Abule Egba, Meiran, and Egbeda. Journey time depends on Lagos traffic, route choice, and your specific destination.
           </p>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
             When you confirm your booking, we will send you the full address and a pin to the compound gate via WhatsApp. We do not publish the street address publicly.
           </p>
           <div className="guest-guide-callout">
-            <strong style={{ display: "block", marginBottom: "0.25rem" }}>Airport Pickup Available</strong>
+            <strong style={{ display: "block", marginBottom: "0.25rem" }}>Arrival Guidance</strong>
             <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              We offer an airport pickup add-on from Murtala Muhammed International Airport (Lagos). Book it when you reserve the flat or arrange it via WhatsApp before your arrival.
+              If you are arriving by air or coming from another part of Lagos, contact reservations before arrival so we can share practical guidance for reaching the compound.
             </span>
           </div>
         </section>
@@ -145,15 +145,17 @@ export default function GuestGuide() {
             <Sparkles className="text-primary" size={24} /> Optional Add-ons
           </h2>
           <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            A few extras are available to make your stay more comfortable. These can be added when booking or arranged in advance via WhatsApp.
+            A few extras may be available to make your stay more comfortable. Add-ons must be requested in advance
+            and confirmed by the reservations team.
           </p>
           <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-            <li><strong style={{ color: "var(--text-primary)" }}>Airport Pickup</strong> — from Murtala Muhammed International Airport to the compound.</li>
-            <li><strong style={{ color: "var(--text-primary)" }}>Pantry Stocking</strong> — we will stock the kitchen with your preferred groceries before you arrive.</li>
-            <li><strong style={{ color: "var(--text-primary)" }}>Celebration Setup</strong> — decorations and setup for birthdays, anniversaries, or welcome surprises.</li>
+            <li><strong style={{ color: "var(--text-primary)" }}>Airport Pickup</strong> - optional transport coordination where available and confirmed before arrival.</li>
+            <li><strong style={{ color: "var(--text-primary)" }}>Pantry Stocking</strong> - groceries can be arranged before arrival when available and confirmed.</li>
+            <li><strong style={{ color: "var(--text-primary)" }}>Celebration Setup</strong> - decorations and setup for birthdays, anniversaries, or welcome surprises, subject to confirmation.</li>
+            <li><strong style={{ color: "var(--text-primary)" }}>Laundry Support</strong> - optional paid laundry support may be available during your stay.</li>
           </ul>
           <p style={{ color: "var(--text-secondary)", marginTop: "1rem", lineHeight: 1.6 }}>
-            Pricing for add-ons is shown during the booking process. Contact us on WhatsApp if you want to arrange anything not listed.
+            Pricing and availability for add-ons are confirmed during booking or via WhatsApp before arrival.
           </p>
         </section>
 

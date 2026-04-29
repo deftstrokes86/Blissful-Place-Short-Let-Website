@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: "Blissful Place Residences | Premium Short-Let Apartments in Agbado, Lagos",
     template: "%s | Blissful Place Residences",
   },
-  description: "Three professionally managed short-let apartments in Agbado, Lagos — minutes from Ikeja, Abule Egba, Meiran & Egbeda. Silent solar power, fiber internet, gated security. Book direct and save.",
+  description: "Three professionally managed short-let apartments in Agbado, Lagos, with mainland access toward Ikeja, Abule Egba, Meiran and Egbeda. Silent solar power, fiber internet, gated security. Book direct and save.",
 };
 
 export default function SiteLayout({ children }: { children: ReactNode }) {

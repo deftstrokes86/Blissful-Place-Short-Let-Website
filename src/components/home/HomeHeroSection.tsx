@@ -94,7 +94,7 @@ export function HomeHeroSection() {
           <span className="serif text-primary">Silent Power. Real Comfort.</span>
         </h1>
         <p className="hero-desc" style={{ fontSize: "1.25rem", color: "#fff" }}>
-          Three professionally managed apartments in a secure gated compound in Agbado, Lagos — minutes from Ikeja, Abule Egba, Meiran, and Egbeda. Full solar power, fiber internet, and direct booking with no middleman fees.
+          Three professionally managed apartments in a secure gated compound in Agbado, Lagos, with practical mainland access toward Ikeja, Abule Egba, Meiran, and Egbeda. Full solar power, fiber internet, and direct booking with no middleman fees.
         </p>
 
         <div className="booking-bar">

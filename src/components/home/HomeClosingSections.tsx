@@ -146,7 +146,7 @@ export function HomeClosingSections() {
           <span className="subtitle-tag">FIND US</span>
           <h2 className="heading-lg serif">Our Location</h2>
           <p className="text-secondary" style={{ maxWidth: "600px", margin: "1rem auto 0" }}>
-            16 Tebun Fagbemi Street, Agbado, Lagos — on the Lagos-Abeokuta expressway, minutes from Ikeja, Abule Egba, Meiran, and Egbeda.
+            16 Tebun Fagbemi Street, Agbado, Lagos, with practical road access toward Ikeja, Abule Egba, Meiran, and Egbeda.
           </p>
         </div>
         <div className="content-wrapper">

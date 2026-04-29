@@ -12,7 +12,7 @@ export const SITE_LOCATION_LABEL = `${SITE_DISTRICT_NAME}, ${SITE_CITY_NAME}`;
 export const SITE_ADDRESS_LINE_1 = "16 Tebun Fagbemi Street";
 export const SITE_ADDRESS_LINE_2 = `${SITE_DISTRICT_NAME}, Lagos`;
 export const SITE_NEARBY_AREAS = "Ikeja, Abule Egba, Meiran, Egbeda";
-export const SITE_LOCATION_TAGLINE = "Agbado, Lagos — minutes from Ikeja, Abule Egba, Meiran & Egbeda";
+export const SITE_LOCATION_TAGLINE = "Agbado, Lagos - with mainland access toward Ikeja, Abule Egba, Meiran & Egbeda";
 
 export const PLACEHOLDER_PHONE_INPUT = "+234...";
 

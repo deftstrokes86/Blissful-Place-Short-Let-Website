@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getCmsPayload } from "@/cms/payload";
+import { LOCATION_LANDING_PAGES } from "@/lib/location-landing-pages";
 import { getPropertyFlatRoute, PROPERTY_FLAT_IDS } from "@/lib/property-flat-content";
 import { listPublishedBlogPosts } from "@/server/cms/blog-content-service";
 
@@ -87,6 +88,13 @@ const propertyFlatRoutes: MetadataRoute.Sitemap = PROPERTY_FLAT_IDS.map((flatId)
   lastModified: new Date(),
   changeFrequency: "weekly",
   priority: 0.85,
+}));
+
+const locationLandingRoutes: MetadataRoute.Sitemap = LOCATION_LANDING_PAGES.map((page) => ({
+  url: `${siteUrl}${page.path}`,
+  lastModified: new Date(),
+  changeFrequency: "monthly",
+  priority: 0.75,
 }));
 
 const excludedRootPaths = new Set([
@@ -232,5 +240,5 @@ async function buildCmsPageRoutes(): Promise<MetadataRoute.Sitemap> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [blogRoutes, cmsPageRoutes] = await Promise.all([buildBlogRoutes(), buildCmsPageRoutes()]);
-  return [...staticRoutes, ...propertyFlatRoutes, ...blogRoutes, ...cmsPageRoutes];
+  return [...staticRoutes, ...propertyFlatRoutes, ...locationLandingRoutes, ...blogRoutes, ...cmsPageRoutes];
 }
