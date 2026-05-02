@@ -8,7 +8,7 @@ import {
 } from "@/lib/property-flat-content";
 import { buildSeoMetadata } from "@/lib/seo";
 import type { FlatId } from "@/types/booking";
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 const siteUrl = "https://www.blissfulplaceresidences.com";
 const propertyPageUrl = `${siteUrl}/property`;
@@ -115,7 +115,7 @@ export default async function PropertyPage({ searchParams }: PropertyPageProps) 
   const legacyFlatRoute = resolveLegacyPropertyFlatRoute(resolvedSearchParams.flat);
 
   if (legacyFlatRoute) {
-    redirect(legacyFlatRoute);
+    permanentRedirect(legacyFlatRoute);
   }
 
   return (

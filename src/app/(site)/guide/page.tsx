@@ -1,5 +1,21 @@
+import {
+  HelpfulLinks,
+  type HelpfulLink,
+} from "@/components/common/HelpfulLinks";
 import { PageIntro } from "@/components/common/PageIntro";
-import { CheckCircle2, Clock, Coffee, MapPin, MessageSquare, Phone, Shield, Sparkles, Wifi, Zap } from "@/lib/lucide-react";
+import { PublicInfoPageShell } from "@/components/common/PublicInfoPageShell";
+import {
+  CheckCircle2,
+  Clock,
+  Coffee,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Shield,
+  Sparkles,
+  Wifi,
+  Zap,
+} from "@/lib/lucide-react";
 import { buildSeoMetadata } from "@/lib/seo";
 import { SUPPORT_PHONE_URL, SUPPORT_WHATSAPP_URL } from "@/lib/site-config";
 
@@ -10,187 +26,511 @@ export const metadata = buildSeoMetadata({
   path: "/guide",
 });
 
+const helpfulLinks: HelpfulLink[] = [
+  { href: "/property", label: "View apartments" },
+  { href: "/property/windsor-residence", label: "Windsor Residence" },
+  { href: "/property/kensington-lodge", label: "Kensington Lodge" },
+  { href: "/property/mayfair-suite", label: "Mayfair Suite" },
+  { href: "/book", label: "Check availability" },
+  { href: "/contact", label: "Contact reservations" },
+];
+
 export default function GuestGuide() {
   return (
-    <main className="container guest-guide-page">
-      <PageIntro
-        title="Guest Guide"
-        description="Everything you need for a smooth, comfortable stay at Blissful Place Residences."
-      />
+    <PublicInfoPageShell>
+      <article className="container guest-guide-page">
+        <PageIntro
+          title="Guest Guide"
+          description="Everything you need for a smooth, comfortable stay at Blissful Place Residences."
+        />
 
-      <div className="guest-guide-stack">
-
-        {/* Check-in & Check-out */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Clock className="text-primary" size={24} /> Check-in & Check-out
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Standard check-in is from <strong style={{ color: "var(--text-primary)" }}>1:00 PM WAT</strong> and check-out is by <strong style={{ color: "var(--text-primary)" }}>12:00 PM noon WAT</strong>. Early check-in may be available only when the apartment is ready before the standard check-in time. Late checkout may be available only when there is no immediate incoming booking.
-          </p>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Where available, late checkout allows up to 2 extra hours at no charge. Longer extensions attract a ₦50,000 flat fee and cannot exceed 6 hours.
-          </p>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Keys and orientation details are provided on arrival. We recommend messaging us on WhatsApp at least one hour before you arrive so someone is ready to receive you.
-          </p>
-          <div className="guest-guide-callout">
-            <strong style={{ display: "block", marginBottom: "0.25rem" }}>Before You Arrive</strong>
-            <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              Send us your expected arrival time, flight number if applicable, and number of guests. This helps us prepare the flat and coordinate your entry smoothly.
-            </span>
-          </div>
-        </section>
-
-        {/* Silent Solar Power */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Zap className="text-primary" size={24} /> Silent 24/7 Solar Power
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Every flat runs on a full solar and battery system. There are no generators, no diesel smell, and no interruption when city supply goes off. Power runs silently around the clock — the AC, lights, and appliances stay on throughout your stay.
-          </p>
-          <div className="guest-guide-callout">
-            <strong style={{ display: "block", marginBottom: "0.25rem" }}>No Action Required</strong>
-            <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              The system operates automatically. You do not need to manage switches or inverters. If you notice any issue with power, message us immediately and we will respond.
-            </span>
-          </div>
-        </section>
-
-        {/* Fiber Internet */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Wifi className="text-primary" size={24} /> Fiber Optic Internet
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Each flat has a dedicated fiber connection. This supports reliable remote work, video calls, and streaming. WiFi credentials are provided in the flat — check the router label or the welcome card on the table.
-          </p>
-          <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-            <li>Network name and password are printed in the flat.</li>
-            <li>If you experience connectivity issues, restart the router or contact us on WhatsApp.</li>
-            <li>The connection is shared within the flat only — each unit has its own dedicated line.</li>
-          </ul>
-        </section>
-
-        {/* Kitchen & Laundry */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Coffee className="text-primary" size={24} /> Kitchen & Laundry
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Each flat includes an equipped kitchen with an induction cooker, microwave, blender, and cooking utensils so guests can prepare their own meals.
-          </p>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            Guests also have access to an AI-powered washing machine for self-laundry. Laundry support can be arranged for a fee if you prefer assistance.
-          </p>
-        </section>
-
-        {/* Security & Access */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Shield className="text-primary" size={24} /> Security & Access
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            The property is a secure gated compound with on-site security guards, CCTV coverage, and controlled vehicle access. Entry is via physical keys provided at check-in. The compound sits on a quiet residential road with a single staffed gate.
-          </p>
-          <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-            <li>Keep your keys safe — report any loss immediately so we can assist.</li>
-            <li>Visitors must be authorised by you at the gate. Unverified guests are not permitted entry.</li>
-            <li>Vehicles can park inside the compound in the designated area.</li>
-            <li>Do not share your flat number or compound access with anyone you do not trust.</li>
-          </ul>
-        </section>
-
-        {/* House Rules */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <CheckCircle2 className="text-primary" size={24} /> House Rules
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            These rules apply to all Blissful Place residences. They exist to protect the property, your stay, and the experience of other guests in the compound.
-          </p>
-          <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-            <li>Guest count must stay within the approved maximum of 6 per flat.</li>
-            <li>No parties, loud gatherings, or events without prior written approval.</li>
-            <li>Smoking is not permitted indoors.</li>
-            <li>Pets are not allowed inside the flat.</li>
-            <li>Please treat the property with care. Any damage beyond normal wear will be deducted from the security deposit.</li>
-            <li>Checkout must be by 12:00 PM unless late checkout has been agreed in advance. Free late checkout is limited to 2 extra hours when available; longer extensions attract a ₦50,000 flat fee and cannot exceed 6 hours.</li>
-          </ul>
-        </section>
-
-        {/* Getting Here */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <MapPin className="text-primary" size={24} /> Getting Here
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            We are located in Agbado, Lagos, a quiet residential area with practical road access toward Ikeja, Abule Egba, Meiran, and Egbeda. Journey time depends on Lagos traffic, route choice, and your specific destination.
-          </p>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            When you confirm your booking, we will send you the full address and a pin to the compound gate via WhatsApp. We do not publish the street address publicly.
-          </p>
-          <div className="guest-guide-callout">
-            <strong style={{ display: "block", marginBottom: "0.25rem" }}>Arrival Guidance</strong>
-            <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              If you are arriving by air or coming from another part of Lagos, contact reservations before arrival so we can share practical guidance for reaching the compound.
-            </span>
-          </div>
-        </section>
-
-        {/* Add-ons */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <Sparkles className="text-primary" size={24} /> Optional Add-ons
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            A few extras may be available to make your stay more comfortable. Add-ons must be requested in advance
-            and confirmed by the reservations team.
-          </p>
-          <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", color: "var(--text-secondary)", lineHeight: 1.8 }}>
-            <li><strong style={{ color: "var(--text-primary)" }}>Airport Pickup</strong> - optional transport coordination where available and confirmed before arrival.</li>
-            <li><strong style={{ color: "var(--text-primary)" }}>Pantry Stocking</strong> - groceries can be arranged before arrival when available and confirmed.</li>
-            <li><strong style={{ color: "var(--text-primary)" }}>Celebration Setup</strong> - decorations and setup for birthdays, anniversaries, or welcome surprises, subject to confirmation.</li>
-            <li><strong style={{ color: "var(--text-primary)" }}>Laundry Support</strong> - optional paid laundry support may be available during your stay.</li>
-          </ul>
-          <p style={{ color: "var(--text-secondary)", marginTop: "1rem", lineHeight: 1.6 }}>
-            Pricing and availability for add-ons are confirmed during booking or via WhatsApp before arrival.
-          </p>
-        </section>
-
-        {/* Support */}
-        <section className="booking-section">
-          <h2 className="heading-sm serif" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <MessageSquare className="text-primary" size={24} /> Support During Your Stay
-          </h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.6 }}>
-            We are available via WhatsApp throughout your stay for questions, maintenance reports, or any request. For urgent matters, you can also call directly.
-          </p>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem", lineHeight: 1.6 }}>
-            We aim to respond to WhatsApp messages within minutes. For non-urgent requests, sending a message is preferable so we can track and action it properly.
-          </p>
-          <div className="guest-guide-actions">
-            <a
-              href={SUPPORT_WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem" }}
+        <div className="guest-guide-stack">
+          {/* Check-in & Check-out */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
             >
-              <MessageSquare size={16} /> WhatsApp
-            </a>
-            <a
-              href={SUPPORT_PHONE_URL}
-              className="btn btn-outline-white"
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem" }}
+              <Clock className="text-primary" size={24} /> Check-in & Check-out
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
             >
-              <Phone size={16} /> Call Us
-            </a>
-          </div>
-        </section>
+              Standard check-in is from{" "}
+              <strong style={{ color: "var(--text-primary)" }}>
+                1:00 PM WAT
+              </strong>{" "}
+              and check-out is by{" "}
+              <strong style={{ color: "var(--text-primary)" }}>
+                12:00 PM noon WAT
+              </strong>
+              . Early check-in may be available only when the apartment is ready
+              before the standard check-in time. Late checkout may be available
+              only when there is no immediate incoming booking.
+            </p>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Where available, late checkout allows up to 2 extra hours at no
+              charge. Longer extensions attract a ₦50,000 flat fee and cannot
+              exceed 6 hours.
+            </p>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Keys and orientation details are provided on arrival. We recommend
+              messaging us on WhatsApp at least one hour before you arrive so
+              someone is ready to receive you.
+            </p>
+            <div className="guest-guide-callout">
+              <strong style={{ display: "block", marginBottom: "0.25rem" }}>
+                Before You Arrive
+              </strong>
+              <span
+                style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}
+              >
+                Send us your expected arrival time, flight number if applicable,
+                and number of guests. This helps us prepare the flat and
+                coordinate your entry smoothly.
+              </span>
+            </div>
+          </section>
 
-      </div>
-    </main>
+          {/* Silent Solar Power */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Zap className="text-primary" size={24} /> Silent 24/7 Solar Power
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Every flat runs on a full solar and battery system. There are no
+              generators, no diesel smell, and no interruption when city supply
+              goes off. Power runs silently around the clock — the AC, lights,
+              and appliances stay on throughout your stay.
+            </p>
+            <div className="guest-guide-callout">
+              <strong style={{ display: "block", marginBottom: "0.25rem" }}>
+                No Action Required
+              </strong>
+              <span
+                style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}
+              >
+                The system operates automatically. You do not need to manage
+                switches or inverters. If you notice any issue with power,
+                message us immediately and we will respond.
+              </span>
+            </div>
+          </section>
+
+          {/* Fiber Internet */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Wifi className="text-primary" size={24} /> Fiber Optic Internet
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Each flat has a dedicated fiber connection. This supports reliable
+              remote work, video calls, and streaming. WiFi credentials are
+              provided in the flat — check the router label or the welcome card
+              on the table.
+            </p>
+            <ul
+              style={{
+                listStyleType: "disc",
+                paddingLeft: "1.5rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.8,
+              }}
+            >
+              <li>Network name and password are printed in the flat.</li>
+              <li>
+                If you experience connectivity issues, restart the router or
+                contact us on WhatsApp.
+              </li>
+              <li>
+                The connection is shared within the flat only — each unit has
+                its own dedicated line.
+              </li>
+            </ul>
+          </section>
+
+          {/* Kitchen & Laundry */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Coffee className="text-primary" size={24} /> Kitchen & Laundry
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Each flat includes an equipped kitchen with an induction cooker,
+              microwave, blender, and cooking utensils so guests can prepare
+              their own meals.
+            </p>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Guests also have access to an AI-powered washing machine for
+              self-laundry. Laundry support can be arranged for a fee if you
+              prefer assistance.
+            </p>
+          </section>
+
+          {/* Security & Access */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Shield className="text-primary" size={24} /> Security & Access
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              The property is a secure gated compound with on-site security
+              guards, CCTV coverage, and controlled vehicle access. Entry is via
+              physical keys provided at check-in. The compound sits on a quiet
+              residential road with a single staffed gate.
+            </p>
+            <ul
+              style={{
+                listStyleType: "disc",
+                paddingLeft: "1.5rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.8,
+              }}
+            >
+              <li>
+                Keep your keys safe — report any loss immediately so we can
+                assist.
+              </li>
+              <li>
+                Visitors must be authorised by you at the gate. Unverified
+                guests are not permitted entry.
+              </li>
+              <li>
+                Vehicles can park inside the compound in the designated area.
+              </li>
+              <li>
+                Do not share your flat number or compound access with anyone you
+                do not trust.
+              </li>
+            </ul>
+          </section>
+
+          {/* House Rules */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <CheckCircle2 className="text-primary" size={24} /> House Rules
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              These rules apply to all Blissful Place residences. They exist to
+              protect the property, your stay, and the experience of other
+              guests in the compound.
+            </p>
+            <ul
+              style={{
+                listStyleType: "disc",
+                paddingLeft: "1.5rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.8,
+              }}
+            >
+              <li>
+                Guest count must stay within the approved maximum of 6 per flat.
+              </li>
+              <li>
+                No parties, loud gatherings, or events without prior written
+                approval.
+              </li>
+              <li>Smoking is not permitted indoors.</li>
+              <li>Pets are not allowed inside the flat.</li>
+              <li>
+                Please treat the property with care. Any damage beyond normal
+                wear will be deducted from the security deposit.
+              </li>
+              <li>
+                Checkout must be by 12:00 PM unless late checkout has been
+                agreed in advance. Free late checkout is limited to 2 extra
+                hours when available; longer extensions attract a ₦50,000 flat
+                fee and cannot exceed 6 hours.
+              </li>
+            </ul>
+          </section>
+
+          {/* Getting Here */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <MapPin className="text-primary" size={24} /> Getting Here
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              We are located in Agbado, Lagos, a quiet residential area with
+              practical road access toward Ikeja, Abule Egba, Meiran, and
+              Egbeda. Journey time depends on Lagos traffic, route choice, and
+              your specific destination.
+            </p>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              When you confirm your booking, we will send you the full address
+              and a pin to the compound gate via WhatsApp. We do not publish the
+              street address publicly.
+            </p>
+            <div className="guest-guide-callout">
+              <strong style={{ display: "block", marginBottom: "0.25rem" }}>
+                Arrival Guidance
+              </strong>
+              <span
+                style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}
+              >
+                If you are arriving by air or coming from another part of Lagos,
+                contact reservations before arrival so we can share practical
+                guidance for reaching the compound.
+              </span>
+            </div>
+          </section>
+
+          {/* Add-ons */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Sparkles className="text-primary" size={24} /> Optional Add-ons
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              A few extras may be available to make your stay more comfortable.
+              Add-ons must be requested in advance and confirmed by the
+              reservations team.
+            </p>
+            <ul
+              style={{
+                listStyleType: "disc",
+                paddingLeft: "1.5rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.8,
+              }}
+            >
+              <li>
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Airport Pickup
+                </strong>{" "}
+                - optional transport coordination where available and confirmed
+                before arrival.
+              </li>
+              <li>
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Pantry Stocking
+                </strong>{" "}
+                - groceries can be arranged before arrival when available and
+                confirmed.
+              </li>
+              <li>
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Celebration Setup
+                </strong>{" "}
+                - decorations and setup for birthdays, anniversaries, or welcome
+                surprises, subject to confirmation.
+              </li>
+              <li>
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Laundry Support
+                </strong>{" "}
+                - optional paid laundry support may be available during your
+                stay.
+              </li>
+            </ul>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginTop: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Pricing and availability for add-ons are confirmed during booking
+              or via WhatsApp before arrival.
+            </p>
+          </section>
+
+          {/* Support */}
+          <section className="booking-section">
+            <h2
+              className="heading-sm serif"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <MessageSquare className="text-primary" size={24} /> Support
+              During Your Stay
+            </h2>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              We are available via WhatsApp throughout your stay for questions,
+              maintenance reports, or any request. For urgent matters, you can
+              also call directly.
+            </p>
+            <p
+              style={{
+                color: "var(--text-secondary)",
+                marginBottom: "1.5rem",
+                lineHeight: 1.6,
+              }}
+            >
+              We aim to respond to WhatsApp messages within minutes. For
+              non-urgent requests, sending a message is preferable so we can
+              track and action it properly.
+            </p>
+            <div className="guest-guide-actions">
+              <a
+                href={SUPPORT_WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <MessageSquare size={16} /> WhatsApp
+              </a>
+              <a
+                href={SUPPORT_PHONE_URL}
+                className="btn btn-outline-white"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <Phone size={16} /> Call Us
+              </a>
+            </div>
+          </section>
+
+          <HelpfulLinks links={helpfulLinks} />
+        </div>
+      </article>
+    </PublicInfoPageShell>
   );
 }
