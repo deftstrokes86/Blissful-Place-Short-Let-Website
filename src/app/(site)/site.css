@@ -120,7 +120,7 @@ button {
 
 /* Common Section Styles */
 .section {
-  padding: 6rem 0;
+  padding-block: 6rem;
 }
 
 .text-center {
@@ -636,7 +636,7 @@ button {
 
 /* Gallery Section */
 .gallery-section {
-  padding: 6rem 0;
+  padding-block: 6rem;
 }
 
 .gallery-grid {
@@ -5910,8 +5910,17 @@ textarea {
   padding-right: max(var(--page-gutter), env(safe-area-inset-right));
 }
 
+.content-wrapper {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: max(var(--page-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--page-gutter), env(safe-area-inset-right));
+}
+
 .section {
-  padding: clamp(4.5rem, 8vw, 6rem) 0;
+  padding-block: clamp(4.5rem, 8vw, 6rem);
 }
 
 .btn {
